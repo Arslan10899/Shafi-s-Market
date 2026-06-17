@@ -1,0 +1,595 @@
+2026-04-06 04:46:47,169: OSError: write error
+2026-04-06 13:32:22,778: OSError: write error
+2026-06-17 09:11:59,108: Error running WSGI application
+2026-06-17 09:11:59,145: sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) unable to open database file
+2026-06-17 09:11:59,145: (Background on this error at: https://sqlalche.me/e/20/e3q8)
+2026-06-17 09:11:59,145:   File "/var/www/arslan1089_pythonanywhere_com_wsgi.py", line 6, in <module>
+2026-06-17 09:11:59,146:     from app import app as application
+2026-06-17 09:11:59,146: 
+2026-06-17 09:11:59,146:   File "/home/Arslan1089/Shafi-shop/app.py", line 225, in <module>
+2026-06-17 09:11:59,146:     db.create_all()
+2026-06-17 09:11:59,147: 
+2026-06-17 09:11:59,147:   File "/usr/local/lib/python3.10/dist-packages/flask_sqlalchemy/extension.py", line 900, in create_all
+2026-06-17 09:11:59,147:     self._call_for_binds(bind_key, "create_all")
+2026-06-17 09:11:59,147: 
+2026-06-17 09:11:59,148:   File "/usr/local/lib/python3.10/dist-packages/flask_sqlalchemy/extension.py", line 881, in _call_for_binds
+2026-06-17 09:11:59,148:     getattr(metadata, op_name)(bind=engine)
+2026-06-17 09:11:59,148: 
+2026-06-17 09:11:59,148:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/sql/schema.py", line 5900, in create_all
+2026-06-17 09:11:59,148:     bind._run_ddl_visitor(
+2026-06-17 09:11:59,149: 
+2026-06-17 09:11:59,149:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/engine/base.py", line 3248, in _run_ddl_visitor
+2026-06-17 09:11:59,149:     with self.begin() as conn:
+2026-06-17 09:11:59,149: 
+2026-06-17 09:11:59,149:   File "/usr/lib/python3.10/contextlib.py", line 135, in __enter__
+2026-06-17 09:11:59,150:     return next(self.gen)
+2026-06-17 09:11:59,150: 
+2026-06-17 09:11:59,150:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/engine/base.py", line 3238, in begin
+2026-06-17 09:11:59,150:     with self.connect() as conn:
+2026-06-17 09:11:59,150: 
+2026-06-17 09:11:59,151:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/engine/base.py", line 3274, in connect
+2026-06-17 09:11:59,151:     return self._connection_cls(self)
+2026-06-17 09:11:59,151: 
+2026-06-17 09:11:59,151:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/engine/base.py", line 148, in __init__
+2026-06-17 09:11:59,151:     Connection._handle_dbapi_exception_noconnection(
+2026-06-17 09:11:59,152: 
+2026-06-17 09:11:59,152:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/engine/base.py", line 2439, in _handle_dbapi_exception_noconnection
+2026-06-17 09:11:59,152:     raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+2026-06-17 09:11:59,152: 
+2026-06-17 09:11:59,153:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/engine/base.py", line 146, in __init__
+2026-06-17 09:11:59,153:     self._dbapi_connection = engine.raw_connection()
+2026-06-17 09:11:59,153: 
+2026-06-17 09:11:59,153:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/engine/base.py", line 3298, in raw_connection
+2026-06-17 09:11:59,153:     return self.pool.connect()
+2026-06-17 09:11:59,154: 
+2026-06-17 09:11:59,154:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/pool/base.py", line 449, in connect
+2026-06-17 09:11:59,154:     return _ConnectionFairy._checkout(self)
+2026-06-17 09:11:59,154: 
+2026-06-17 09:11:59,154:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/pool/base.py", line 1263, in _checkout
+2026-06-17 09:11:59,155:     fairy = _ConnectionRecord.checkout(pool)
+2026-06-17 09:11:59,155: 
+2026-06-17 09:11:59,155:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/pool/base.py", line 712, in checkout
+2026-06-17 09:11:59,155:     rec = pool._do_get()
+2026-06-17 09:11:59,156: 
+2026-06-17 09:11:59,156:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/pool/impl.py", line 179, in _do_get
+2026-06-17 09:11:59,156:     with util.safe_reraise():
+2026-06-17 09:11:59,156: 
+2026-06-17 09:11:59,156:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/util/langhelpers.py", line 146, in __exit__
+2026-06-17 09:11:59,157:     raise exc_value.with_traceback(exc_tb)
+2026-06-17 09:11:59,157: 
+2026-06-17 09:11:59,157:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/pool/impl.py", line 177, in _do_get
+2026-06-17 09:11:59,157:     return self._create_connection()
+2026-06-17 09:11:59,158: 
+2026-06-17 09:11:59,158:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/pool/base.py", line 390, in _create_connection
+2026-06-17 09:11:59,158:     return _ConnectionRecord(self)
+2026-06-17 09:11:59,158: 
+2026-06-17 09:11:59,158:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/pool/base.py", line 674, in __init__
+2026-06-17 09:11:59,159:     self.__connect()
+2026-06-17 09:11:59,159: 
+2026-06-17 09:11:59,159:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/pool/base.py", line 900, in __connect
+2026-06-17 09:11:59,159:     with util.safe_reraise():
+2026-06-17 09:11:59,159: 
+2026-06-17 09:11:59,160:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/util/langhelpers.py", line 146, in __exit__
+2026-06-17 09:11:59,160:     raise exc_value.with_traceback(exc_tb)
+2026-06-17 09:11:59,160: 
+2026-06-17 09:11:59,160:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/pool/base.py", line 896, in __connect
+2026-06-17 09:11:59,160:     self.dbapi_connection = connection = pool._invoke_creator(self)
+2026-06-17 09:11:59,161: 
+2026-06-17 09:11:59,161:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/engine/create.py", line 646, in connect
+2026-06-17 09:11:59,161:     return dialect.connect(*cargs, **cparams)
+2026-06-17 09:11:59,161: 
+2026-06-17 09:11:59,161:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/engine/default.py", line 622, in connect
+2026-06-17 09:11:59,162:     return self.loaded_dbapi.connect(*cargs, **cparams)
+2026-06-17 09:11:59,162: ***************************************************
+2026-06-17 09:11:59,162: If you're seeing an import error and don't know why,
+2026-06-17 09:11:59,162: we have a dedicated help page to help you debug: 
+2026-06-17 09:11:59,163: https://help.pythonanywhere.com/pages/DebuggingImportError/
+2026-06-17 09:11:59,163: ***************************************************
+2026-06-17 09:13:01,431: Error running WSGI application
+2026-06-17 09:13:01,433: sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) unable to open database file
+2026-06-17 09:13:01,434: (Background on this error at: https://sqlalche.me/e/20/e3q8)
+2026-06-17 09:13:01,434:   File "/var/www/arslan1089_pythonanywhere_com_wsgi.py", line 6, in <module>
+2026-06-17 09:13:01,434:     from app import app as application
+2026-06-17 09:13:01,434: 
+2026-06-17 09:13:01,435:   File "/home/Arslan1089/Shafi-shop/app.py", line 225, in <module>
+2026-06-17 09:13:01,435:     db.create_all()
+2026-06-17 09:13:01,435: 
+2026-06-17 09:13:01,435:   File "/usr/local/lib/python3.10/dist-packages/flask_sqlalchemy/extension.py", line 900, in create_all
+2026-06-17 09:13:01,436:     self._call_for_binds(bind_key, "create_all")
+2026-06-17 09:13:01,436: 
+2026-06-17 09:13:01,436:   File "/usr/local/lib/python3.10/dist-packages/flask_sqlalchemy/extension.py", line 881, in _call_for_binds
+2026-06-17 09:13:01,436:     getattr(metadata, op_name)(bind=engine)
+2026-06-17 09:13:01,436: 
+2026-06-17 09:13:01,437:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/sql/schema.py", line 5900, in create_all
+2026-06-17 09:13:01,437:     bind._run_ddl_visitor(
+2026-06-17 09:13:01,437: 
+2026-06-17 09:13:01,437:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/engine/base.py", line 3248, in _run_ddl_visitor
+2026-06-17 09:13:01,437:     with self.begin() as conn:
+2026-06-17 09:13:01,438: 
+2026-06-17 09:13:01,438:   File "/usr/lib/python3.10/contextlib.py", line 135, in __enter__
+2026-06-17 09:13:01,439:     return next(self.gen)
+2026-06-17 09:13:01,439: 
+2026-06-17 09:13:01,439:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/engine/base.py", line 3238, in begin
+2026-06-17 09:13:01,439:     with self.connect() as conn:
+2026-06-17 09:13:01,440: 
+2026-06-17 09:13:01,440:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/engine/base.py", line 3274, in connect
+2026-06-17 09:13:01,440:     return self._connection_cls(self)
+2026-06-17 09:13:01,440: 
+2026-06-17 09:13:01,441:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/engine/base.py", line 148, in __init__
+2026-06-17 09:13:01,441:     Connection._handle_dbapi_exception_noconnection(
+2026-06-17 09:13:01,441: 
+2026-06-17 09:13:01,442:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/engine/base.py", line 2439, in _handle_dbapi_exception_noconnection
+2026-06-17 09:13:01,442:     raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+2026-06-17 09:13:01,442: 
+2026-06-17 09:13:01,442:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/engine/base.py", line 146, in __init__
+2026-06-17 09:13:01,442:     self._dbapi_connection = engine.raw_connection()
+2026-06-17 09:13:01,443: 
+2026-06-17 09:13:01,443:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/engine/base.py", line 3298, in raw_connection
+2026-06-17 09:13:01,444:     return self.pool.connect()
+2026-06-17 09:13:01,444: 
+2026-06-17 09:13:01,444:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/pool/base.py", line 449, in connect
+2026-06-17 09:13:01,444:     return _ConnectionFairy._checkout(self)
+2026-06-17 09:13:01,445: 
+2026-06-17 09:13:01,445:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/pool/base.py", line 1263, in _checkout
+2026-06-17 09:13:01,445:     fairy = _ConnectionRecord.checkout(pool)
+2026-06-17 09:13:01,445: 
+2026-06-17 09:13:01,446:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/pool/base.py", line 712, in checkout
+2026-06-17 09:13:01,446:     rec = pool._do_get()
+2026-06-17 09:13:01,447: 
+2026-06-17 09:13:01,447:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/pool/impl.py", line 179, in _do_get
+2026-06-17 09:13:01,447:     with util.safe_reraise():
+2026-06-17 09:13:01,447: 
+2026-06-17 09:13:01,447:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/util/langhelpers.py", line 146, in __exit__
+2026-06-17 09:13:01,448:     raise exc_value.with_traceback(exc_tb)
+2026-06-17 09:13:01,448: 
+2026-06-17 09:13:01,448:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/pool/impl.py", line 177, in _do_get
+2026-06-17 09:13:01,448:     return self._create_connection()
+2026-06-17 09:13:01,449: 
+2026-06-17 09:13:01,449:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/pool/base.py", line 390, in _create_connection
+2026-06-17 09:13:01,449:     return _ConnectionRecord(self)
+2026-06-17 09:13:01,449: 
+2026-06-17 09:13:01,450:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/pool/base.py", line 674, in __init__
+2026-06-17 09:13:01,450:     self.__connect()
+2026-06-17 09:13:01,450: 
+2026-06-17 09:13:01,450:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/pool/base.py", line 900, in __connect
+2026-06-17 09:13:01,450:     with util.safe_reraise():
+2026-06-17 09:13:01,451: 
+2026-06-17 09:13:01,451:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/util/langhelpers.py", line 146, in __exit__
+2026-06-17 09:13:01,451:     raise exc_value.with_traceback(exc_tb)
+2026-06-17 09:13:01,451: 
+2026-06-17 09:13:01,452:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/pool/base.py", line 896, in __connect
+2026-06-17 09:13:01,452:     self.dbapi_connection = connection = pool._invoke_creator(self)
+2026-06-17 09:13:01,452: 
+2026-06-17 09:13:01,452:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/engine/create.py", line 646, in connect
+2026-06-17 09:13:01,452:     return dialect.connect(*cargs, **cparams)
+2026-06-17 09:13:01,453: 
+2026-06-17 09:13:01,453:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/engine/default.py", line 622, in connect
+2026-06-17 09:13:01,453:     return self.loaded_dbapi.connect(*cargs, **cparams)
+2026-06-17 09:13:01,453: ***************************************************
+2026-06-17 09:13:01,454: If you're seeing an import error and don't know why,
+2026-06-17 09:13:01,454: we have a dedicated help page to help you debug: 
+2026-06-17 09:13:01,454: https://help.pythonanywhere.com/pages/DebuggingImportError/
+2026-06-17 09:13:01,455: ***************************************************
+2026-06-17 09:13:02,924: Error running WSGI application
+2026-06-17 09:13:02,926: sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) unable to open database file
+2026-06-17 09:13:02,926: (Background on this error at: https://sqlalche.me/e/20/e3q8)
+2026-06-17 09:13:02,926:   File "/var/www/arslan1089_pythonanywhere_com_wsgi.py", line 6, in <module>
+2026-06-17 09:13:02,927:     from app import app as application
+2026-06-17 09:13:02,927: 
+2026-06-17 09:13:02,927:   File "/home/Arslan1089/Shafi-shop/app.py", line 225, in <module>
+2026-06-17 09:13:02,927:     db.create_all()
+2026-06-17 09:13:02,928: 
+2026-06-17 09:13:02,928:   File "/usr/local/lib/python3.10/dist-packages/flask_sqlalchemy/extension.py", line 900, in create_all
+2026-06-17 09:13:02,928:     self._call_for_binds(bind_key, "create_all")
+2026-06-17 09:13:02,929: 
+2026-06-17 09:13:02,929:   File "/usr/local/lib/python3.10/dist-packages/flask_sqlalchemy/extension.py", line 881, in _call_for_binds
+2026-06-17 09:13:02,929:     getattr(metadata, op_name)(bind=engine)
+2026-06-17 09:13:02,929: 
+2026-06-17 09:13:02,929:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/sql/schema.py", line 5900, in create_all
+2026-06-17 09:13:02,930:     bind._run_ddl_visitor(
+2026-06-17 09:13:02,930: 
+2026-06-17 09:13:02,930:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/engine/base.py", line 3248, in _run_ddl_visitor
+2026-06-17 09:13:02,930:     with self.begin() as conn:
+2026-06-17 09:13:02,930: 
+2026-06-17 09:13:02,930:   File "/usr/lib/python3.10/contextlib.py", line 135, in __enter__
+2026-06-17 09:13:02,931:     return next(self.gen)
+2026-06-17 09:13:02,931: 
+2026-06-17 09:13:02,931:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/engine/base.py", line 3238, in begin
+2026-06-17 09:13:02,931:     with self.connect() as conn:
+2026-06-17 09:13:02,931: 
+2026-06-17 09:13:02,931:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/engine/base.py", line 3274, in connect
+2026-06-17 09:13:02,932:     return self._connection_cls(self)
+2026-06-17 09:13:02,932: 
+2026-06-17 09:13:02,932:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/engine/base.py", line 148, in __init__
+2026-06-17 09:13:02,933:     Connection._handle_dbapi_exception_noconnection(
+2026-06-17 09:13:02,933: 
+2026-06-17 09:13:02,933:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/engine/base.py", line 2439, in _handle_dbapi_exception_noconnection
+2026-06-17 09:13:02,933:     raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+2026-06-17 09:13:02,933: 
+2026-06-17 09:13:02,934:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/engine/base.py", line 146, in __init__
+2026-06-17 09:13:02,934:     self._dbapi_connection = engine.raw_connection()
+2026-06-17 09:13:02,934: 
+2026-06-17 09:13:02,934:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/engine/base.py", line 3298, in raw_connection
+2026-06-17 09:13:02,934:     return self.pool.connect()
+2026-06-17 09:13:02,935: 
+2026-06-17 09:13:02,935:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/pool/base.py", line 449, in connect
+2026-06-17 09:13:02,935:     return _ConnectionFairy._checkout(self)
+2026-06-17 09:13:02,935: 
+2026-06-17 09:13:02,935:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/pool/base.py", line 1263, in _checkout
+2026-06-17 09:13:02,936:     fairy = _ConnectionRecord.checkout(pool)
+2026-06-17 09:13:02,936: 
+2026-06-17 09:13:02,936:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/pool/base.py", line 712, in checkout
+2026-06-17 09:13:02,936:     rec = pool._do_get()
+2026-06-17 09:13:02,936: 
+2026-06-17 09:13:02,936:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/pool/impl.py", line 179, in _do_get
+2026-06-17 09:13:02,937:     with util.safe_reraise():
+2026-06-17 09:13:02,937: 
+2026-06-17 09:13:02,937:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/util/langhelpers.py", line 146, in __exit__
+2026-06-17 09:13:02,938:     raise exc_value.with_traceback(exc_tb)
+2026-06-17 09:13:02,938: 
+2026-06-17 09:13:02,938:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/pool/impl.py", line 177, in _do_get
+2026-06-17 09:13:02,938:     return self._create_connection()
+2026-06-17 09:13:02,938: 
+2026-06-17 09:13:02,939:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/pool/base.py", line 390, in _create_connection
+2026-06-17 09:13:02,939:     return _ConnectionRecord(self)
+2026-06-17 09:13:02,939: 
+2026-06-17 09:13:02,939:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/pool/base.py", line 674, in __init__
+2026-06-17 09:13:02,939:     self.__connect()
+2026-06-17 09:13:02,940: 
+2026-06-17 09:13:02,940:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/pool/base.py", line 900, in __connect
+2026-06-17 09:13:02,940:     with util.safe_reraise():
+2026-06-17 09:13:02,940: 
+2026-06-17 09:13:02,940:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/util/langhelpers.py", line 146, in __exit__
+2026-06-17 09:13:02,940:     raise exc_value.with_traceback(exc_tb)
+2026-06-17 09:13:02,941: 
+2026-06-17 09:13:02,941:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/pool/base.py", line 896, in __connect
+2026-06-17 09:13:02,941:     self.dbapi_connection = connection = pool._invoke_creator(self)
+2026-06-17 09:13:02,941: 
+2026-06-17 09:13:02,941:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/engine/create.py", line 646, in connect
+2026-06-17 09:13:02,941:     return dialect.connect(*cargs, **cparams)
+2026-06-17 09:13:02,942: 
+2026-06-17 09:13:02,942:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/engine/default.py", line 622, in connect
+2026-06-17 09:13:02,942:     return self.loaded_dbapi.connect(*cargs, **cparams)
+2026-06-17 09:13:02,943: ***************************************************
+2026-06-17 09:13:02,943: If you're seeing an import error and don't know why,
+2026-06-17 09:13:02,943: we have a dedicated help page to help you debug: 
+2026-06-17 09:13:02,943: https://help.pythonanywhere.com/pages/DebuggingImportError/
+2026-06-17 09:13:02,945: ***************************************************
+2026-06-17 09:15:05,017: Error running WSGI application
+2026-06-17 09:15:05,020: sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) unable to open database file
+2026-06-17 09:15:05,020: (Background on this error at: https://sqlalche.me/e/20/e3q8)
+2026-06-17 09:15:05,021:   File "/var/www/arslan1089_pythonanywhere_com_wsgi.py", line 6, in <module>
+2026-06-17 09:15:05,021:     from app import app as application
+2026-06-17 09:15:05,021: 
+2026-06-17 09:15:05,021:   File "/home/Arslan1089/Shafi-shop/app.py", line 225, in <module>
+2026-06-17 09:15:05,022:     db.create_all()
+2026-06-17 09:15:05,022: 
+2026-06-17 09:15:05,022:   File "/usr/local/lib/python3.10/dist-packages/flask_sqlalchemy/extension.py", line 900, in create_all
+2026-06-17 09:15:05,022:     self._call_for_binds(bind_key, "create_all")
+2026-06-17 09:15:05,023: 
+2026-06-17 09:15:05,023:   File "/usr/local/lib/python3.10/dist-packages/flask_sqlalchemy/extension.py", line 881, in _call_for_binds
+2026-06-17 09:15:05,024:     getattr(metadata, op_name)(bind=engine)
+2026-06-17 09:15:05,024: 
+2026-06-17 09:15:05,024:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/sql/schema.py", line 5900, in create_all
+2026-06-17 09:15:05,024:     bind._run_ddl_visitor(
+2026-06-17 09:15:05,024: 
+2026-06-17 09:15:05,025:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/engine/base.py", line 3248, in _run_ddl_visitor
+2026-06-17 09:15:05,025:     with self.begin() as conn:
+2026-06-17 09:15:05,025: 
+2026-06-17 09:15:05,026:   File "/usr/lib/python3.10/contextlib.py", line 135, in __enter__
+2026-06-17 09:15:05,027:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/engine/base.py", line 3238, in begin
+2026-06-17 09:15:05,027:     with self.connect() as conn:
+2026-06-17 09:15:05,027: 
+2026-06-17 09:15:05,028:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/engine/base.py", line 3274, in connect
+2026-06-17 09:15:05,028:     return self._connection_cls(self)
+2026-06-17 09:15:05,028: 
+2026-06-17 09:15:05,028:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/engine/base.py", line 148, in __init__
+2026-06-17 09:15:05,028:     Connection._handle_dbapi_exception_noconnection(
+2026-06-17 09:15:05,029: 
+2026-06-17 09:15:05,029:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/engine/base.py", line 2439, in _handle_dbapi_exception_noconnection
+2026-06-17 09:15:05,029:     raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+2026-06-17 09:15:05,029: 
+2026-06-17 09:15:05,030:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/engine/base.py", line 146, in __init__
+2026-06-17 09:15:05,030:     self._dbapi_connection = engine.raw_connection()
+2026-06-17 09:15:05,030: 
+2026-06-17 09:15:05,031:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/engine/base.py", line 3298, in raw_connection
+2026-06-17 09:15:05,031:     return self.pool.connect()
+2026-06-17 09:15:05,031: 
+2026-06-17 09:15:05,032:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/pool/base.py", line 449, in connect
+2026-06-17 09:15:05,032:     return _ConnectionFairy._checkout(self)
+2026-06-17 09:15:05,032: 
+2026-06-17 09:15:05,032:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/pool/base.py", line 1263, in _checkout
+2026-06-17 09:15:05,033:     fairy = _ConnectionRecord.checkout(pool)
+2026-06-17 09:15:05,033: 
+2026-06-17 09:15:05,033:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/pool/base.py", line 712, in checkout
+2026-06-17 09:15:05,034:     rec = pool._do_get()
+2026-06-17 09:15:05,034: 
+2026-06-17 09:15:05,034:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/pool/impl.py", line 179, in _do_get
+2026-06-17 09:15:05,035:     with util.safe_reraise():
+2026-06-17 09:15:05,035: 
+2026-06-17 09:15:05,035:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/util/langhelpers.py", line 146, in __exit__
+2026-06-17 09:15:05,035:     raise exc_value.with_traceback(exc_tb)
+2026-06-17 09:15:05,036: 
+2026-06-17 09:15:05,036:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/pool/impl.py", line 177, in _do_get
+2026-06-17 09:15:05,036:     return self._create_connection()
+2026-06-17 09:15:05,036: 
+2026-06-17 09:15:05,037:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/pool/base.py", line 390, in _create_connection
+2026-06-17 09:15:05,037:     return _ConnectionRecord(self)
+2026-06-17 09:15:05,037: 
+2026-06-17 09:15:05,038:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/pool/base.py", line 674, in __init__
+2026-06-17 09:15:05,038:     self.__connect()
+2026-06-17 09:15:05,038: 
+2026-06-17 09:15:05,038:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/pool/base.py", line 900, in __connect
+2026-06-17 09:15:05,039:     with util.safe_reraise():
+2026-06-17 09:15:05,039: 
+2026-06-17 09:15:05,039:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/util/langhelpers.py", line 146, in __exit__
+2026-06-17 09:15:05,039:     raise exc_value.with_traceback(exc_tb)
+2026-06-17 09:15:05,039: 
+2026-06-17 09:15:05,040:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/pool/base.py", line 896, in __connect
+2026-06-17 09:15:05,040:     self.dbapi_connection = connection = pool._invoke_creator(self)
+2026-06-17 09:15:05,040: 
+2026-06-17 09:15:05,041:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/engine/create.py", line 646, in connect
+2026-06-17 09:15:05,041:     return dialect.connect(*cargs, **cparams)
+2026-06-17 09:15:05,042: 
+2026-06-17 09:15:05,042:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/engine/default.py", line 622, in connect
+2026-06-17 09:15:05,042:     return self.loaded_dbapi.connect(*cargs, **cparams)
+2026-06-17 09:15:05,042: ***************************************************
+2026-06-17 09:15:05,043: If you're seeing an import error and don't know why,
+2026-06-17 09:15:05,043: we have a dedicated help page to help you debug: 
+2026-06-17 09:15:05,043: https://help.pythonanywhere.com/pages/DebuggingImportError/
+2026-06-17 09:15:05,043: ***************************************************
+2026-06-17 09:15:24,667: Error running WSGI application
+2026-06-17 09:15:24,682: sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) unable to open database file
+2026-06-17 09:15:24,683: (Background on this error at: https://sqlalche.me/e/20/e3q8)
+2026-06-17 09:15:24,683:   File "/var/www/arslan1089_pythonanywhere_com_wsgi.py", line 6, in <module>
+2026-06-17 09:15:24,683:     from app import app as application
+2026-06-17 09:15:24,683: 
+2026-06-17 09:15:24,684:   File "/home/Arslan1089/Shafi-shop/app.py", line 225, in <module>
+2026-06-17 09:15:24,685:     db.create_all()
+2026-06-17 09:15:24,686: 
+2026-06-17 09:15:24,686:   File "/usr/local/lib/python3.10/dist-packages/flask_sqlalchemy/extension.py", line 900, in create_all
+2026-06-17 09:15:24,686:     self._call_for_binds(bind_key, "create_all")
+2026-06-17 09:15:24,686: 
+2026-06-17 09:15:24,687:   File "/usr/local/lib/python3.10/dist-packages/flask_sqlalchemy/extension.py", line 881, in _call_for_binds
+2026-06-17 09:15:24,687:     getattr(metadata, op_name)(bind=engine)
+2026-06-17 09:15:24,687: 
+2026-06-17 09:15:24,687:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/sql/schema.py", line 5900, in create_all
+2026-06-17 09:15:24,687:     bind._run_ddl_visitor(
+2026-06-17 09:15:24,688: 
+2026-06-17 09:15:24,688:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/engine/base.py", line 3248, in _run_ddl_visitor
+2026-06-17 09:15:24,688:     with self.begin() as conn:
+2026-06-17 09:15:24,688: 
+2026-06-17 09:15:24,688:   File "/usr/lib/python3.10/contextlib.py", line 135, in __enter__
+2026-06-17 09:15:24,688:     return next(self.gen)
+2026-06-17 09:15:24,689: 
+2026-06-17 09:15:24,689:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/engine/base.py", line 3238, in begin
+2026-06-17 09:15:24,689:     with self.connect() as conn:
+2026-06-17 09:15:24,689: 
+2026-06-17 09:15:24,689:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/engine/base.py", line 3274, in connect
+2026-06-17 09:15:24,689:     return self._connection_cls(self)
+2026-06-17 09:15:24,690: 
+2026-06-17 09:15:24,690:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/engine/base.py", line 148, in __init__
+2026-06-17 09:15:24,690:     Connection._handle_dbapi_exception_noconnection(
+2026-06-17 09:15:24,690: 
+2026-06-17 09:15:24,690:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/engine/base.py", line 2439, in _handle_dbapi_exception_noconnection
+2026-06-17 09:15:24,690:     raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+2026-06-17 09:15:24,691: 
+2026-06-17 09:15:24,691:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/engine/base.py", line 146, in __init__
+2026-06-17 09:15:24,691:     self._dbapi_connection = engine.raw_connection()
+2026-06-17 09:15:24,691: 
+2026-06-17 09:15:24,692:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/engine/base.py", line 3298, in raw_connection
+2026-06-17 09:15:24,692:     return self.pool.connect()
+2026-06-17 09:15:24,692: 
+2026-06-17 09:15:24,692:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/pool/base.py", line 449, in connect
+2026-06-17 09:15:24,693:     return _ConnectionFairy._checkout(self)
+2026-06-17 09:15:24,693: 
+2026-06-17 09:15:24,693:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/pool/base.py", line 1263, in _checkout
+2026-06-17 09:15:24,693:     fairy = _ConnectionRecord.checkout(pool)
+2026-06-17 09:15:24,693: 
+2026-06-17 09:15:24,694:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/pool/base.py", line 712, in checkout
+2026-06-17 09:15:24,694:     rec = pool._do_get()
+2026-06-17 09:15:24,694: 
+2026-06-17 09:15:24,694:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/pool/impl.py", line 179, in _do_get
+2026-06-17 09:15:24,694:     with util.safe_reraise():
+2026-06-17 09:15:24,694: 
+2026-06-17 09:15:24,695:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/util/langhelpers.py", line 146, in __exit__
+2026-06-17 09:15:24,695:     raise exc_value.with_traceback(exc_tb)
+2026-06-17 09:15:24,695: 
+2026-06-17 09:15:24,695:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/pool/impl.py", line 177, in _do_get
+2026-06-17 09:15:24,695:     return self._create_connection()
+2026-06-17 09:15:24,695: 
+2026-06-17 09:15:24,696:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/pool/base.py", line 390, in _create_connection
+2026-06-17 09:15:24,696:     return _ConnectionRecord(self)
+2026-06-17 09:15:24,696: 
+2026-06-17 09:15:24,696:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/pool/base.py", line 674, in __init__
+2026-06-17 09:15:24,696:     self.__connect()
+2026-06-17 09:15:24,697: 
+2026-06-17 09:15:24,697:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/pool/base.py", line 900, in __connect
+2026-06-17 09:15:24,697:     with util.safe_reraise():
+2026-06-17 09:15:24,697: 
+2026-06-17 09:15:24,697:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/util/langhelpers.py", line 146, in __exit__
+2026-06-17 09:15:24,697:     raise exc_value.with_traceback(exc_tb)
+2026-06-17 09:15:24,698: 
+2026-06-17 09:15:24,698:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/pool/base.py", line 896, in __connect
+2026-06-17 09:15:24,698:     self.dbapi_connection = connection = pool._invoke_creator(self)
+2026-06-17 09:15:24,698: 
+2026-06-17 09:15:24,698:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/engine/create.py", line 646, in connect
+2026-06-17 09:15:24,699:     return dialect.connect(*cargs, **cparams)
+2026-06-17 09:15:24,699: 
+2026-06-17 09:15:24,699:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/engine/default.py", line 622, in connect
+2026-06-17 09:15:24,699:     return self.loaded_dbapi.connect(*cargs, **cparams)
+2026-06-17 09:15:24,700: ***************************************************
+2026-06-17 09:15:24,700: If you're seeing an import error and don't know why,
+2026-06-17 09:15:24,700: we have a dedicated help page to help you debug: 
+2026-06-17 09:15:24,700: https://help.pythonanywhere.com/pages/DebuggingImportError/
+2026-06-17 09:15:24,700: ***************************************************
+2026-06-17 09:15:28,394: Error running WSGI application
+2026-06-17 09:15:28,395: sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) unable to open database file
+2026-06-17 09:15:28,395: (Background on this error at: https://sqlalche.me/e/20/e3q8)
+2026-06-17 09:15:28,395:   File "/var/www/arslan1089_pythonanywhere_com_wsgi.py", line 6, in <module>
+2026-06-17 09:15:28,395:     from app import app as application
+2026-06-17 09:15:28,395: 
+2026-06-17 09:15:28,395:   File "/home/Arslan1089/Shafi-shop/app.py", line 225, in <module>
+2026-06-17 09:15:28,395:     db.create_all()
+2026-06-17 09:15:28,396: 
+2026-06-17 09:15:28,396:   File "/usr/local/lib/python3.10/dist-packages/flask_sqlalchemy/extension.py", line 900, in create_all
+2026-06-17 09:15:28,396:     self._call_for_binds(bind_key, "create_all")
+2026-06-17 09:15:28,396: 
+2026-06-17 09:15:28,396:   File "/usr/local/lib/python3.10/dist-packages/flask_sqlalchemy/extension.py", line 881, in _call_for_binds
+2026-06-17 09:15:28,396:     getattr(metadata, op_name)(bind=engine)
+2026-06-17 09:15:28,396: 
+2026-06-17 09:15:28,397:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/sql/schema.py", line 5900, in create_all
+2026-06-17 09:15:28,397:     bind._run_ddl_visitor(
+2026-06-17 09:15:28,397: 
+2026-06-17 09:15:28,397:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/engine/base.py", line 3248, in _run_ddl_visitor
+2026-06-17 09:15:28,397:     with self.begin() as conn:
+2026-06-17 09:15:28,397: 
+2026-06-17 09:15:28,397:   File "/usr/lib/python3.10/contextlib.py", line 135, in __enter__
+2026-06-17 09:15:28,397:     return next(self.gen)
+2026-06-17 09:15:28,398: 
+2026-06-17 09:15:28,398:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/engine/base.py", line 3238, in begin
+2026-06-17 09:15:28,398:     with self.connect() as conn:
+2026-06-17 09:15:28,398: 
+2026-06-17 09:15:28,398:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/engine/base.py", line 3274, in connect
+2026-06-17 09:15:28,398:     return self._connection_cls(self)
+2026-06-17 09:15:28,398: 
+2026-06-17 09:15:28,399:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/engine/base.py", line 148, in __init__
+2026-06-17 09:15:28,399:     Connection._handle_dbapi_exception_noconnection(
+2026-06-17 09:15:28,399: 
+2026-06-17 09:15:28,399:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/engine/base.py", line 2439, in _handle_dbapi_exception_noconnection
+2026-06-17 09:15:28,399:     raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+2026-06-17 09:15:28,399: 
+2026-06-17 09:15:28,399:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/engine/base.py", line 146, in __init__
+2026-06-17 09:15:28,399:     self._dbapi_connection = engine.raw_connection()
+2026-06-17 09:15:28,399: 
+2026-06-17 09:15:28,400:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/engine/base.py", line 3298, in raw_connection
+2026-06-17 09:15:28,400:     return self.pool.connect()
+2026-06-17 09:15:28,400: 
+2026-06-17 09:15:28,400:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/pool/base.py", line 449, in connect
+2026-06-17 09:15:28,400:     return _ConnectionFairy._checkout(self)
+2026-06-17 09:15:28,400: 
+2026-06-17 09:15:28,400:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/pool/base.py", line 1263, in _checkout
+2026-06-17 09:15:28,400:     fairy = _ConnectionRecord.checkout(pool)
+2026-06-17 09:15:28,400: 
+2026-06-17 09:15:28,400:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/pool/base.py", line 712, in checkout
+2026-06-17 09:15:28,401:     rec = pool._do_get()
+2026-06-17 09:15:28,401: 
+2026-06-17 09:15:28,401:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/pool/impl.py", line 179, in _do_get
+2026-06-17 09:15:28,401:     with util.safe_reraise():
+2026-06-17 09:15:28,401: 
+2026-06-17 09:15:28,401:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/util/langhelpers.py", line 146, in __exit__
+2026-06-17 09:15:28,401:     raise exc_value.with_traceback(exc_tb)
+2026-06-17 09:15:28,401: 
+2026-06-17 09:15:28,401:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/pool/impl.py", line 177, in _do_get
+2026-06-17 09:15:28,402:     return self._create_connection()
+2026-06-17 09:15:28,402: 
+2026-06-17 09:15:28,402:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/pool/base.py", line 390, in _create_connection
+2026-06-17 09:15:28,402:     return _ConnectionRecord(self)
+2026-06-17 09:15:28,402: 
+2026-06-17 09:15:28,402:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/pool/base.py", line 674, in __init__
+2026-06-17 09:15:28,403:     self.__connect()
+2026-06-17 09:15:28,403: 
+2026-06-17 09:15:28,403:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/pool/base.py", line 900, in __connect
+2026-06-17 09:15:28,403:     with util.safe_reraise():
+2026-06-17 09:15:28,403: 
+2026-06-17 09:15:28,403:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/util/langhelpers.py", line 146, in __exit__
+2026-06-17 09:15:28,404:     raise exc_value.with_traceback(exc_tb)
+2026-06-17 09:15:28,404: 
+2026-06-17 09:15:28,404:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/pool/base.py", line 896, in __connect
+2026-06-17 09:15:28,404:     self.dbapi_connection = connection = pool._invoke_creator(self)
+2026-06-17 09:15:28,404: 
+2026-06-17 09:15:28,404:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/engine/create.py", line 646, in connect
+2026-06-17 09:15:28,405:     return dialect.connect(*cargs, **cparams)
+2026-06-17 09:15:28,405: 
+2026-06-17 09:15:28,405:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/engine/default.py", line 622, in connect
+2026-06-17 09:15:28,405:     return self.loaded_dbapi.connect(*cargs, **cparams)
+2026-06-17 09:15:28,405: ***************************************************
+2026-06-17 09:15:28,406: If you're seeing an import error and don't know why,
+2026-06-17 09:15:28,406: we have a dedicated help page to help you debug: 
+2026-06-17 09:15:28,406: https://help.pythonanywhere.com/pages/DebuggingImportError/
+2026-06-17 09:15:28,406: ***************************************************
+2026-06-17 09:15:29,733: Error running WSGI application
+2026-06-17 09:15:29,734: sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) unable to open database file
+2026-06-17 09:15:29,734: (Background on this error at: https://sqlalche.me/e/20/e3q8)
+2026-06-17 09:15:29,734:   File "/var/www/arslan1089_pythonanywhere_com_wsgi.py", line 6, in <module>
+2026-06-17 09:15:29,735:     from app import app as application
+2026-06-17 09:15:29,735: 
+2026-06-17 09:15:29,735:   File "/home/Arslan1089/Shafi-shop/app.py", line 225, in <module>
+2026-06-17 09:15:29,735:     db.create_all()
+2026-06-17 09:15:29,735: 
+2026-06-17 09:15:29,735:   File "/usr/local/lib/python3.10/dist-packages/flask_sqlalchemy/extension.py", line 900, in create_all
+2026-06-17 09:15:29,735:     self._call_for_binds(bind_key, "create_all")
+2026-06-17 09:15:29,735: 
+2026-06-17 09:15:29,735:   File "/usr/local/lib/python3.10/dist-packages/flask_sqlalchemy/extension.py", line 881, in _call_for_binds
+2026-06-17 09:15:29,735:     getattr(metadata, op_name)(bind=engine)
+2026-06-17 09:15:29,736: 
+2026-06-17 09:15:29,736:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/sql/schema.py", line 5900, in create_all
+2026-06-17 09:15:29,736:     bind._run_ddl_visitor(
+2026-06-17 09:15:29,736: 
+2026-06-17 09:15:29,736:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/engine/base.py", line 3248, in _run_ddl_visitor
+2026-06-17 09:15:29,736:     with self.begin() as conn:
+2026-06-17 09:15:29,736: 
+2026-06-17 09:15:29,736:   File "/usr/lib/python3.10/contextlib.py", line 135, in __enter__
+2026-06-17 09:15:29,737:     return next(self.gen)
+2026-06-17 09:15:29,737: 
+2026-06-17 09:15:29,737:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/engine/base.py", line 3238, in begin
+2026-06-17 09:15:29,737:     with self.connect() as conn:
+2026-06-17 09:15:29,737: 
+2026-06-17 09:15:29,737:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/engine/base.py", line 3274, in connect
+2026-06-17 09:15:29,737:     return self._connection_cls(self)
+2026-06-17 09:15:29,738: 
+2026-06-17 09:15:29,738:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/engine/base.py", line 148, in __init__
+2026-06-17 09:15:29,738:     Connection._handle_dbapi_exception_noconnection(
+2026-06-17 09:15:29,738: 
+2026-06-17 09:15:29,738:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/engine/base.py", line 2439, in _handle_dbapi_exception_noconnection
+2026-06-17 09:15:29,738:     raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+2026-06-17 09:15:29,738: 
+2026-06-17 09:15:29,738:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/engine/base.py", line 146, in __init__
+2026-06-17 09:15:29,738:     self._dbapi_connection = engine.raw_connection()
+2026-06-17 09:15:29,739: 
+2026-06-17 09:15:29,739:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/engine/base.py", line 3298, in raw_connection
+2026-06-17 09:15:29,739:     return self.pool.connect()
+2026-06-17 09:15:29,739: 
+2026-06-17 09:15:29,739:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/pool/base.py", line 449, in connect
+2026-06-17 09:15:29,739:     return _ConnectionFairy._checkout(self)
+2026-06-17 09:15:29,739: 
+2026-06-17 09:15:29,739:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/pool/base.py", line 1263, in _checkout
+2026-06-17 09:15:29,739:     fairy = _ConnectionRecord.checkout(pool)
+2026-06-17 09:15:29,740: 
+2026-06-17 09:15:29,740:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/pool/base.py", line 712, in checkout
+2026-06-17 09:15:29,740:     rec = pool._do_get()
+2026-06-17 09:15:29,740: 
+2026-06-17 09:15:29,740:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/pool/impl.py", line 179, in _do_get
+2026-06-17 09:15:29,740:     with util.safe_reraise():
+2026-06-17 09:15:29,740: 
+2026-06-17 09:15:29,740:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/util/langhelpers.py", line 146, in __exit__
+2026-06-17 09:15:29,740:     raise exc_value.with_traceback(exc_tb)
+2026-06-17 09:15:29,741: 
+2026-06-17 09:15:29,741:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/pool/impl.py", line 177, in _do_get
+2026-06-17 09:15:29,741:     return self._create_connection()
+2026-06-17 09:15:29,741: 
+2026-06-17 09:15:29,741:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/pool/base.py", line 390, in _create_connection
+2026-06-17 09:15:29,741:     return _ConnectionRecord(self)
+2026-06-17 09:15:29,741: 
+2026-06-17 09:15:29,741:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/pool/base.py", line 674, in __init__
+2026-06-17 09:15:29,742:     self.__connect()
+2026-06-17 09:15:29,742: 
+2026-06-17 09:15:29,742:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/pool/base.py", line 900, in __connect
+2026-06-17 09:15:29,742:     with util.safe_reraise():
+2026-06-17 09:15:29,742: 
+2026-06-17 09:15:29,742:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/util/langhelpers.py", line 146, in __exit__
+2026-06-17 09:15:29,742:     raise exc_value.with_traceback(exc_tb)
+2026-06-17 09:15:29,742: 
+2026-06-17 09:15:29,742:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/pool/base.py", line 896, in __connect
+2026-06-17 09:15:29,743:     self.dbapi_connection = connection = pool._invoke_creator(self)
+2026-06-17 09:15:29,743: 
+2026-06-17 09:15:29,743:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/engine/create.py", line 646, in connect
+2026-06-17 09:15:29,743:     return dialect.connect(*cargs, **cparams)
+2026-06-17 09:15:29,743: 
+2026-06-17 09:15:29,743:   File "/usr/local/lib/python3.10/dist-packages/sqlalchemy/engine/default.py", line 622, in connect
+2026-06-17 09:15:29,743:     return self.loaded_dbapi.connect(*cargs, **cparams)
+2026-06-17 09:15:29,743: ***************************************************
+2026-06-17 09:15:29,743: If you're seeing an import error and don't know why,
+2026-06-17 09:15:29,743: we have a dedicated help page to help you debug: 
+2026-06-17 09:15:29,744: https://help.pythonanywhere.com/pages/DebuggingImportError/
+2026-06-17 09:15:29,744: ***************************************************

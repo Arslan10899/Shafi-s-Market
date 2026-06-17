@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify, g, abort
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.middleware.proxy_fix import ProxyFix
 from flask_wtf.csrf import CSRFProtect
 from functools import wraps
 from datetime import datetime, timedelta
@@ -8,6 +9,8 @@ import os, random, string, jinja2
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'shafi-shop-fixed-dev-key-2025!@#')
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_port=1)
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 csrf = CSRFProtect(app)
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -336,6 +339,8 @@ def home():
 def login():
     if request.method == 'POST':
         data = request.get_json()
+        if data is None:
+            data = request.form
         username = data.get('username')
         password = data.get('password')
         user = User.query.filter_by(username=username).first()
