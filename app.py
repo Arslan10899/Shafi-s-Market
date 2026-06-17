@@ -813,7 +813,7 @@ def blog():
 @app.route('/blog/<int:bid>')
 def blog_detail(bid):
     post = Blog.query.get_or_404(bid)
-    comments = BlogComment.query.filter_by(blog_id=bid, is_approved=True).order_by(BlogComment.created_at.desc()).all()
+    comments = BlogComment.query.filter_by(blog_id=bid).order_by(BlogComment.created_at.desc()).all()
     avg_rating = db.session.query(db.func.avg(BlogRating.rating)).filter(BlogRating.blog_id == bid).scalar()
     rating_count = BlogRating.query.filter_by(blog_id=bid).count()
     user_rating = None
@@ -836,13 +836,13 @@ def add_blog_comment(bid):
     existing = BlogComment.query.filter_by(blog_id=bid, user_id=session['user_id']).first()
     if existing:
         existing.comment = comment
-        existing.is_approved = False
+        existing.is_approved = True
         db.session.commit()
-        return jsonify({'success': True, 'message': 'Comment updated and pending approval!'})
-    c = BlogComment(blog_id=bid, user_id=session['user_id'], comment=comment)
+        return jsonify({'success': True, 'message': 'Comment updated!'})
+    c = BlogComment(blog_id=bid, user_id=session['user_id'], comment=comment, is_approved=True)
     db.session.add(c)
     db.session.commit()
-    return jsonify({'success': True, 'message': 'Comment submitted for approval!'})
+    return jsonify({'success': True, 'message': 'Comment posted!'})
 
 @app.route('/blog/<int:bid>/rate', methods=['POST'])
 @login_required
@@ -896,8 +896,6 @@ def admin_dashboard():
     total_blog_posts = Blog.query.count()
     total_blog_comments = BlogComment.query.count()
     total_blog_ratings = BlogRating.query.count()
-    pending_comments = BlogComment.query.filter_by(is_approved=False).count()
-
     return render_template('admin_dashboard.html',
         user=current_user, total_users=total_users, total_products=total_products,
         total_orders=total_orders, total_revenue=total_revenue,
@@ -905,7 +903,7 @@ def admin_dashboard():
         rev_labels=rev_labels, rev_data=rev_data,
         statuses=statuses, status_counts=status_counts, status_colors=status_colors,
         total_blog_posts=total_blog_posts, total_blog_comments=total_blog_comments,
-        total_blog_ratings=total_blog_ratings, pending_comments=pending_comments)
+        total_blog_ratings=total_blog_ratings)
 
 @app.route('/admin/users')
 @admin_required
