@@ -1288,10 +1288,11 @@ def admin_coupons():
 @app.route('/admin/coupon/add', methods=['POST'])
 @admin_required
 def admin_add_coupon():
+    max_uses = request.form.get('max_uses')
     coupon = Coupon(
         code=request.form['code'].upper(),
         discount_percent=int(request.form['discount_percent']),
-        max_uses=int(request.form.get('max_uses', 100)),
+        max_uses=int(max_uses) if max_uses else 100,
         expiry_date=datetime.strptime(request.form['expiry_date'], '%Y-%m-%d') if request.form.get('expiry_date') else None
     )
     db.session.add(coupon)
@@ -1303,9 +1304,10 @@ def admin_add_coupon():
 @admin_required
 def admin_edit_coupon(cid):
     c = Coupon.query.get_or_404(cid)
+    max_uses = request.form.get('max_uses')
     c.code = request.form['code'].upper()
     c.discount_percent = int(request.form['discount_percent'])
-    c.max_uses = int(request.form.get('max_uses', 100))
+    c.max_uses = int(max_uses) if max_uses else 100
     c.expiry_date = datetime.strptime(request.form['expiry_date'], '%Y-%m-%d') if request.form.get('expiry_date') else None
     db.session.commit()
     flash('Coupon updated!', 'success')
