@@ -328,7 +328,7 @@ def home():
     new_arrivals = Product.query.filter_by(is_new=True).limit(4).all()
     best_sellers = Product.query.filter_by(is_best=True).limit(4).all()
     flash_products = Product.query.filter(Product.discount > 0).limit(4).all()
-    reviews = Review.query.filter_by(is_approved=True).order_by(Review.created_at.desc()).limit(3).all()
+    reviews = Review.query.order_by(Review.created_at.desc()).limit(3).all()
     return render_template('index.html',
         featured=featured, new_arrivals=new_arrivals,
         best_sellers=best_sellers, flash_products=flash_products,
@@ -466,14 +466,14 @@ def shop():
 def product_detail(pid):
     product = Product.query.get_or_404(pid)
     related = Product.query.filter_by(category_id=product.category_id).filter(Product.id != pid).limit(4).all()
-    reviews = Review.query.filter_by(product_id=pid, is_approved=True).order_by(Review.created_at.desc()).all()
+    reviews = Review.query.filter_by(product_id=pid).order_by(Review.created_at.desc()).all()
     in_wishlist = False
     user_review = None
     if 'user_id' in session:
         in_wishlist = Wishlist.query.filter_by(user_id=session['user_id'], product_id=pid).first() is not None
         user_review = Review.query.filter_by(product_id=pid, user_id=session['user_id']).first()
-    avg_rating = db.session.query(db.func.avg(Review.rating)).filter(Review.product_id == pid, Review.is_approved == True).scalar()
-    rating_count = Review.query.filter_by(product_id=pid, is_approved=True).count()
+    avg_rating = db.session.query(db.func.avg(Review.rating)).filter(Review.product_id == pid).scalar()
+    rating_count = Review.query.filter_by(product_id=pid).count()
     return render_template('product_detail.html', product=product,
         related=related, reviews=reviews, in_wishlist=in_wishlist,
         user_review=user_review, avg_rating=avg_rating or 0, rating_count=rating_count)
@@ -489,19 +489,19 @@ def add_review(pid):
     if existing:
         existing.rating = rating
         existing.comment = comment
-        existing.is_approved = False
+        existing.is_approved = True
         db.session.commit()
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            return jsonify({'success': True, 'message': 'Review updated and pending approval!'})
-        flash('Review updated and pending approval!', 'success')
+            return jsonify({'success': True, 'message': 'Review updated!'})
+        flash('Review updated!', 'success')
         return redirect(url_for('product_detail', pid=pid))
     if rating and comment:
-        review = Review(product_id=pid, user_id=session['user_id'], rating=rating, comment=comment)
+        review = Review(product_id=pid, user_id=session['user_id'], rating=rating, comment=comment, is_approved=True)
         db.session.add(review)
         db.session.commit()
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            return jsonify({'success': True, 'message': 'Review submitted for approval!'})
-        flash('Review submitted for approval!', 'success')
+            return jsonify({'success': True, 'message': 'Review posted!'})
+        flash('Review posted!', 'success')
     return redirect(url_for('product_detail', pid=pid))
 
 # ====== CART ======
