@@ -338,35 +338,48 @@ def home():
 @csrf.exempt
 def login():
     if request.method == 'POST':
-        data = request.get_json()
-        if data is None:
-            data = request.form
+        data = request.get_json(silent=True) or request.form
         username = data.get('username')
         password = data.get('password')
         user = User.query.filter_by(username=username).first()
         if user and check_password_hash(user.password, password):
             session['user_id'] = user.id
             session['username'] = user.username
-            return jsonify({'success': True, 'message': 'Login successful!'})
+            if request.is_json:
+                return jsonify({'success': True, 'message': 'Login successful!'})
+            flash('Login successful!', 'success')
+            return redirect(url_for('dashboard'))
         else:
-            return jsonify({'success': False, 'message': 'Invalid username or password'}), 401
+            if request.is_json:
+                return jsonify({'success': False, 'message': 'Invalid username or password'}), 401
+            flash('Invalid username or password', 'danger')
+            return redirect(url_for('login'))
     return render_template('login.html')
 
 @app.route('/register', methods=['POST'])
 @csrf.exempt
 def register():
-    data = request.get_json()
+    data = request.get_json(silent=True) or request.form
     username = data.get('username')
     email = data.get('email')
     password = data.get('password')
     if User.query.filter_by(username=username).first():
-        return jsonify({'success': False, 'message': 'Username already exists'}), 400
+        if request.is_json:
+            return jsonify({'success': False, 'message': 'Username already exists'}), 400
+        flash('Username already exists', 'danger')
+        return redirect(url_for('login'))
     if User.query.filter_by(email=email).first():
-        return jsonify({'success': False, 'message': 'Email already registered'}), 400
+        if request.is_json:
+            return jsonify({'success': False, 'message': 'Email already registered'}), 400
+        flash('Email already registered', 'danger')
+        return redirect(url_for('login'))
     new_user = User(username=username, email=email, password=generate_password_hash(password))
     db.session.add(new_user)
     db.session.commit()
-    return jsonify({'success': True, 'message': 'Account created successfully!'})
+    if request.is_json:
+        return jsonify({'success': True, 'message': 'Account created successfully!'})
+    flash('Account created! You can now login.', 'success')
+    return redirect(url_for('login'))
 
 @app.route('/forgot-password', methods=['GET', 'POST'])
 @csrf.exempt
