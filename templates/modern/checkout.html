@@ -39,8 +39,13 @@
           <div class="m-summary-box mb-4">
             <h3><i class="las la-tag"></i> Coupon Code</h3>
             <div class="d-flex gap-2">
-              <input type="text" name="coupon_code" class="m-input" placeholder="Enter code" value="{{ validated_coupon or request.form.get('coupon_code', '') }}">
+              <input type="text" name="coupon_code" id="couponInput" class="m-input" placeholder="Enter code" value="{{ validated_coupon or request.form.get('coupon_code', '') }}">
               <button type="button" class="m-btn m-btn-outline" id="applyCoupon">Apply</button>
+            </div>
+            <div id="couponStatus" class="mt-2" style="font-size:13px">
+              {% if validated_coupon and discount > 0 %}
+              <span style="color:#10b981"><i class="las la-check-circle"></i> Coupon applied! ({{ discount_percent }}% off)</span>
+              {% endif %}
             </div>
           </div>
           <button type="submit" class="m-btn m-btn-accent m-btn-block" style="justify-content:center;padding:14px 0;font-size:16px"><i class="las la-lock"></i> Place Your Order</button>
@@ -55,19 +60,18 @@
               <span style="font-weight:500">${{ "%.2f"|format(item.product.price * item.quantity) }}</span>
             </div>
             {% endfor %}
-            {% set subtotal = total if total else 0 %}
-            {% set tax = subtotal * 0.08 %}
-            {% set shipping = 0 if subtotal >= 50 else 5.99 %}
-            {% set grand = subtotal + tax + shipping %}
-            <div class="m-summary-row"><span>Subtotal</span><span>${{ "%.2f"|format(subtotal) }}</span></div>
-            <div class="m-summary-row"><span>Shipping</span><span>{% if shipping == 0 %}<span style="color:#10b981">FREE</span>{% else %}${{ "%.2f"|format(shipping) }}{% endif %}</span></div>
-            <div class="m-summary-row"><span>Tax</span><span>${{ "%.2f"|format(tax) }}</span></div>
+            {% set m_subtotal = total if total else 0 %}
+            {% set m_tax = m_subtotal * 0.08 %}
+            {% set m_shipping = 0 if m_subtotal >= 50 else 5.99 %}
+            {% set m_grand = m_subtotal + m_tax + m_shipping %}
+            <div id="mOrderTotalSection">
             {% if discount > 0 %}
             <div class="m-summary-row" style="color:#10b981"><span>Coupon ({{ discount_percent }}% off)</span><span>-${{ "%.2f"|format(discount) }}</span></div>
-            <div class="m-summary-row m-total"><span>Total</span><span>${{ "%.2f"|format(grand - discount) }}</span></div>
+            <div class="m-summary-row m-total"><span>Total</span><span>${{ "%.2f"|format(m_grand - discount) }}</span></div>
             {% else %}
-            <div class="m-summary-row m-total"><span>Total</span><span>${{ "%.2f"|format(grand) }}</span></div>
+            <div class="m-summary-row m-total"><span>Total</span><span>${{ "%.2f"|format(m_grand) }}</span></div>
             {% endif %}
+            </div>
           </div>
         </div>
       </div>
@@ -79,12 +83,39 @@
 document.getElementById('applyCoupon')?.addEventListener('click', function() {
   var code = document.querySelector('[name="coupon_code"]').value.trim();
   if(!code){alert('Enter a code');return;}
+  var btn = this;
+  btn.disabled = true;
+  btn.textContent = 'Applying...';
   fetch('/coupon/validate', {
     method:'POST', headers:{'Content-Type':'application/json'},
     body: JSON.stringify({code:code, subtotal:{{ total|default(0) }}})
-  }).then(function(r){return r.json()}).then(function(d){alert(d.message);if(d.valid)location.reload()})
-  .catch(function(){alert('Error');});
-  // Note: page reloads so server re-renders with discount — kept for modern theme
+  }).then(function(r){return r.json()}).then(function(d){
+    if(d.valid) {
+      var subtotal = {{ total|default(0) }};
+      var tax = subtotal * 0.08;
+      var shipping = subtotal >= 50 ? 0 : 5.99;
+      var newTotal = (subtotal + tax + shipping) - d.discount;
+      document.getElementById('mOrderTotalSection').innerHTML =
+        '<div class="m-summary-row" style="color:#10b981"><span>Coupon (' + d.percent + '% off)</span><span>-$' + d.discount.toFixed(2) + '</span></div>' +
+        '<div class="m-summary-row m-total"><span>Total</span><span>$' + newTotal.toFixed(2) + '</span></div>';
+      document.getElementById('couponStatus').innerHTML = '<span style="color:#10b981"><i class="las la-check-circle"></i> Coupon applied! (' + d.percent + '% off)</span>';
+      btn.textContent = 'Applied';
+      btn.style.background = '#10b981';
+      btn.style.color = '#fff';
+      btn.style.borderColor = '#10b981';
+    } else {
+      alert(d.message);
+      btn.disabled = false;
+      btn.textContent = 'Apply';
+    }
+  }).catch(function(){alert('Error');btn.disabled = false;btn.textContent = 'Apply';});
 });
+{% if validated_coupon and discount > 0 %}
+document.getElementById('applyCoupon').disabled = true;
+document.getElementById('applyCoupon').textContent = 'Applied';
+document.getElementById('applyCoupon').style.background = '#10b981';
+document.getElementById('applyCoupon').style.color = '#fff';
+document.getElementById('applyCoupon').style.borderColor = '#10b981';
+{% endif %}
 </script>
 {% endblock %}

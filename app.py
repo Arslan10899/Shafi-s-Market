@@ -147,10 +147,17 @@ class Coupon(db.Model):
     code = db.Column(db.String(50), unique=True, nullable=False)
     discount_percent = db.Column(db.Integer, default=0)
     max_uses = db.Column(db.Integer, default=100)
+    max_uses_per_user = db.Column(db.Integer, default=1)
     current_uses = db.Column(db.Integer, default=0)
     expiry_date = db.Column(db.DateTime)
     is_active = db.Column(db.Boolean, default=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+class CouponUsage(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    coupon_id = db.Column(db.Integer, db.ForeignKey('coupon.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    used_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 class Contact(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -593,8 +600,13 @@ def validate_coupon():
         return jsonify({'valid': False, 'message': 'Coupon has expired'})
     if coupon.current_uses >= coupon.max_uses:
         return jsonify({'valid': False, 'message': 'Coupon usage limit reached'})
+    uid = session['user_id']
+    usage_count = CouponUsage.query.filter_by(coupon_id=coupon.id, user_id=uid).count()
+    if usage_count >= coupon.max_uses_per_user:
+        return jsonify({'valid': False, 'message': f'You can only use this coupon {coupon.max_uses_per_user} time(s)'})
     discount = round(subtotal * coupon.discount_percent / 100, 2)
     session['validated_coupon'] = code.upper()
+    session.modified = True
     return jsonify({'valid': True, 'discount': discount, 'percent': coupon.discount_percent, 'message': f'Coupon applied! You save ${discount:.2f}'})
 
 @app.route('/checkout', methods=['GET', 'POST'])
@@ -627,8 +639,15 @@ def checkout():
             elif coupon.current_uses >= coupon.max_uses:
                 flash('Coupon usage limit reached', 'danger')
             else:
-                discount = round(subtotal * coupon.discount_percent / 100, 2)
-                coupon.current_uses += 1
+                uid = session['user_id']
+                usage_count = CouponUsage.query.filter_by(coupon_id=coupon.id, user_id=uid).count()
+                if usage_count >= coupon.max_uses_per_user:
+                    flash(f'You can only use this coupon {coupon.max_uses_per_user} time(s)', 'danger')
+                else:
+                    discount = round(subtotal * coupon.discount_percent / 100, 2)
+                    coupon.current_uses += 1
+                    usage = CouponUsage(coupon_id=coupon.id, user_id=session['user_id'])
+                    db.session.add(usage)
                 flash(f'Coupon applied! You saved ${discount:.2f}', 'success')
 
         order = Order(
@@ -665,9 +684,12 @@ def checkout():
     discount_percent = 0
     if validated_coupon:
         coupon = Coupon.query.filter_by(code=validated_coupon, is_active=True).first()
+        uid = session['user_id']
         if coupon and not (coupon.expiry_date and coupon.expiry_date < datetime.utcnow()) and coupon.current_uses < coupon.max_uses:
-            discount_percent = coupon.discount_percent
-            discount = round(subtotal * discount_percent / 100, 2)
+            usage_count = CouponUsage.query.filter_by(coupon_id=coupon.id, user_id=uid).count()
+            if usage_count < coupon.max_uses_per_user:
+                discount_percent = coupon.discount_percent
+                discount = round(subtotal * discount_percent / 100, 2)
     return render_template('checkout.html', cart_items=cart_items,
         subtotal=subtotal, tax=tax, shipping=shipping, total=total,
         validated_coupon=validated_coupon, discount=discount, discount_percent=discount_percent)
@@ -1394,10 +1416,12 @@ def admin_coupons():
 @admin_required
 def admin_add_coupon():
     max_uses = request.form.get('max_uses')
+    max_per_user = request.form.get('max_uses_per_user')
     coupon = Coupon(
         code=request.form['code'].upper(),
         discount_percent=int(request.form['discount_percent']),
         max_uses=int(max_uses) if max_uses else 100,
+        max_uses_per_user=int(max_per_user) if max_per_user else 1,
         expiry_date=datetime.strptime(request.form['expiry_date'], '%Y-%m-%d') if request.form.get('expiry_date') else None
     )
     db.session.add(coupon)
@@ -1410,9 +1434,11 @@ def admin_add_coupon():
 def admin_edit_coupon(cid):
     c = Coupon.query.get_or_404(cid)
     max_uses = request.form.get('max_uses')
+    max_per_user = request.form.get('max_uses_per_user')
     c.code = request.form['code'].upper()
     c.discount_percent = int(request.form['discount_percent'])
     c.max_uses = int(max_uses) if max_uses else 100
+    c.max_uses_per_user = int(max_per_user) if max_per_user else 1
     c.expiry_date = datetime.strptime(request.form['expiry_date'], '%Y-%m-%d') if request.form.get('expiry_date') else None
     db.session.commit()
     flash('Coupon updated!', 'success')

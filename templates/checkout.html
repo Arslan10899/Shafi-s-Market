@@ -97,8 +97,13 @@
                     <div class="co-section">
                         <h5><i class="fas fa-tag" style="width: 20px;"></i> Coupon Code</h5>
                         <div class="input-group">
-                            <input type="text" name="coupon_code" class="form-control" placeholder="Enter coupon code" style="border: 1px solid #ddd; border-radius: 4px 0 0 4px;" value="{{ validated_coupon or request.form.get('coupon_code', '') }}">
+                            <input type="text" name="coupon_code" id="couponInput" class="form-control" placeholder="Enter coupon code" style="border: 1px solid #ddd; border-radius: 4px 0 0 4px;" value="{{ validated_coupon or request.form.get('coupon_code', '') }}">
                             <button class="btn" type="button" id="applyCouponBtn" style="background: #f7f8f8; border: 1px solid #ddd; border-left: none; border-radius: 0 4px 4px 0; font-size: 14px; color: #0f1111;">Apply</button>
+                        </div>
+                        <div id="couponStatus" class="mt-2" style="font-size:13px">
+                            {% if validated_coupon and discount > 0 %}
+                            <span style="color:#10b981"><i class="fas fa-check-circle"></i> Coupon applied! ({{ discount_percent }}% off)</span>
+                            {% endif %}
                         </div>
                     </div>
 
@@ -129,6 +134,7 @@
                             <span>Tax:</span>
                             <span>${{ "%.2f"|format(tax) }}</span>
                         </div>
+                        <div id="orderTotalSection">
                         {% if discount > 0 %}
                         <div class="summary-row" style="color:#10b981">
                             <span>Coupon Discount ({{ discount_percent }}%):</span>
@@ -144,6 +150,7 @@
                             <span>${{ "%.2f"|format(total) }}</span>
                         </div>
                         {% endif %}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -160,6 +167,8 @@ $(document).ready(function() {
         var code = $('[name="coupon_code"]').val().trim();
         if (!code) { alert('Enter a coupon code'); return; }
         var subtotal = {{ subtotal }};
+        var btn = $(this);
+        btn.prop('disabled', true).text('Applying...');
         $.ajax({
             url: '/coupon/validate',
             method: 'POST',
@@ -167,15 +176,35 @@ $(document).ready(function() {
             data: JSON.stringify({ code: code, subtotal: subtotal }),
             success: function(res) {
                 if (res.valid) {
-                    alert(res.message);
-                    location.reload();
+                    var discount = res.discount;
+                    var percent = res.percent;
+                    var newTotal = (subtotal + {{ tax }} + {{ shipping }}) - discount;
+                    $('#orderTotalSection').html(
+                        '<div class="summary-row" style="color:#10b981">' +
+                            '<span>Coupon Discount (' + percent + '%):</span>' +
+                            '<span>-$' + discount.toFixed(2) + '</span>' +
+                        '</div>' +
+                        '<div class="summary-row total">' +
+                            '<span>Order total:</span>' +
+                            '<span>$' + newTotal.toFixed(2) + '</span>' +
+                        '</div>'
+                    );
+                    $('#couponStatus').html('<span style="color:#10b981"><i class="fas fa-check-circle"></i> Coupon applied! (' + percent + '% off)</span>');
+                    btn.text('Applied').css('background','#10b981').css('color','#fff').css('border-color','#10b981');
                 } else {
                     alert(res.message);
+                    btn.prop('disabled', false).text('Apply');
                 }
             },
-            error: function() { alert('Error validating coupon'); }
+            error: function() {
+                alert('Error validating coupon');
+                btn.prop('disabled', false).text('Apply');
+            }
         });
     });
+    {% if validated_coupon and discount > 0 %}
+    $('#applyCouponBtn').text('Applied').prop('disabled', true).css('background','#10b981').css('color','#fff').css('border-color','#10b981');
+    {% endif %}
 });
 </script>
 </body>
