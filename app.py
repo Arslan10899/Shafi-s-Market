@@ -212,6 +212,13 @@ def migrate_db():
         if 'subcategory_id' not in cols:
             db.session.execute(db.text('ALTER TABLE product ADD COLUMN subcategory_id INTEGER REFERENCES sub_category(id)'))
             db.session.commit()
+    if 'coupon' in tables:
+        cols = [c['name'] for c in inspector.get_columns('coupon')]
+        if 'max_uses_per_user' not in cols:
+            db.session.execute(db.text('ALTER TABLE coupon ADD COLUMN max_uses_per_user INTEGER DEFAULT 1'))
+            db.session.commit()
+    if 'coupon_usage' not in tables:
+        CouponUsage.__table__.create(db.engine)
 
 def is_base64_encoded(s):
     """Check if string is valid base64 encoding (old password format)."""
