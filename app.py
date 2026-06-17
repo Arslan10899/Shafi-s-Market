@@ -657,6 +657,7 @@ def checkout():
             db.session.delete(item)
 
         db.session.commit()
+        session.pop('validated_coupon', None)
         return redirect(url_for('payment', oid=order.id))
 
     validated_coupon = session.get('validated_coupon')
@@ -674,6 +675,7 @@ def checkout():
 # ====== PAYMENT ======
 @app.route('/payment/<int:oid>', methods=['GET', 'POST'])
 @login_required
+@csrf.exempt
 def payment(oid):
     order = Order.query.get_or_404(oid)
     if request.method == 'POST':

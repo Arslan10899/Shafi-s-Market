@@ -13,7 +13,10 @@
         <div class="d-flex justify-between mb-2"><span class="text-muted">Status</span><span class="m-badge m-badge-green">{{ order.status }}</span></div>
         <div class="d-flex justify-between"><span class="text-muted">Payment</span><span class="m-badge m-badge-blue">{{ order.payment_status }}</span></div>
       </div>
-      <div class="mt-5 d-flex gap-3 justify-center">
+      <div class="mt-4 d-flex justify-center">
+        <a href="{{ url_for('order_invoice', oid=order.id) }}" class="m-btn m-btn-outline"><i class="las la-file-invoice"></i> Download Invoice</a>
+      </div>
+      <div class="mt-3 d-flex gap-3 justify-center">
         <a href="{{ url_for('orders') }}" class="m-btn m-btn-primary">View Orders</a>
         <a href="{{ url_for('shop') }}" class="m-btn m-btn-outline">Continue Shopping</a>
       </div>
