@@ -1,439 +1,69 @@
-<div id="ss-nav">
-  <style>
-  #ss-nav * { box-sizing: border-box; }
-  #ss-nav {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    position: relative;
-    z-index: 100;
-  }
-
-  /* ===== TOP ANNOUNCEMENT ===== */
-  .ss-announce {
-    background: linear-gradient(90deg, #0f172a, #1e293b);
-    color: #f1f5f9;
-    font-size: 12px;
-    text-align: center;
-    padding: 7px 20px;
-    letter-spacing: .3px;
-  }
-  .ss-announce a { color: #f59e0b; text-decoration: none; font-weight: 600; }
-  .ss-announce a:hover { text-decoration: underline; }
-  .ss-announce i { margin: 0 4px; vertical-align: middle; }
-
-  /* ===== MAIN HEADER ===== */
-  .ss-header {
-    background: #fff;
-    color: #0f172a;
-    box-shadow: 0 1px 3px rgba(0,0,0,.06);
-    position: sticky;
-    top: 0;
-    z-index: 100;
-  }
-  .ss-inner {
-    display: flex;
-    align-items: center;
-    padding: 0 28px;
-    gap: 20px;
-    max-width: 1500px;
-    margin: 0 auto;
-    height: 64px;
-  }
-
-  /* -- Hamburger -- */
-  .ss-hamburger {
-    display: none;
-    width: 36px; height: 36px;
-    border: 1px solid #e2e8f0;
-    background: #fff;
-    border-radius: 8px;
-    color: #475569;
-    font-size: 16px;
-    cursor: pointer;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    transition: all .15s;
-  }
-  .ss-hamburger:hover { border-color: #f59e0b; color: #f59e0b; }
-
-  /* -- Logo -- */
-  .ss-logo { display: flex; align-items: center; flex-shrink: 0; }
-  .ss-logo a {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    color: #0f172a;
-    text-decoration: none;
-  }
-  .ss-logo .logo-icon {
-    width: 36px;
-    height: 36px;
-    background: #0f172a;
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 15px;
-    font-weight: 800;
-    color: #f59e0b;
-    flex-shrink: 0;
-    letter-spacing: -1px;
-  }
-  .ss-logo .logo-text {
-    font-size: 20px;
-    font-weight: 800;
-    color: #0f172a;
-    line-height: 1.15;
-    letter-spacing: -.3px;
-  }
-  .ss-logo .logo-text span { color: #f59e0b; }
-
-  /* -- Nav links (center) -- */
-  .ss-nav-links {
-    display: flex;
-    align-items: center;
-    gap: 2px;
-    margin: 0 0 0 auto;
-  }
-  .ss-nav-links a {
-    color: #475569;
-    text-decoration: none;
-    padding: 6px 14px;
-    font-size: 13px;
-    font-weight: 500;
-    border-radius: 6px;
-    transition: all .15s;
-    white-space: nowrap;
-  }
-  .ss-nav-links a:hover { color: #0f172a; background: #f1f5f9; }
-  .ss-nav-links a i { margin-right: 5px; font-size: 14px; }
-  .ss-nav-links .nav-highlight { color: #f59e0b; font-weight: 600; }
-  .ss-nav-links .nav-highlight:hover { background: #fffbeb; }
-
-  /* -- Right actions -- */
-  .ss-actions {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    flex-shrink: 0;
-  }
-  .ss-actions a {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    padding: 7px 12px;
-    border-radius: 8px;
-    color: #475569;
-    text-decoration: none;
-    font-size: 13px;
-    font-weight: 500;
-    transition: all .15s;
-    white-space: nowrap;
-  }
-  .ss-actions a:hover { background: #f1f5f9; color: #0f172a; }
-  .ss-actions a i { font-size: 18px; }
-  .ss-actions .cart-wrap {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    padding: 7px 12px;
-    border-radius: 8px;
-    color: #475569;
-    text-decoration: none;
-    transition: all .15s;
-    position: relative;
-  }
-  .ss-actions .cart-wrap:hover { background: #f1f5f9; }
-  .ss-actions .cart-wrap i { font-size: 20px; color: #0f172a; }
-  .ss-actions .cart-count {
-    position: absolute;
-    top: 2px;
-    right: 4px;
-    background: #ef4444;
-    color: #fff;
-    font-size: 9px;
-    font-weight: 700;
-    min-width: 16px;
-    height: 16px;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0 3px;
-  }
-  .ss-actions .cart-label { font-size: 12px; font-weight: 500; color: #475569; }
-  .ss-actions .action-icon-only {
-    width: 36px; height: 36px;
-    display: flex; align-items: center; justify-content: center;
-    border-radius: 8px; color: #475569; text-decoration: none;
-    transition: all .15s;
-  }
-  .ss-actions .action-icon-only:hover { background: #f1f5f9; color: #0f172a; }
-  .ss-actions .action-icon-only i { font-size: 18px; }
-
-  /* -- Search toggle (mobile) -- */
-  .ss-search-toggle {
-    display: none;
-    width: 36px; height: 36px;
-    border: 1px solid #e2e8f0;
-    background: #fff;
-    border-radius: 8px;
-    color: #475569;
-    font-size: 16px;
-    cursor: pointer;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-  }
-  .ss-search-toggle:hover { border-color: #f59e0b; color: #f59e0b; }
-
-  /* ===== SEARCH BAR (below header) ===== */
-  .ss-search-wrap {
-    display: none;
-    background: #fff;
-    border-bottom: 1px solid #e2e8f0;
-    padding: 12px 20px;
-  }
-  .ss-search-wrap.show { display: block; }
-  .ss-search {
-    display: flex;
-    max-width: 700px;
-    margin: 0 auto;
-    border-radius: 10px;
-    overflow: hidden;
-    border: 1.5px solid #e2e8f0;
-    transition: border-color .2s;
-    background: #fff;
-  }
-  .ss-search:focus-within { border-color: #f59e0b; }
-  .ss-search select {
-    border: none;
-    background: #f8fafc;
-    padding: 9px 10px;
-    font-size: 13px;
-    color: #64748b;
-    cursor: pointer;
-    width: 60px;
-    flex-shrink: 0;
-    outline: none;
-    font-family: inherit;
-    border-right: 1px solid #e2e8f0;
-  }
-  .ss-search input {
-    flex: 1;
-    border: none;
-    padding: 10px 14px;
-    font-size: 14px;
-    outline: none;
-    min-width: 0;
-    font-family: inherit;
-    background: transparent;
-    color: #0f172a;
-  }
-  .ss-search input::placeholder { color: #94a3b8; }
-  .ss-search button {
-    background: #0f172a;
-    border: none;
-    padding: 9px 18px;
-    cursor: pointer;
-    color: #fff;
-    font-size: 16px;
-    flex-shrink: 0;
-    transition: background .15s;
-  }
-  .ss-search button:hover { background: #1e293b; }
-
-  /* ===== MOBILE DRAWER ===== */
-  .ss-drawer {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    width: 280px;
-    background: #fff;
-    z-index: 1060;
-    transform: translateX(-100%);
-    transition: transform .3s cubic-bezier(.4,0,.2,1);
-    flex-direction: column;
-    box-shadow: 4px 0 30px rgba(0,0,0,.12);
-  }
-  .ss-drawer.open { transform: translateX(0); }
-  .ss-drawer-head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 16px 20px;
-    border-bottom: 1px solid #e2e8f0;
-  }
-  .ss-drawer-head .dl { font-size: 16px; font-weight: 800; color: #0f172a; }
-  .ss-drawer-head .dl span { color: #f59e0b; }
-  .ss-drawer-close {
-    width: 30px; height: 30px;
-    border: none; background: #f1f5f9;
-    border-radius: 8px; color: #64748b;
-    font-size: 14px; cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-  }
-  .ss-drawer-close:hover { background: #e2e8f0; }
-  .ss-drawer-body { flex: 1; overflow-y: auto; padding: 8px 0; }
-  .ss-drawer-body a {
-    display: flex; align-items: center; gap: 12px;
-    padding: 11px 20px; color: #475569;
-    text-decoration: none; font-size: 14px; font-weight: 500;
-    transition: background .1s;
-  }
-  .ss-drawer-body a:hover { background: #f8fafc; color: #0f172a; }
-  .ss-drawer-body a i { width: 20px; text-align: center; color: #f59e0b; font-size: 16px; }
-  .ss-drawer-body .dd { height: 1px; background: #e2e8f0; margin: 8px 20px; }
-  .ss-drawer-bd {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,.3);
-    z-index: 1055;
-  }
-  .ss-drawer-bd.show { display: block; }
-
-  /* ===== RESPONSIVE ===== */
-  @media (max-width: 900px) {
-    .ss-nav-links { display: none; }
-    .ss-hamburger { display: flex; }
-    .ss-search-toggle { display: flex; }
-    .ss-inner { padding: 0 16px; gap: 12px; }
-    .ss-drawer { display: flex; }
-    .ss-search { margin: 0 auto; }
-  }
-  @media (max-width: 768px) {
-    .ss-inner { height: 56px; gap: 8px; padding: 0 12px; }
-    .ss-logo .logo-text { font-size: 17px; }
-    .ss-logo .logo-icon { width: 32px; height: 32px; font-size: 13px; border-radius: 8px; }
-    .ss-actions .cart-label { display: none; }
-    .ss-actions a span:not(.cart-count) { display: none; }
-    .ss-actions a { padding: 6px 8px; }
-    .ss-actions .cart-wrap { padding: 6px 8px; }
-  }
-  @media (max-width: 576px) {
-    .ss-announce { font-size: 11px; padding: 5px 12px; }
-    .ss-inner { height: 52px; gap: 6px; padding: 0 10px; }
-    .ss-logo .logo-text { font-size: 15px; }
-    .ss-logo .logo-icon { width: 28px; height: 28px; font-size: 11px; border-radius: 7px; }
-  }
-  </style>
-
-  <!-- ANNOUNCEMENT BAR -->
-  <div class="ss-announce">
-    <i class="las la-truck"></i> Free shipping on orders over $50 &nbsp;|&nbsp; <i class="las la-redo"></i> 30-day easy returns
-  </div>
-
-  <!-- HEADER -->
-  <div class="ss-header">
-    <div class="ss-inner">
-      <button class="ss-hamburger" id="ssHamburger"><i class="las la-bars"></i></button>
-
-      <div class="ss-logo">
-        <a href="/">
-          <span class="logo-icon">SS</span>
-          <span class="logo-text">Shafi's<span> Shop</span></span>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="/">
+            Shafi's <span class="text-warning">Market</span>
         </a>
-      </div>
 
-      <div class="ss-nav-links">
-        <a href="{{ url_for('shop') }}"><i class="las la-fire"></i> Today's Deals</a>
-        <a href="{{ url_for('shop') }}"><i class="las la-gift"></i> Gift Cards</a>
-        <a href="{{ url_for('shop') }}"><i class="las la-store"></i> Sell</a>
-        <a href="{{ url_for('about') }}"><i class="las la-info-circle"></i> About</a>
-        <a href="{{ url_for('contact') }}"><i class="las la-envelope"></i> Contact</a>
-        <a href="{{ url_for('blog') }}"><i class="las la-newspaper"></i> Blog</a>
-      </div>
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navMain">
+            <span class="navbar-toggler-icon"></span>
+        </button>
 
-      <div class="ss-actions">
-        <button class="ss-search-toggle" id="ssSearchToggle"><i class="las la-search"></i></button>
+        <div class="collapse navbar-collapse" id="navMain">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item"><a class="nav-link" href="/"><i class="fas fa-home"></i> Home</a></li>
+                <li class="nav-item"><a class="nav-link" href="/shop"><i class="fas fa-store"></i> Shop</a></li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-layer-group"></i> Categories
+                    </a>
+                    <ul class="dropdown-menu">
+                        {% set cats = categories|default([]) %}
+                        {% if cats %}
+                            {% for cat in cats %}
+                            <li><a class="dropdown-item" href="/shop?category={{ cat.slug }}">{{ cat.name }}</a></li>
+                            {% endfor %}
+                        {% else %}
+                            <li><a class="dropdown-item" href="/shop">All Products</a></li>
+                        {% endif %}
+                    </ul>
+                </li>
+            </ul>
 
-        {% if session.user_id %}
-        <a href="{{ url_for('dashboard') }}"><i class="las la-user-circle"></i> <span>{{ session.username[:8] }}</span></a>
-        {% else %}
-        <a href="{{ url_for('login') }}"><i class="las la-user"></i> <span>Sign In</span></a>
-        {% endif %}
+            <form class="d-flex me-2" action="/shop" method="GET" role="search">
+                <div class="input-group">
+                    <input class="form-control form-control-sm" type="search" name="search" placeholder="Search products..." value="{{ search or '' }}" style="min-width:200px">
+                    <button class="btn btn-warning btn-sm" type="submit"><i class="fas fa-search"></i></button>
+                </div>
+            </form>
 
-        <a href="{{ url_for('orders') }}"><i class="las la-truck"></i> <span>Orders</span></a>
-
-        <a href="{{ url_for('cart') }}" class="cart-wrap">
-          <i class="las la-shopping-bag"></i>
-          <span class="cart-count">{{ cart_count }}</span>
-          <span class="cart-label">Cart</span>
-        </a>
-      </div>
+            <ul class="navbar-nav">
+                {% if user and user.id %}
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle d-flex align-items-center gap-2" href="#" role="button" data-bs-toggle="dropdown">
+                        {% if user.profile_image %}
+                        <img src="{{ user.profile_image }}" class="rounded-circle" width="28" height="28" style="object-fit:cover">
+                        {% else %}
+                        <div class="rounded-circle bg-warning d-flex align-items-center justify-content-center text-white fw-bold" style="width:28px;height:28px;font-size:12px">{{ user.username[:1] | upper }}</div>
+                        {% endif %}
+                        <span>{{ user.username }}</span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="/dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                        {% if user.role == 'admin' %}
+                        <li><a class="dropdown-item" href="/admin"><i class="fas fa-shield-alt"></i> Admin Panel</a></li>
+                        {% endif %}
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="/profile"><i class="fas fa-user"></i> Profile</a></li>
+                        <li><a class="dropdown-item" href="/settings"><i class="fas fa-cog"></i> Settings</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="/auth/logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                    </ul>
+                </li>
+                {% else %}
+                <li class="nav-item"><a class="nav-link" href="/auth/login"><i class="fas fa-sign-in-alt"></i> Login</a></li>
+                <li class="nav-item"><a class="nav-link" href="/auth/register"><i class="fas fa-user-plus"></i> Register</a></li>
+                {% endif %}
+            </ul>
+        </div>
     </div>
-
-    <!-- SEARCH (expandable) -->
-    <div class="ss-search-wrap" id="ssSearchWrap">
-      <form class="ss-search" action="{{ url_for('shop') }}" method="GET">
-        <select name="category">
-          <option value="">All</option>
-          {% for cat in categories %}
-          <option value="{{ cat.id }}" {% if request.args.get('category')|string == cat.id|string %}selected{% endif %}>{{ cat.name[:3] }}</option>
-          {% endfor %}
-        </select>
-        <input type="text" name="search" placeholder="Search products..." value="{{ request.args.get('search', '') }}">
-        <button type="submit"><i class="las la-search"></i></button>
-      </form>
-    </div>
-  </div>
-
-  <!-- MOBILE DRAWER -->
-  <div class="ss-drawer-bd" id="ssDrawerBd"></div>
-  <div class="ss-drawer" id="ssDrawer">
-    <div class="ss-drawer-head">
-      <span class="dl">Shafi's<span> Shop</span></span>
-      <button class="ss-drawer-close" id="ssDrawerClose"><i class="las la-times"></i></button>
-    </div>
-    <div class="ss-drawer-body">
-      <a href="/"><i class="las la-home"></i> Home</a>
-      <a href="{{ url_for('shop') }}"><i class="las la-store"></i> Shop</a>
-      <a href="{{ url_for('cart') }}"><i class="las la-shopping-bag"></i> Cart {% if cart_count %}({{ cart_count }}){% endif %}</a>
-      <a href="{{ url_for('orders') }}"><i class="las la-truck"></i> Orders</a>
-      {% if session.user_id %}
-      <a href="{{ url_for('dashboard') }}"><i class="las la-user-circle"></i> My Account</a>
-      <a href="{{ url_for('logout') }}"><i class="las la-sign-out-alt"></i> Logout</a>
-      {% else %}
-      <a href="{{ url_for('login') }}"><i class="las la-sign-in-alt"></i> Sign In</a>
-      {% endif %}
-      <div class="dd"></div>
-      <a href="{{ url_for('shop', sort='newest') }}"><i class="las la-fire"></i> Today's Deals</a>
-      <a href="{{ url_for('shop') }}"><i class="las la-gift"></i> Gift Cards</a>
-      <a href="{{ url_for('shop') }}"><i class="las la-store"></i> Sell</a>
-      <a href="{{ url_for('about') }}"><i class="las la-info-circle"></i> About Us</a>
-      <a href="{{ url_for('contact') }}"><i class="las la-envelope"></i> Contact</a>
-      <a href="{{ url_for('blog') }}"><i class="las la-newspaper"></i> Blog</a>
-    </div>
-  </div>
-
-  <script>
-  (function() {
-    var h = document.getElementById('ssHamburger');
-    var d = document.getElementById('ssDrawer');
-    var b = document.getElementById('ssDrawerBd');
-    var c = document.getElementById('ssDrawerClose');
-    function op() { d.classList.add('open'); b.classList.add('show'); document.body.style.overflow = 'hidden'; }
-    function cl() { d.classList.remove('open'); b.classList.remove('show'); document.body.style.overflow = ''; }
-    if (h) h.addEventListener('click', op);
-    if (c) c.addEventListener('click', cl);
-    if (b) b.addEventListener('click', cl);
-
-    var st = document.getElementById('ssSearchToggle');
-    var sw = document.getElementById('ssSearchWrap');
-    if (st && sw) {
-      st.addEventListener('click', function(e) {
-        e.stopPropagation();
-        sw.classList.toggle('show');
-      });
-      document.addEventListener('click', function(e) {
-        if (!sw.contains(e.target) && e.target !== st && !st.contains(e.target)) {
-          sw.classList.remove('show');
-        }
-      });
-    }
-  })();
-  </script>
-</div>
+</nav>

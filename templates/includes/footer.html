@@ -1,173 +1,44 @@
-<style>
-.ss-footer { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
-.ss-footer a { text-decoration: none; color: #94a3b8; }
-.ss-footer a:hover { text-decoration: underline; color: #fff; }
-.ss-back-top {
-  background: #1e293b;
-  text-align: center;
-  padding: 14px 0;
-  cursor: pointer;
-  transition: background .2s;
-}
-.ss-back-top:hover { background: #334155; }
-.ss-back-top a {
-  color: #fff;
-  font-size: 13px;
-  font-weight: 500;
-  display: block;
-}
-.ss-links {
-  background: #0f172a;
-  color: #94a3b8;
-  padding: 40px 0 30px;
-  border-bottom: 1px solid #1e293b;
-}
-.ss-links .container {
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 0 20px;
-}
-.ss-links .row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 24px;
-  justify-content: space-between;
-}
-.ss-links .col {
-  flex: 1;
-  min-width: 150px;
-}
-.ss-links h6 {
-  color: #f1f5f9;
-  font-size: 14px;
-  font-weight: 600;
-  margin: 0 0 12px;
-  letter-spacing: .3px;
-}
-.ss-links ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-.ss-links li { margin-bottom: 7px; }
-.ss-links a { font-size: 13px; }
-.ss-divider {
-  background: #0f172a;
-  padding: 24px 0;
-  text-align: center;
-  border-bottom: 1px solid #1e293b;
-}
-.ss-divider .brand {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-}
-.ss-divider .brand-icon {
-  width: 32px;
-  height: 32px;
-  background: linear-gradient(135deg, #f59e0b, #d97706);
-  border-radius: 6px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 14px;
-  font-weight: 800;
-  color: #0f172a;
-}
-.ss-divider .brand-text {
-  font-size: 20px;
-  font-weight: 700;
-  color: #fff;
-  letter-spacing: -.5px;
-}
-.ss-divider .brand-text span {
-  background: linear-gradient(135deg, #f59e0b, #fbbf24);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-.ss-bottom {
-  background: #020617;
-  color: #64748b;
-  padding: 20px 0;
-  font-size: 12px;
-  text-align: center;
-}
-.ss-bottom a { color: #64748b; margin: 0 10px; }
-.ss-bottom a:hover { color: #fff; }
-.ss-bottom .copyright { margin-top: 8px; color: #475569; font-size: 11px; }
-@media (max-width: 768px) {
-  .ss-links .col { min-width: 120px; }
-  .ss-links { padding: 28px 0 20px; }
-  .ss-links .row { gap: 16px; }
-}
-@media (max-width: 576px) {
-  .ss-links .row { flex-direction: column; gap: 20px; }
-  .ss-links .col { min-width: 100%; }
-  .ss-bottom a { display: inline-block; margin: 3px 6px; }
-}
-</style>
-
-<footer class="ss-footer">
-  <div class="ss-back-top">
-    <a href="#" onclick="window.scrollTo({top:0,behavior:'smooth'});return false;"><i class="las la-angle-up me-1"></i> Back to top</a>
-  </div>
-
-  <div class="ss-links">
+<footer class="bg-dark text-light pt-5 pb-3 mt-5">
     <div class="container">
-      <div class="row">
-        <div class="col">
-          <h6>Get to Know Us</h6>
-          <ul>
-            <li><a href="{{ url_for('about') }}">About Us</a></li>
-            <li><a href="#">Careers</a></li>
-            <li><a href="#">Press</a></li>
-            <li><a href="{{ url_for('blog') }}">Blog</a></li>
-          </ul>
+        <div class="row g-4">
+            <div class="col-lg-4">
+                <h5 class="fw-bold mb-3"><span class="text-warning">Shafi's</span> Market</h5>
+                <p class="text-secondary small">Your trusted affiliate marketplace. We connect you with the best deals from Amazon, Alibaba, AliExpress, and Daraz.</p>
+                <div class="d-flex gap-3 fs-5">
+                    {% for link in social_links|default([]) %}
+                    <a href="{{ link.url }}" class="text-secondary hover-warning" target="_blank" rel="noopener" title="{{ link.platform }}"><i class="{{ link.icon }}"></i></a>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-4">
+                <h6 class="fw-bold mb-3">Quick Links</h6>
+                <ul class="list-unstyled small">
+                    <li class="mb-2"><a href="/" class="text-secondary text-decoration-none">Home</a></li>
+                    <li class="mb-2"><a href="/shop" class="text-secondary text-decoration-none">Shop</a></li>
+                    <li class="mb-2"><a href="/shop?sort=newest" class="text-secondary text-decoration-none">New Arrivals</a></li>
+                </ul>
+            </div>
+            <div class="col-lg-2 col-md-4">
+                <h6 class="fw-bold mb-3">Categories</h6>
+                <ul class="list-unstyled small">
+                    <li class="mb-2"><a href="/shop?category=electronics" class="text-secondary text-decoration-none">Electronics</a></li>
+                    <li class="mb-2"><a href="/shop?category=fashion" class="text-secondary text-decoration-none">Fashion</a></li>
+                    <li class="mb-2"><a href="/shop?category=home-kitchen" class="text-secondary text-decoration-none">Home & Kitchen</a></li>
+                    <li class="mb-2"><a href="/shop?category=beauty-health" class="text-secondary text-decoration-none">Beauty & Health</a></li>
+                </ul>
+            </div>
+            <div class="col-lg-2 col-md-4">
+                <h6 class="fw-bold mb-3">Support</h6>
+                <ul class="list-unstyled small">
+                    <li class="mb-2"><a href="/faq" class="text-secondary text-decoration-none">FAQ</a></li>
+                    <li class="mb-2"><a href="/privacy" class="text-secondary text-decoration-none">Privacy Policy</a></li>
+                    <li class="mb-2"><a href="/terms" class="text-secondary text-decoration-none">Terms of Service</a></li>
+                </ul>
+            </div>
         </div>
-        <div class="col">
-          <h6>Customer Service</h6>
-          <ul>
-            <li><a href="{{ url_for('contact') }}">Contact Us</a></li>
-            <li><a href="{{ url_for('faq') }}">FAQ</a></li>
-            <li><a href="{{ url_for('returns') }}">Returns</a></li>
-            <li><a href="#">Shipping</a></li>
-          </ul>
+        <hr class="border-secondary my-4">
+        <div class="text-center text-secondary small">
+            &copy; 2025 Shafi's Affiliate Marketplace. All rights reserved. | Developed by Muhammad Arslan Munir
         </div>
-        <div class="col">
-          <h6>Make Money</h6>
-          <ul>
-            <li><a href="#">Sell Products</a></li>
-            <li><a href="#">Become Affiliate</a></li>
-            <li><a href="#">Advertise</a></li>
-          </ul>
-        </div>
-        <div class="col">
-          <h6>Let Us Help</h6>
-          <ul>
-            <li><a href="{{ url_for('dashboard') }}">Your Account</a></li>
-            <li><a href="{{ url_for('orders') }}">Your Orders</a></li>
-            <li><a href="{{ url_for('cart') }}">Your Cart</a></li>
-            <li><a href="{{ url_for('wishlist') }}">Wishlist</a></li>
-          </ul>
-        </div>
-      </div>
     </div>
-  </div>
-
-  <div class="ss-divider">
-    <div class="brand">
-      <span class="brand-icon">SS</span>
-      <span class="brand-text">Shafi's<span> Shop</span></span>
-    </div>
-  </div>
-
-  <div class="ss-bottom">
-    <div>
-      <a href="{{ url_for('privacy') }}">Privacy</a>
-      <a href="{{ url_for('terms') }}">Terms</a>
-      <a href="{{ url_for('faq') }}">FAQ</a>
-    </div>
-    <div class="copyright">&copy; 2025 Shafi's Shop. All rights reserved. Developed by Muhammad Arslan Munir.</div>
-  </div>
 </footer>

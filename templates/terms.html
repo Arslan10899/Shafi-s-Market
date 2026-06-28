@@ -1,107 +1,109 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Terms & Conditions - ShopName</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;800;900&display=swap">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/line-awesome/1.3.0/line-awesome/css/line-awesome.min.css">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/theme.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/responsive.css') }}">
+{% extends "base.html" %}
+{% block title %}Terms of Service - Shafi's Market{% endblock %}
+{% block content %}
 
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-</head>
-<body>
+<section class="py-5">
+    <div class="container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb small">
+                <li class="breadcrumb-item"><a href="/" class="text-decoration-none">Home</a></li>
+                <li class="breadcrumb-item active">Terms of Service</li>
+            </ol>
+        </nav>
 
-    {% include 'includes/navbar.html' %}
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <h2 class="fw-bold mb-2"><i class="fas fa-file-contract text-warning me-2"></i>Terms of Service</h2>
+                <p class="text-muted small mb-1">Last updated: January 2025</p>
+                <p class="text-muted mb-4">Please read these terms carefully before using our platform.</p>
 
-{% from 'includes/breadcrumb.html' import breadcrumb %}
-{{ breadcrumb([{'name': 'Terms & Conditions', 'url': '#'}]) }}
+                <div class="card border-0 shadow-sm mb-3">
+                    <div class="card-body">
+                        <h5 class="fw-bold">1. Acceptance of Terms</h5>
+                        <p class="small text-muted">By accessing or using Shafi's Affiliate Marketplace, you agree to be bound by these Terms of Service. If you do not agree, please do not use our services.</p>
+                    </div>
+                </div>
 
-    <main>
-        <section class="bg-primary py-5">
-            <div class="container text-center text-white">
-                <h1 class="fw-bold">Terms & Conditions</h1>
-                <p class="lead mb-0">Please read these terms carefully</p>
-            </div>
-        </section>
+                <div class="card border-0 shadow-sm mb-3">
+                    <div class="card-body">
+                        <h5 class="fw-bold">2. Description of Service</h5>
+                        <p class="small text-muted">Shafi's Affiliate Marketplace is an affiliate platform that connects users with products from third-party merchants. We display products and provide affiliate links to merchant sites. We do not sell, store, or ship any products directly.</p>
+                    </div>
+                </div>
 
-        <section class="py-5">
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-8 mx-auto">
-                        <p class="text-muted">Last updated: January 1, 2026</p>
-
-                        <p>Welcome to ShopName. By accessing or using our website, you agree to be bound by these Terms & Conditions. If you do not agree with any part of these terms, please do not use our services.</p>
-
-                        <h3 class="fw-bold mt-4">
-                            <i class="fas fa-user text-primary me-2"></i> User Responsibilities
-                        </h3>
-                        <p>As a user of our website, you agree to:</p>
-                        <ul>
-                            <li>Provide accurate, current, and complete information when creating an account or placing an order.</li>
-                            <li>Maintain the confidentiality of your account credentials and notify us immediately of any unauthorized use.</li>
-                            <li>Use the website only for lawful purposes and in accordance with these terms.</li>
-                            <li>Not engage in any activity that disrupts or interferes with the website's functionality.</li>
-                            <li>Not attempt to gain unauthorized access to any part of the website or its systems.</li>
+                <div class="card border-0 shadow-sm mb-3">
+                    <div class="card-body">
+                        <h5 class="fw-bold">3. User Accounts</h5>
+                        <ul class="small text-muted">
+                            <li>You must provide accurate information when registering.</li>
+                            <li>You are responsible for maintaining the confidentiality of your account credentials.</li>
+                            <li>You must notify us immediately of any unauthorized account use.</li>
+                            <li>We reserve the right to suspend or terminate accounts that violate these terms.</li>
                         </ul>
+                    </div>
+                </div>
 
-                        <h3 class="fw-bold mt-4">
-                            <i class="fas fa-shopping-bag text-primary me-2"></i> Purchase Rules
-                        </h3>
-                        <p>When making a purchase on our website, the following rules apply:</p>
-                        <ul>
-                            <li>All prices are listed in USD and are subject to change without prior notice.</li>
-                            <li>We reserve the right to refuse or cancel any order for reasons including product availability, pricing errors, or suspected fraud.</li>
-                            <li>Product images are for illustration purposes only. Actual products may vary slightly.</li>
-                            <li>Promotional codes and discounts cannot be combined unless explicitly stated.</li>
-                            <li>You are responsible for providing accurate shipping information. We are not liable for deliveries to incorrect addresses provided by you.</li>
+                <div class="card border-0 shadow-sm mb-3">
+                    <div class="card-body">
+                        <h5 class="fw-bold">4. Affiliate Links</h5>
+                        <ul class="small text-muted">
+                            <li>Users may generate and share affiliate links through their dashboard.</li>
+                            <li>Affiliate commissions are tracked and managed by third-party merchant programs.</li>
+                            <li>We are not responsible for commission amounts, approvals, or payments — these are handled by the respective merchant affiliate programs.</li>
+                            <li>Abusing the affiliate system may result in account termination.</li>
                         </ul>
+                    </div>
+                </div>
 
-                        <h3 class="fw-bold mt-4">
-                            <i class="fas fa-undo text-primary me-2"></i> Refund Terms
-                        </h3>
-                        <p>Our refund policy is governed by the following terms:</p>
-                        <ul>
-                            <li>Returns are accepted within 30 days of delivery as outlined in our Returns & Refunds policy.</li>
-                            <li>Refunds are processed to the original payment method within 5-7 business days after we receive and inspect the returned item.</li>
-                            <li>Shipping costs are non-refundable unless the return is due to our error or a defective product.</li>
-                            <li>We reserve the right to deny a refund if the returned item does not meet our eligibility conditions.</li>
+                <div class="card border-0 shadow-sm mb-3">
+                    <div class="card-body">
+                        <h5 class="fw-bold">5. Third-Party Merchants</h5>
+                        <ul class="small text-muted">
+                            <li>All purchases are made directly with third-party merchants.</li>
+                            <li>We do not guarantee product quality, availability, pricing, or delivery times.</li>
+                            <li>Any disputes regarding products or purchases must be resolved with the merchant directly.</li>
+                            <li>Product prices and availability are subject to change by the merchant without notice.</li>
                         </ul>
+                    </div>
+                </div>
 
-                        <h3 class="fw-bold mt-4">
-                            <i class="fas fa-copyright text-primary me-2"></i> Intellectual Property
-                        </h3>
-                        <p>All content on this website, including text, images, logos, and designs, is the property of ShopName and is protected by applicable intellectual property laws. You may not reproduce, distribute, or create derivative works without our express written consent.</p>
+                <div class="card border-0 shadow-sm mb-3">
+                    <div class="card-body">
+                        <h5 class="fw-bold">6. Prohibited Activities</h5>
+                        <p class="small text-muted mb-2">You agree not to:</p>
+                        <ul class="small text-muted">
+                            <li>Use the platform for any illegal purpose.</li>
+                            <li>Attempt to manipulate or abuse the affiliate tracking system.</li>
+                            <li>Post misleading or false information about products.</li>
+                            <li>Attempt to access other users' accounts or data.</li>
+                            <li>Use automated scripts or bots to interact with the platform.</li>
+                        </ul>
+                    </div>
+                </div>
 
-                        <h3 class="fw-bold mt-4">
-                            <i class="fas fa-ban text-primary me-2"></i> Limitation of Liability
-                        </h3>
-                        <p>ShopName shall not be liable for any indirect, incidental, special, or consequential damages arising from your use of the website or purchase of products. Our total liability shall not exceed the amount paid by you for the product in question.</p>
+                <div class="card border-0 shadow-sm mb-3">
+                    <div class="card-body">
+                        <h5 class="fw-bold">7. Limitation of Liability</h5>
+                        <p class="small text-muted">Shafi's Affiliate Marketplace is provided "as is" without warranties of any kind. We shall not be liable for any damages arising from the use or inability to use our platform, including but not limited to lost commissions, data loss, or service interruptions.</p>
+                    </div>
+                </div>
 
-                        <h3 class="fw-bold mt-4">
-                            <i class="fas fa-gavel text-primary me-2"></i> Governing Law
-                        </h3>
-                        <p>These terms shall be governed by and construed in accordance with the laws of the State of New York. Any disputes arising under these terms shall be subject to the exclusive jurisdiction of the courts in New York County.</p>
+                <div class="card border-0 shadow-sm mb-3">
+                    <div class="card-body">
+                        <h5 class="fw-bold">8. Changes to Terms</h5>
+                        <p class="small text-muted">We reserve the right to update these terms at any time. Users will be notified of material changes via email or site notice. Continued use after changes constitutes acceptance of the new terms.</p>
+                    </div>
+                </div>
 
-                        <h3 class="fw-bold mt-4">
-                            <i class="fas fa-envelope text-primary me-2"></i> Contact
-                        </h3>
-                        <p>For questions about these Terms & Conditions, please contact us at <strong>legal@shopname.com</strong>.</p>
+                <div class="card border-0 shadow-sm mb-3">
+                    <div class="card-body">
+                        <h5 class="fw-bold">9. Contact</h5>
+                        <p class="small text-muted">For questions about these terms, please reach out through our social media channels listed on the site.</p>
                     </div>
                 </div>
             </div>
-        </section>
-    </main>
+        </div>
+    </div>
+</section>
 
-    {% include 'includes/footer.html' %}
-
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/admin.js') }}"></script>
-</body>
-</html>
+{% endblock %}

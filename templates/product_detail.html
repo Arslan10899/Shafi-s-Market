@@ -1,341 +1,127 @@
 {% extends "base.html" %}
-{% block title %}{{ product.name }} - Shop{% endblock %}
-
-{% block extra_css %}
-<style>
-  .pd-gallery img { width: 100%; border: 1px solid #e7e7e7; border-radius: 4px; }
-  .pd-title { font-size: 22px; font-weight: 500; color: #0f1111; line-height: 1.3; }
-  .pd-brand { font-size: 13px; color: #007185; }
-  .pd-brand:hover { color: #c7511f; }
-  .pd-price-lg { font-size: 26px; font-weight: 500; color: #0f1111; }
-  .pd-old-price { font-size: 13px; color: #565959; text-decoration: line-through; }
-  .pd-save { font-size: 13px; color: #b12704; font-weight: 500; }
-  .pd-stock { font-size: 14px; color: #007600; font-weight: 500; }
-  .pd-stock-out { color: #b12704; }
-  .pd-detail-row { border-bottom: 1px solid #e7e7e7; padding: 12px 0; }
-  .pd-label { font-size: 13px; color: #565959; min-width: 100px; }
-  .pd-value { font-size: 13px; color: #0f1111; }
-  .specs-table { width: 100%; font-size: 13px; }
-  .specs-table td { padding: 6px 12px; border-bottom: 1px solid #eee; }
-  .specs-table td:first-child { font-weight: 600; color: #565959; width: 40%; }
-  .star-rating { color: #ffa41c; font-size: 14px; }
-  .review-card { border-bottom: 1px solid #e7e7e7; padding: 14px 0; }
-  .review-card:last-child { border-bottom: none; }
-  .qty-input { width: 60px; text-align: center; border: 1px solid #ddd; border-radius: 4px; padding: 4px; }
-  .pd-btn-cart { background: #ffd814; border: 1px solid #fcd200; border-radius: 20px; padding: 8px 30px; font-size: 14px; text-align: center; cursor: pointer; }
-  .pd-btn-cart:hover { background: #f7ca00; }
-  .pd-btn-buy { background: #ffa41c; border: 1px solid #e67a00; border-radius: 20px; padding: 8px 30px; font-size: 14px; color: #fff; text-align: center; cursor: pointer; }
-  .pd-btn-buy:hover { background: #e67a00; color: #fff; }
-  .pd-wishlist-btn { border: 1px solid #ddd; border-radius: 20px; padding: 8px 16px; background: #fff; cursor: pointer; font-size: 14px; }
-  .pd-wishlist-btn:hover { background: #f7f8f8; }
-  .pd-wishlist-btn.active { color: #b12704; }
-  .pd-delivery { font-size: 13px; color: #565959; }
-  .pd-delivery b { color: #0f1111; }
-  .star-input { display: inline-flex; flex-direction: row-reverse; gap: 2px; }
-  .star-input input { display: none; }
-  .star-input label { font-size: 28px; color: #ddd; cursor: pointer; transition: color .15s; }
-  .star-input label:hover, .star-input label:hover ~ label, .star-input input:checked ~ label { color: #ffa41c; }
-  .star-display { color: #ffa41c; font-size: 14px; }
-  .review-edit-btn { font-size: 12px; padding: 2px 10px; border-radius: 12px; }
-</style>
-{% endblock %}
-
+{% block title %}{{ product.title }} - Shafi's Market{% endblock %}
 {% block content %}
-<div class="container py-4">
 
-{% from 'includes/breadcrumb.html' import breadcrumb %}
-{{ breadcrumb([{'name': 'Shop', 'url': url_for('shop')}, {'name': product.name, 'url': '#'}]) }}
+<section class="py-4">
+    <div class="container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb small">
+                <li class="breadcrumb-item"><a href="/" class="text-decoration-none">Home</a></li>
+                <li class="breadcrumb-item"><a href="/shop" class="text-decoration-none">Shop</a></li>
+                {% if product.category %}
+                <li class="breadcrumb-item"><a href="/shop?category={{ product.category.slug }}" class="text-decoration-none">{{ product.category.name }}</a></li>
+                {% endif %}
+                <li class="breadcrumb-item active">{{ product.title[:40] }}...</li>
+            </ol>
+        </nav>
 
-  <div class="row">
-
-    <div class="col-md-6 mb-4">
-      <div class="pd-gallery">
-        <img src="{{ product.image or url_for('static', filename='images/placeholder.png') }}" alt="{{ product.name }}" class="img-fluid">
-      </div>
-    </div>
-
-    <div class="col-md-6 mb-4">
-      <h1 class="pd-title">{{ product.name }}</h1>
-      {% if product.brand %}
-        <a href="{{ url_for('shop', brand=product.brand) }}" class="pd-brand">Visit the {{ product.brand }} Store</a>
-      {% endif %}
-      <div class="mb-1">
-        <span class="star-rating">
-          {% for i in range(5) %}
-            <i class="fa{{ 's' if i < avg_rating|round(0,'floor') else 'r' }} fa-star{{ '-half-alt' if avg_rating - i > 0 and avg_rating - i < 1 else '' }}"></i>
-          {% endfor %}
-          <span style="font-size:13px;color:#0f1111;margin-left:6px">{{ "%.1f"|format(avg_rating) }}</span>
-          <span style="font-size:13px;color:#565959">({{ rating_count }} reviews)</span>
-        </span>
-      </div>
-
-      <div class="pd-detail-row d-flex align-items-baseline gap-3 flex-wrap">
-        <span class="pd-price-lg">${{ "%.2f"|format(product.price) }}</span>
-        {% if product.old_price %}
-          <span class="pd-old-price">${{ "%.2f"|format(product.old_price) }}</span>
-          <span class="pd-save">Save ${{ "%.2f"|format(product.old_price - product.price) }} ({{ product.discount }}% off)</span>
-        {% endif %}
-      </div>
-
-      <div class="pd-detail-row">
-        {% if product.stock > 0 %}
-          <span class="pd-stock"><i class="fas fa-check-circle me-1"></i> In Stock</span>
-        {% else %}
-          <span class="pd-stock pd-stock-out"><i class="fas fa-times-circle me-1"></i> Out of Stock</span>
-        {% endif %}
-      </div>
-
-      <div class="pd-detail-row">
-        <div class="d-flex align-items-center gap-3">
-          <label for="qty" style="font-size:13px">Qty:</label>
-          <select id="qty" class="form-control form-control-sm" style="width:60px">
-            {% for i in range(1, min(product.stock + 1, 10)) %}
-            <option value="{{ i }}">{{ i }}</option>
-            {% endfor %}
-          </select>
-        </div>
-      </div>
-
-      <div class="pd-detail-row d-flex flex-wrap gap-2">
-        {% if product.stock > 0 %}
-          <button class="pd-btn-cart" onclick="addToCart({{ product.id }})"><i class="fas fa-shopping-cart me-1"></i> Add to Cart</button>
-          <button class="pd-btn-buy" onclick="buyNow({{ product.id }})">Buy Now</button>
-        {% endif %}
-        <button class="pd-wishlist-btn {{ 'active' if in_wishlist }}" onclick="toggleWishlist({{ product.id }})"><i class="fa{{ 's' if in_wishlist else 'r' }} fa-heart me-1"></i> Add to Wishlist</button>
-      </div>
-
-      <div class="pd-detail-row pd-delivery">
-        <i class="fas fa-truck me-1"></i> <b>FREE delivery</b> Tomorrow. Order within 10 hrs.
-      </div>
-
-      <div class="mt-3" style="font-size:14px;color:#565959;line-height:1.5">
-        {{ product.description[:500] }}{% if product.description|length > 500 %}...{% endif %}
-      </div>
-    </div>
-  </div>
-
-  <div class="row mt-4">
-    <div class="col-12">
-      <ul class="nav nav-tabs" id="productTabs" role="tablist" style="border-bottom: 1px solid #e7e7e7;">
-        <li class="nav-item">
-          <a class="nav-link active" id="description-tab" data-bs-toggle="tab" href="#description" role="tab" style="border: none; border-bottom: 2px solid #e77600; color: #0f1111; font-size: 14px;">Description</a>
-        </li>
-        {% if product.specifications %}
-        <li class="nav-item">
-          <a class="nav-link" id="specs-tab" data-bs-toggle="tab" href="#specs" role="tab" style="border: none; color: #565959; font-size: 14px;">Specifications</a>
-        </li>
-        {% endif %}
-        <li class="nav-item">
-          <a class="nav-link" id="reviews-tab" data-bs-toggle="tab" href="#reviews" role="tab" style="border: none; color: #565959; font-size: 14px;">Reviews ({{ reviews|length }})</a>
-        </li>
-      </ul>
-
-      <div class="tab-content p-3" id="productTabsContent" style="border: 1px solid #e7e7e7; border-top: none;">
-
-        <div class="tab-pane fade show active" id="description" role="tabpanel">
-          <p style="font-size: 14px; color: #0f1111; line-height: 1.6;">{{ product.description }}</p>
-        </div>
-
-        {% if product.specifications %}
-        <div class="tab-pane fade" id="specs" role="tabpanel">
-          <table class="specs-table w-100">
-            {% for key, value in product.specifications.items() %}
-            <tr>
-              <td>{{ key }}</td>
-              <td>{{ value }}</td>
-            </tr>
-            {% endfor %}
-          </table>
-        </div>
-        {% endif %}
-
-        <div class="tab-pane fade" id="reviews" role="tabpanel">
-          {% if reviews %}
-            {% for review in reviews %}
-            <div class="review-card">
-              <div class="d-flex justify-content-between align-items-center mb-1">
-                <strong style="font-size: 14px; color: #0f1111;">{{ review.user.username }}</strong>
-                <div class="d-flex align-items-center gap-2">
-                  <small class="text-muted">{{ review.created_at.strftime('%b %d, %Y') }}</small>
-                  {% if session.get('is_admin') %}
-                  <a href="{{ url_for('admin_edit_review', rid=review.id) }}" class="btn btn-sm btn-outline-secondary review-edit-btn"><i class="fa-solid fa-edit"></i> Edit</a>
-                  {% endif %}
+        <div class="row g-4">
+            <!-- IMAGE GALLERY -->
+            <div class="col-lg-5">
+                <div class="card border-0 shadow-sm">
+                    {% if product.images and product.images|length > 0 %}
+                    {% set img_count = product.images|length %}
+                    {% if img_count > 1 %}
+                    <div id="productGallery" class="carousel slide" data-bs-ride="carousel">
+                        <div class="carousel-indicators">
+                            {% for img in product.images %}
+                            <button type="button" data-bs-target="#productGallery" data-bs-slide-to="{{ loop.index0 }}"{% if loop.first %} class="active"{% endif %}></button>
+                            {% endfor %}
+                        </div>
+                        <div class="carousel-inner">
+                            {% for img in product.images %}
+                            <div class="carousel-item{% if loop.first %} active{% endif %}">
+                                <img src="{{ img.image_url }}" class="d-block w-100 product-detail-img" alt="{{ product.title }}">
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <button class="carousel-control-prev" type="button" data-bs-target="#productGallery" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon bg-dark rounded-circle p-3"></span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#productGallery" data-bs-slide="next">
+                            <span class="carousel-control-next-icon bg-dark rounded-circle p-3"></span>
+                        </button>
+                    </div>
+                    {% else %}
+                    <img src="{{ product.images[0].image_url }}" class="card-img-top product-detail-img" alt="{{ product.title }}">
+                    {% endif %}
+                    {% elif product.image %}
+                    <img src="{{ product.image }}" class="card-img-top product-detail-img" alt="{{ product.title }}">
+                    {% else %}
+                    <img src="https://placehold.co/500x500/f5f5f5/333?text=Product" class="card-img-top product-detail-img" alt="{{ product.title }}">
+                    {% endif %}
                 </div>
-              </div>
-              <div class="star-rating mb-1">
-                {% for i in range(5) %}
-                  <i class="fa{{ 's' if i < review.rating else 'r' }} fa-star"></i>
-                {% endfor %}
-              </div>
-              <p class="mb-0" style="font-size: 14px; color: #0f1111;">{{ review.comment }}</p>
+            </div>
+
+            <!-- DETAILS -->
+            <div class="col-lg-7">
+                <span class="badge bg-light text-muted mb-2">
+                    <i class="fas fa-{% if product.affiliate_platform == 'amazon' %}fab fa-amazon{% elif product.affiliate_platform == 'alibaba' %}fa-globe{% elif product.affiliate_platform == 'aliexpress' %}fa-shopping-bag{% else %}fa-store{% endif %} me-1"></i>
+                    {{ product.affiliate_platform|title }}
+                </span>
+
+                <h1 class="fw-bold mb-2">{{ product.title }}</h1>
+
+                <div class="mb-3">
+                    <span class="text-warning">
+                        {% for i in range(5) %}
+                            {% if i < product.rating|int %}
+                            <i class="fas fa-star"></i>
+                            {% elif product.rating - i >= 0.5 %}
+                            <i class="fas fa-star-half-alt"></i>
+                            {% else %}
+                            <i class="far fa-star"></i>
+                            {% endif %}
+                        {% endfor %}
+                    </span>
+                    <span class="text-muted ms-2">({{ product.rating }} rating)</span>
+                </div>
+
+                <div class="mb-3">
+                    {% if product.price %}
+                    <span class="fs-3 fw-bold text-dark">${{ "%.2f"|format(product.price) }}</span>
+                    {% if product.old_price %}
+                    <span class="text-muted text-decoration-line-through fs-5 ms-2">${{ "%.2f"|format(product.old_price) }}</span>
+                    <span class="badge bg-danger ms-2">Save {{ ((product.old_price - product.price) / product.old_price * 100)|int }}%</span>
+                    {% endif %}
+                    {% else %}
+                    <span class="fs-5 fw-semibold">Price not available — check the merchant site</span>
+                    {% endif %}
+                </div>
+
+                <p class="text-muted">{{ product.short_description }}</p>
+
+                {% if product.description %}
+                <hr>
+                <h6 class="fw-bold">Description</h6>
+                <p class="text-muted">{{ product.description }}</p>
+                {% endif %}
+
+                <div class="d-grid gap-2 mt-4">
+                    <a href="/go/{{ product.id }}" target="_blank" rel="nofollow sponsored" class="btn btn-warning btn-lg rounded-pill fw-semibold">
+                        <i class="fas fa-shopping-cart me-2"></i> Buy Now on {{ product.affiliate_platform|title }}
+                        <i class="fas fa-external-link-alt ms-2 small"></i>
+                    </a>
+                    <p class="text-muted small text-center mb-0 mt-2">
+                        <i class="fas fa-info-circle me-1"></i> You will be redirected to {{ product.affiliate_platform|title }} to complete your purchase.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- RELATED PRODUCTS -->
+        {% if related_products %}
+        <hr class="my-5">
+        <h3 class="fw-bold mb-4">Related Products</h3>
+        <div class="row g-3">
+            {% for product in related_products %}
+            <div class="col-6 col-md-3">
+                {% include "includes/product_card.html" %}
             </div>
             {% endfor %}
-          {% else %}
-            <p class="text-muted" style="font-size: 14px;">No reviews yet. Be the first to review this product!</p>
-          {% endif %}
-
-          <hr style="border-color: #e7e7e7;">
-          <h6 style="font-size: 16px; font-weight: 700; color: #0f1111;">{{ 'Your Review' if user_review else 'Write a Review' }}</h6>
-          <div id="reviewFormMsg" class="mb-2" style="display:none"></div>
-          <form id="reviewForm" method="POST" action="{{ url_for('add_review', pid=product.id) }}" class="mt-2">
-            <div class="form-group mb-3">
-              <label style="font-size: 13px; color: #0f1111; display: block; margin-bottom: 6px;">Rating</label>
-              <div class="star-input" id="starInput">
-                {% for i in range(5,0,-1) %}
-                <input type="radio" name="rating" value="{{ i }}" id="star{{ i }}" {{ 'checked' if user_review and user_review.rating == i }}>
-                <label for="star{{ i }}" title="{{ i }} star{{ 's' if i > 1 }}"><i class="fa-solid fa-star"></i></label>
-                {% endfor %}
-              </div>
-            </div>
-            <div class="form-group mb-3">
-              <label for="commentInput" style="font-size: 13px; color: #0f1111;">Comment</label>
-              <textarea id="commentInput" name="comment" class="form-control" rows="4" style="border: 1px solid #ddd; border-radius: 4px;" required>{{ user_review.comment if user_review else '' }}</textarea>
-            </div>
-            <button type="submit" class="btn" style="background: #ffd814; border: 1px solid #fcd200; border-radius: 20px; font-size: 14px; padding: 6px 24px;">
-              <i class="fa-solid fa-star me-1"></i> {{ 'Update Review' if user_review else 'Submit Review' }}
-            </button>
-          </form>
         </div>
-      </div>
+        {% endif %}
     </div>
-  </div>
+</section>
 
-  {% if related %}
-  <div class="mt-5 pt-3" style="border-top: 1px solid #e7e7e7;">
-    <h4 class="mb-4" style="font-size: 20px; font-weight: 500; color: #0f1111;">Products related to this item</h4>
-    <div class="row">
-      {% for item in related %}
-      <div class="col-6 col-md-3 col-lg-2 mb-4">
-        <a href="{{ url_for('product_detail', pid=item.id) }}" class="text-decoration-none text-dark">
-          <div style="border: 1px solid #e7e7e7; border-radius: 4px; padding: 8px; height: 100%;">
-            <img src="{{ item.image or url_for('static', filename='images/placeholder.png') }}" alt="{{ item.name }}" style="width: 100%; margin-bottom: 8px; mix-blend-mode: multiply;">
-            <p style="font-size: 13px; color: #0f1111; margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ item.name }}</p>
-            <p style="font-size: 16px; font-weight: 500; color: #0f1111; margin: 4px 0 0 0;">${{ "%.2f"|format(item.price) }}</p>
-            {% if item.old_price %}
-              <p style="font-size: 12px; color: #565959; margin: 0;"><del>${{ "%.2f"|format(item.old_price) }}</del></p>
-            {% endif %}
-          </div>
-        </a>
-      </div>
-      {% endfor %}
-    </div>
-  </div>
-  {% endif %}
-</div>
-
-<!-- Toast Container -->
-<div class="toast-container" id="toastContainer" aria-live="polite" aria-atomic="true"></div>
-{% endblock %}
-
-{% block extra_js %}
-<script>
-function showToast(message, type) {
-  var toastHtml = '<div class="toast ' + (type || 'bg-success') + ' text-white" role="alert">' +
-    '<div class="toast-body d-flex justify-content-between align-items-center">' +
-    '<span>' + message + '</span>' +
-    '<button type="button" class="btn-close btn-close-white ms-2" data-bs-dismiss="toast"></button>' +
-    '</div></div>';
-  var container = document.getElementById('toastContainer');
-  container.innerHTML = toastHtml;
-  var el = container.querySelector('.toast');
-  var t = new bootstrap.Toast(el, { delay: 3000 });
-  t.show();
-}
-
-function addToCart(productId) {
-  var qty = document.getElementById('qty') ? document.getElementById('qty').value : 1;
-  fetch('/cart/add/' + productId, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: 'quantity=' + qty
-  })
-  .then(function(r) { return r.json(); })
-  .then(function(data) {
-    if (data.success) {
-      showToast(data.message || 'Item added to cart!', 'bg-success');
-      var badge = document.querySelector('.cart-count');
-      if (badge && data.cart_count) { badge.textContent = data.cart_count; }
-    } else {
-      showToast(data.message || 'Failed to add item.', 'bg-danger');
-    }
-  })
-  .catch(function() {
-    showToast('An error occurred.', 'bg-danger');
-  });
-}
-
-function buyNow(productId) {
-  var qty = document.getElementById('qty') ? document.getElementById('qty').value : 1;
-  fetch('/cart/add/' + productId, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: 'quantity=' + qty
-  })
-  .then(function(r) { return r.json(); })
-  .then(function(data) {
-    if (data.success) {
-      window.location.href = '/cart';
-    } else {
-      showToast(data.message || 'Failed to add item.', 'bg-danger');
-    }
-  })
-  .catch(function() {
-    showToast('An error occurred.', 'bg-danger');
-  });
-}
-
-function toggleWishlist(productId) {
-  var btn = document.querySelector('.wishlist-btn');
-  fetch('/wishlist/add/' + productId, { method: 'POST' })
-  .then(function(r) { return r.json(); })
-  .then(function(data) {
-    if (data.success) {
-      btn.classList.toggle('active');
-      showToast(data.message || 'Wishlist updated.', 'bg-info');
-    } else {
-      showToast(data.message || 'Failed to update wishlist.', 'bg-danger');
-    }
-  })
-  .catch(function() {
-    showToast('An error occurred.', 'bg-danger');
-  });
-}
-
-document.getElementById('reviewForm').addEventListener('submit', function(e) {
-  e.preventDefault();
-  var form = this;
-  var btn = form.querySelector('button[type="submit"]');
-  var msg = document.getElementById('reviewFormMsg');
-  var formData = new FormData(form);
-  btn.disabled = true;
-  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Submitting...';
-  fetch(form.action, {
-    method: 'POST',
-    headers: { 'X-Requested-With': 'XMLHttpRequest' },
-    body: formData
-  })
-  .then(function(r) { return r.json(); })
-  .then(function(data) {
-    msg.style.display = 'block';
-    if (data.success) {
-      msg.className = 'mb-2 alert alert-success';
-      msg.innerHTML = '<i class="fa-solid fa-check-circle me-1"></i> ' + data.message;
-      btn.innerHTML = '<i class="fa-solid fa-check me-1"></i> Submitted';
-      setTimeout(function() { location.reload(); }, 1500);
-    } else {
-      msg.className = 'mb-2 alert alert-danger';
-      msg.innerHTML = '<i class="fa-solid fa-exclamation-circle me-1"></i> ' + (data.message || 'Failed to submit review.');
-      btn.disabled = false;
-      btn.innerHTML = '<i class="fa-solid fa-star me-1"></i> Submit Review';
-    }
-  })
-  .catch(function() {
-    msg.style.display = 'block';
-    msg.className = 'mb-2 alert alert-danger';
-    msg.innerHTML = '<i class="fa-solid fa-exclamation-circle me-1"></i> An error occurred.';
-    btn.disabled = false;
-    btn.innerHTML = '<i class="fa-solid fa-star me-1"></i> Submit Review';
-  });
-});
-</script>
 {% endblock %}

@@ -1,107 +1,39 @@
-<!DOCTYPE html>
-<html>
-<head>
-	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
-	<title>Sign In - Shop</title>
-	<meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no' name='viewport' />
-	<link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
-	<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;800;900&display=swap">
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/line-awesome/1.3.0/line-awesome/css/line-awesome.min.css">
-	<link rel="stylesheet" href="{{ url_for('static', filename='css/theme.css') }}">
-	<link rel="stylesheet" href="{{ url_for('static', filename='css/responsive.css') }}">
-	<meta name="csrf-token" content="{{ csrf_token() }}">
-	<style>
-		body { background: #eaeded; }
-		.login-wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; }
-		.login-card { width: 100%; max-width: 380px; background: #fff; border: 1px solid #e7e7e7; border-radius: 4px; padding: 24px 26px; }
-		.login-card h4 { font-size: 24px; font-weight: 500; color: #0f1111; margin-bottom: 20px; }
-		.login-card .form-label { font-size: 13px; font-weight: 600; color: #0f1111; margin-bottom: 4px; }
-		.login-card .form-control { border: 1px solid #ddd; border-radius: 4px; padding: 8px 12px; font-size: 14px; }
-		.login-card .form-control:focus { border-color: #febd69; box-shadow: 0 0 0 3px rgba(254,189,105,.3); }
-		.login-btn { background: #ffd814; border: 1px solid #fcd200; border-radius: 8px; padding: 8px 0; width: 100%; font-size: 14px; color: #0f1111; cursor: pointer; font-weight: 500; }
-		.login-btn:hover { background: #f7ca00; }
-		.login-card hr { border-color: #e7e7e7; margin: 20px 0; }
-	</style>
-</head>
-<body>
-	<div class="login-wrap">
-		<div class="login-card">
-			<div class="text-center mb-4">
-				<a href="/" style="font-size: 22px; font-weight: 700; color: #131921; text-decoration: none;">Shafi's<span style="color: #febd69;"> Shop</span></a>
-			</div>
-			<h4>Sign In</h4>
-			<div id="message" class="alert d-none"></div>
-			<form id="loginForm" method="POST" action="{{ url_for('login') }}">
-				<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-				<div class="form-group mb-3">
-					<label class="form-label">Username</label>
-					<input type="text" class="form-control" id="username" name="username" placeholder="Enter username" required>
-				</div>
-				<div class="form-group mb-3">
-					<label class="form-label">Password</label>
-					<input type="password" class="form-control" id="password" name="password" placeholder="Enter password" required>
-				</div>
-				<button type="submit" class="login-btn" id="loginBtn">
-					<span id="btnText">Sign In</span>
-					<div class="spinner-border spinner-border-sm d-none" id="btnSpinner" role="status"></div>
-				</button>
-			</form>
-			<hr>
-			<div class="text-center" style="font-size: 13px; color: #565959;">
-				New to Shop? <a href="#" data-bs-toggle="modal" data-bs-target="#registerModal" style="color: #007185; text-decoration: none;">Create your account</a>
-			</div>
-		</div>
-	</div>
+{% extends "base.html" %}
+{% block title %}Login - Shafi's Market{% endblock %}
+{% block content %}
 
-	<div class="modal fade" id="registerModal" tabindex="-1" role="dialog">
-		<div class="modal-dialog modal-dialog-centered" role="document">
-			<div class="modal-content" style="border-radius: 4px;">
-				<div class="modal-header" style="border-bottom: 1px solid #e7e7e7; padding: 16px 24px;">
-					<h6 class="modal-title" style="font-size: 18px; font-weight: 500; color: #0f1111;">Create Account</h6>
-					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-				</div>
-				<div class="modal-body" style="padding: 24px;">
-					<div id="regMessage" class="alert d-none"></div>
-					<form id="registerForm" method="POST" action="{{ url_for('register') }}">
-						<div class="form-group mb-3">
-							<label class="form-label">Username</label>
-							<input type="text" class="form-control" id="regUsername" name="username" placeholder="Enter username" required>
-						</div>
-						<div class="form-group mb-3">
-							<label class="form-label">Email address</label>
-							<input type="email" class="form-control" id="regEmail" name="email" placeholder="Enter email" required>
-						</div>
-						<div class="form-group mb-3">
-							<label class="form-label">Password</label>
-							<input type="password" class="form-control" id="regPassword" name="password" placeholder="At least 6 characters" required minlength="6">
-						</div>
-						<div class="form-group mb-3">
-							<label class="form-label">Confirm Password</label>
-							<input type="password" class="form-control" id="regConfirm" name="confirm" placeholder="Re-enter password" required>
-						</div>
-						<button type="submit" class="login-btn" id="regBtn">
-							<span id="regBtnText">Create Account</span>
-							<div class="spinner-border spinner-border-sm d-none" id="regBtnSpinner" role="status"></div>
-						</button>
-					</form>
-				</div>
-			</div>
-		</div>
-	</div>
+<section class="py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-5">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <h3 class="fw-bold text-center mb-4"><i class="fas fa-sign-in-alt text-warning me-2"></i>Login</h3>
 
-	<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-	<script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
-	<script src="{{ url_for('static', filename='js/admin.js') }}"></script>
-	<script src="{{ url_for('static', filename='js/main.js') }}"></script>
-	<script>
-	var csrf_token = '{{ csrf_token() }}';
-	$.ajaxSetup({
-		beforeSend: function(xhr, settings) {
-			if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
-				xhr.setRequestHeader('X-CSRFToken', csrf_token);
-			}
-		}
-	});
-	</script>
-</body>
-</html>
+                        {% if error %}
+                        <div class="alert alert-danger">{{ error }}</div>
+                        {% endif %}
+
+                        <form method="POST" action="/auth/login">
+                            <div class="mb-3">
+                                <label class="form-label small fw-semibold">Username</label>
+                                <input type="text" name="username" class="form-control" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small fw-semibold">Password</label>
+                                <input type="password" name="password" class="form-control" required>
+                            </div>
+                            <button type="submit" class="btn btn-warning w-100 rounded-pill fw-semibold py-2">Login</button>
+                        </form>
+
+                        <p class="text-center mt-3 mb-0 small">
+                            Don't have an account? <a href="/auth/register" class="text-decoration-none fw-semibold">Register</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

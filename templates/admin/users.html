@@ -1,0 +1,226 @@
+{% extends "admin/base.html" %}
+{% block title %}Users{% endblock %}
+{% block admin_content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="fw-bold mb-0"><i class="fas fa-users me-2 text-warning"></i>Users</h4>
+    <button class="btn btn-warning rounded-pill" data-bs-toggle="modal" data-bs-target="#addUserModal">
+        <i class="fas fa-plus me-1"></i> Add User
+    </button>
+</div>
+
+{% if request.query_params.get('error') == 'exists' %}
+<div class="alert alert-danger alert-dismissible fade show">Username or email already exists.<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+{% endif %}
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0 align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>User</th>
+                        <th>Contact</th>
+                        <th>Role</th>
+                        <th>Links</th>
+                        <th>Storage</th>
+                        <th>Status</th>
+                        <th>Joined</th>
+                        <th style="width:100px">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for u in users %}
+                    <tr>
+                        <td>{{ u.id }}</td>
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                {% if u.profile_image %}
+                                <img src="{{ u.profile_image }}" class="rounded-circle" width="32" height="32" style="object-fit:cover">
+                                {% else %}
+                                <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center text-white fw-bold" style="width:32px;height:32px;font-size:14px">{{ u.full_name[:1] or u.username[:1] }}</div>
+                                {% endif %}
+                                <div>
+                                    <strong class="small">{{ u.full_name or u.username }}</strong>
+                                    <div class="text-muted small">@{{ u.username }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="small">
+                            <div>{{ u.email }}</div>
+                            {% if u.phone %}<div class="text-muted">{{ u.phone }}</div>{% endif %}
+                        </td>
+                        <td><span class="badge bg-info text-dark">{{ u.role }}</span></td>
+                        <td><span class="badge bg-secondary">{{ u.links|length }}</span></td>
+                        <td class="small">{{ '%.1f'|format(u.storage_used_mb) }} MB</td>
+                        <td>{% if u.is_active %}<span class="badge bg-success">Active</span>{% else %}<span class="badge bg-danger">Inactive</span>{% endif %}</td>
+                        <td class="small text-muted">{{ u.created_at.strftime('%Y-%m-%d') if u.created_at else '-' }}</td>
+                        <td>
+                            <div class="d-flex gap-1">
+                                <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editUserModal{{ u.id }}" title="Edit"><i class="fas fa-edit"></i></button>
+                                {% if u.role != 'admin' %}
+                                <a href="/admin/users/delete/{{ u.id }}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete user {{ u.username }}?')" title="Delete"><i class="fas fa-trash"></i></a>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Add Modal -->
+<div class="modal fade" id="addUserModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form method="POST" action="/admin/users/add" enctype="multipart/form-data">
+                <div class="modal-header"><h5 class="modal-title"><i class="fas fa-user-plus me-2 text-warning"></i>Add New User</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">Username *</label>
+                            <input type="text" name="username" class="form-control" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">Email *</label>
+                            <input type="email" name="email" class="form-control" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">Password *</label>
+                            <div class="input-group">
+                                <input type="password" name="password" class="form-control" id="addPassword" required>
+                                <button class="btn btn-outline-secondary" type="button" onclick="togglePass('addPassword', this)"><i class="fas fa-eye"></i></button>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">Full Name</label>
+                            <input type="text" name="full_name" class="form-control">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">Phone</label>
+                            <input type="text" name="phone" class="form-control">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">Website</label>
+                            <input type="url" name="website" class="form-control">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">Role</label>
+                            <select name="role" class="form-select">
+                                <option value="affiliate">Affiliate</option>
+                                <option value="premium">Premium</option>
+                                <option value="manager">Manager</option>
+                                <option value="admin">Admin</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 d-flex align-items-center pt-3">
+                            <div class="form-check form-switch">
+                                <input type="checkbox" name="is_active" class="form-check-input" id="addActive" checked>
+                                <label class="form-check-label" for="addActive">Active</label>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label small fw-semibold">Bio</label>
+                            <textarea name="bio" class="form-control" rows="2"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-warning rounded-pill"><i class="fas fa-plus me-1"></i> Add User</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Modals -->
+{% for u in users %}
+<div class="modal fade" id="editUserModal{{ u.id }}" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form method="POST" action="/admin/users/edit/{{ u.id }}" enctype="multipart/form-data">
+                <div class="modal-header"><h5 class="modal-title"><i class="fas fa-edit me-2 text-warning"></i>Edit User</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">Username *</label>
+                            <input type="text" name="username" class="form-control" value="{{ u.username }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">Email *</label>
+                            <input type="email" name="email" class="form-control" value="{{ u.email }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">New Password</label>
+                            <div class="input-group">
+                                <input type="password" name="password" class="form-control" id="editPassword{{ u.id }}" placeholder="Leave blank to keep">
+                                <button class="btn btn-outline-secondary" type="button" onclick="togglePass('editPassword{{ u.id }}', this)"><i class="fas fa-eye"></i></button>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">Full Name</label>
+                            <input type="text" name="full_name" class="form-control" value="{{ u.full_name }}">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-semibold">Phone</label>
+                            <input type="text" name="phone" class="form-control" value="{{ u.phone }}">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-semibold">Website</label>
+                            <input type="url" name="website" class="form-control" value="{{ u.website }}">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-semibold">Storage (MB)</label>
+                            <input type="number" name="storage_used_mb" class="form-control" value="{{ u.storage_used_mb }}" step="0.1">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">Role</label>
+                            <select name="role" class="form-select">
+                                <option value="affiliate" {% if u.role == 'affiliate' %}selected{% endif %}>Affiliate</option>
+                                <option value="premium" {% if u.role == 'premium' %}selected{% endif %}>Premium</option>
+                                <option value="manager" {% if u.role == 'manager' %}selected{% endif %}>Manager</option>
+                                <option value="admin" {% if u.role == 'admin' %}selected{% endif %}>Admin</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 d-flex align-items-center pt-3">
+                            <div class="form-check form-switch">
+                                <input type="checkbox" name="is_active" class="form-check-input" id="active{{ u.id }}" {% if u.is_active %}checked{% endif %}>
+                                <label class="form-check-label" for="active{{ u.id }}">Active</label>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label small fw-semibold">Bio</label>
+                            <textarea name="bio" class="form-control" rows="2">{{ u.bio }}</textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-warning rounded-pill"><i class="fas fa-save me-1"></i> Update</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+function togglePass(inputId, btn) {
+    var input = document.getElementById(inputId);
+    if (input.type === "password") {
+        input.type = "text";
+        btn.innerHTML = '<i class="fas fa-eye-slash"></i>';
+    } else {
+        input.type = "password";
+        btn.innerHTML = '<i class="fas fa-eye"></i>';
+    }
+}
+</script>
+{% endblock %}

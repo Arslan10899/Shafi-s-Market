@@ -1,265 +1,139 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shafi's Shop - Your Online Shopping Store</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;800;900&display=swap">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/line-awesome/1.3.0/line-awesome/css/line-awesome.min.css">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/theme.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/responsive.css') }}">
+{% extends "base.html" %}
+{% block title %}Shafi's Affiliate Marketplace{% endblock %}
+{% block content %}
 
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-</head>
-<body>
-
-    {% include 'includes/navbar.html' %}
-
-    <!-- ====== HERO ====== -->
-    <section class="cl-hero">
-        <div id="clHeroCarousel" class="carousel slide" data-bs-ride="carousel">
-            <div class="carousel-inner">
-                <div class="carousel-item active">
-                    <div class="cl-hero-slide" style="background-image: url('{{ url_for("static", filename="uploads/slider_1.jpg") }}');">
-                        <div class="cl-container" style="width:100%">
-                            <div class="cl-hero-content">
-                                <div class="sub">Summer Collection</div>
-                                <h1>Up to 50% Off <br>Trending Styles</h1>
-                                <p>Discover the latest fashion, electronics & home essentials at unbeatable prices. Free shipping on orders over $50.</p>
-                                <a href="{{ url_for('shop') }}" class="cl-btn cl-btn-primary">Shop Now <i class="las la-arrow-right"></i></a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="carousel-item">
-                    <div class="cl-hero-slide" style="background-image: url('{{ url_for("static", filename="uploads/slider_2.jpg") }}');">
-                        <div class="cl-container" style="width:100%">
-                            <div class="cl-hero-content">
-                                <div class="sub">New Arrivals</div>
-                                <h1>Next-Gen <br>Electronics</h1>
-                                <p>Be the first to own the latest gadgets. Premium quality, exclusive deals, and fast delivery guaranteed.</p>
-                                <a href="{{ url_for('shop', sort='newest') }}" class="cl-btn cl-btn-primary">Explore Now <i class="las la-arrow-right"></i></a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="carousel-item">
-                    <div class="cl-hero-slide" style="background-image: url('{{ url_for("static", filename="uploads/slider_3.jpg") }}');">
-                        <div class="cl-container" style="width:100%">
-                            <div class="cl-hero-content">
-                                <div class="sub">Flash Sale</div>
-                                <h1>Extra 20% Off <br>Limited Time</h1>
-                                <p>Hurry! Grab the hottest deals on home & kitchen, fashion accessories, and more before they're gone.</p>
-                                <a href="{{ url_for('shop') }}" class="cl-btn cl-btn-primary">Shop Deals <i class="las la-arrow-right"></i></a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <button class="carousel-control-prev" type="button" data-bs-target="#clHeroCarousel" data-bs-slide="prev">
-                <span class="carousel-control-prev-icon"></span>
-            </button>
-            <button class="carousel-control-next" type="button" data-bs-target="#clHeroCarousel" data-bs-slide="next">
-                <span class="carousel-control-next-icon"></span>
-            </button>
+<!-- HERO SLIDER -->
+<section class="hero-slider">
+    {% set slides = hero_slides if hero_slides else [] %}
+    {% if slides|length == 0 %}
+        {% set slides = [
+            {"title": "Shop the Best Deals", "subtitle": "Curated products from Amazon, Alibaba, AliExpress & Daraz — all in one place.", "image_url": "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=1600&q=80", "btn_text": "Start Shopping", "btn_url": "/shop", "btn_type": "primary"},
+            {"title": "Top Brands, Best Prices", "subtitle": "Discover thousands of products at unbeatable prices from top global brands.", "image_url": "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=1600&q=80", "btn_text": "View Best Deals", "btn_url": "/shop?sort=price_asc", "btn_type": "primary"},
+            {"title": "New Arrivals Every Day", "subtitle": "Stay ahead with the latest trends and newest products from around the world.", "image_url": "https://images.unsplash.com/photo-1483985988355-763728e1935b?w=1600&q=80", "btn_text": "Explore New Arrivals", "btn_url": "/shop?sort=newest", "btn_type": "primary"},
+        ] %}
+    {% endif %}
+    <div id="heroCarousel" class="carousel slide carousel-fade" data-bs-ride="carousel" data-bs-interval="5000">
+        <div class="carousel-indicators">
+            {% for slide in slides %}
+            <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="{{ loop.index0 }}"{% if loop.first %} class="active"{% endif %}></button>
+            {% endfor %}
         </div>
-    </section>
-
-    <!-- ====== CATEGORIES ====== -->
-    <section class="cl-section">
-        <div class="cl-container">
-            <div class="cl-section-head">
-                <div class="tag">Categories</div>
-                <h2>Shop by Category</h2>
-            </div>
-            <div class="cl-cat-carousel">
-                <button class="cl-cat-arrow cl-cat-arrow-left" type="button" aria-label="Previous"><i class="las la-chevron-left"></i></button>
-                <div class="cl-cat-grid">
-                    {% for cat in categories %}
-                    <a href="{{ url_for('shop', category=cat.id) }}" class="cl-cat-circle">
-                        <span class="cl-cat-img" style="background-image: url('{{ cat.image or url_for('static', filename='img/default-cat.png') }}');"></span>
-                        <span class="cl-cat-name">{{ cat.name }}</span>
-                        <span class="cl-cat-shop">Shop Now <i class="las la-arrow-right"></i></span>
-                    </a>
-                    {% endfor %}
-                </div>
-                <button class="cl-cat-arrow cl-cat-arrow-right" type="button" aria-label="Next"><i class="las la-chevron-right"></i></button>
-            </div>
-        </div>
-    </section>
-
-    <!-- ====== FEATURED PRODUCTS ====== -->
-    {% if featured %}
-    <section class="cl-section cl-section-alt">
-        <div class="cl-container">
-            <div class="cl-section-head">
-                <div class="tag">Featured</div>
-                <h2>Featured Products</h2>
-                <p>Handpicked just for you — our most popular items this season</p>
-            </div>
-            <div class="cl-product-grid">
-                {% for product in featured[:8] %}
-                <a href="{{ url_for('product_detail', pid=product.id) }}" class="cl-product-card">
-                    <div class="cl-product-img">
-                        {% if product.discount > 0 %}<span class="cl-product-badge sale">-{{ product.discount }}%</span>{% endif %}
-                        <img src="{{ product.image }}" alt="{{ product.name }}">
+        <div class="carousel-inner">
+            {% for slide in slides %}
+            <div class="carousel-item{% if loop.first %} active{% endif %}">
+                <div class="hero-slide d-flex align-items-center" style="background-image: url('{{ slide.image_url }}');">
+                    <div class="hero-overlay"></div>
+                    <div class="container text-center text-white position-relative">
+                        <h1 class="display-3 fw-bold mb-3 hero-title">{{ slide.title }}</h1>
+                        {% if slide.subtitle %}
+                        <p class="lead mb-4 hero-subtitle">{{ slide.subtitle }}</p>
+                        {% endif %}
+                        {% if slide.btn_url %}
+                        <a href="{{ slide.btn_url }}" class="btn {% if slide.btn_type == 'outline' %}btn-outline-light hero-btn-outline{% else %}btn-warning hero-btn{% endif %} btn-lg px-5 py-3 fw-semibold rounded-pill">
+                            <i class="fas fa-shopping-bag me-2"></i>{{ slide.btn_text }}
+                        </a>
+                        {% endif %}
                     </div>
-                    <div class="cl-product-body">
-                        <div class="cl-product-cat">{{ product.category.name }}</div>
-                        <div class="cl-product-name">{{ product.name }}</div>
-                        <div class="cl-product-rating">
-                            <span class="cl-stars"><i class="las la-star"></i><i class="las la-star"></i><i class="las la-star"></i><i class="las la-star"></i><i class="las la-star-half-alt"></i></span>
-                            <span class="cl-rating-count">({{ range(10, 100) | random if False else 42 }})</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon hero-control-icon"></span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon hero-control-icon"></span>
+        </button>
+    </div>
+</section>
+
+<!-- FEATURED PRODUCTS -->
+<section class="py-5">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="fw-bold mb-0"><i class="fas fa-star text-warning me-2"></i>Featured Products</h2>
+            <a href="/shop" class="btn btn-outline-dark btn-sm rounded-pill">View All <i class="fas fa-arrow-right ms-1"></i></a>
+        </div>
+        <div class="row g-4">
+            {% for product in featured_products %}
+            <div class="col-6 col-md-4 col-lg-3">
+                {% include "includes/product_card.html" %}
+            </div>
+            {% else %}
+            <div class="col-12 text-center py-5 text-muted">No featured products yet.</div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- CATEGORIES -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <h2 class="fw-bold mb-4 text-center"><i class="fas fa-layer-group text-warning me-2"></i>Shop by Category</h2>
+        <div class="row g-3 justify-content-center">
+            {% for cat in categories %}
+            <div class="col-6 col-md-4 col-lg-2">
+                <a href="/shop?category={{ cat.slug }}" class="text-decoration-none">
+                    <div class="card border-0 shadow-sm text-center h-100 category-card">
+                        <div class="card-body py-4">
+                            <div class="category-icon mb-3">
+                                <i class="fas fa-{% if loop.index == 1 %}microchip{% elif loop.index == 2 %}tshirt{% elif loop.index == 3 %}couch{% elif loop.index == 4 %}spa{% elif loop.index == 5 %}futbol{% else %}gamepad{% endif %} fa-3x text-warning"></i>
+                            </div>
+                            <h6 class="fw-bold mb-1">{{ cat.name }}</h6>
                         </div>
-                        <div class="cl-product-price">
-                            ${{ "%.2f"|format(product.price) }}
-                            {% if product.old_price %}<span class="old">${{ "%.2f"|format(product.old_price) }}</span>{% endif %}
-                        </div>
-                        <button class="cl-product-add add-cart" data-pid="{{ product.id }}">Add to Cart</button>
                     </div>
                 </a>
-                {% endfor %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- NEW ARRIVALS -->
+<section class="py-5">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="fw-bold mb-0"><i class="fas fa-clock text-warning me-2"></i>New Arrivals</h2>
+            <a href="/shop?sort=newest" class="btn btn-outline-dark btn-sm rounded-pill">View All <i class="fas fa-arrow-right ms-1"></i></a>
+        </div>
+        <div class="row g-4">
+            {% for product in new_products %}
+            <div class="col-6 col-md-4 col-lg-3">
+                {% include "includes/product_card.html" %}
+            </div>
+            {% else %}
+            <div class="col-12 text-center py-5 text-muted">No products yet.</div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- TRUST BADGES -->
+<section class="py-4 bg-dark text-white">
+    <div class="container">
+        <div class="row text-center g-3">
+            <div class="col-6 col-md-3">
+                <i class="fas fa-truck fa-2x text-warning mb-2"></i>
+                <h6 class="fw-bold">Fast Shipping</h6>
+                <small class="text-secondary">From trusted merchants</small>
+            </div>
+            <div class="col-6 col-md-3">
+                <i class="fas fa-shield-alt fa-2x text-warning mb-2"></i>
+                <h6 class="fw-bold">Secure Checkout</h6>
+                <small class="text-secondary">On merchant sites</small>
+            </div>
+            <div class="col-6 col-md-3">
+                <i class="fas fa-tag fa-2x text-warning mb-2"></i>
+                <h6 class="fw-bold">Best Prices</h6>
+                <small class="text-secondary">Curated deals daily</small>
+            </div>
+            <div class="col-6 col-md-3">
+                <i class="fas fa-undo fa-2x text-warning mb-2"></i>
+                <h6 class="fw-bold">Easy Returns</h6>
+                <small class="text-secondary">Via original store</small>
             </div>
         </div>
-    </section>
-    {% endif %}
+    </div>
+</section>
 
-    <!-- ====== BANNER ====== -->
-    <section class="cl-section">
-        <div class="cl-container">
-            <div class="cl-banner">
-                <div class="cl-banner-content">
-                    <div class="tag">Limited Offer</div>
-                    <h2>Summer Sale Up to 50% Off</h2>
-                    <p>Don't miss our biggest sale of the season. Exclusive discounts on top brands with free delivery nationwide.</p>
-                    <a href="{{ url_for('shop') }}" class="cl-btn cl-btn-primary">Shop Sale <i class="las la-arrow-right"></i></a>
-                </div>
-                <div class="cl-banner-img">
-                    <img src="{{ url_for('static', filename='uploads/product_1.jpg') }}" alt="Summer Sale">
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- ====== NEW ARRIVALS ====== -->
-    {% if new_arrivals %}
-    <section class="cl-section cl-section-alt">
-        <div class="cl-container">
-            <div class="cl-section-head">
-                <div class="tag">New</div>
-                <h2>New Arrivals</h2>
-                <p>Fresh drops to keep your style ahead of the curve</p>
-            </div>
-            <div class="cl-product-grid">
-                {% for product in new_arrivals[:8] %}
-                <a href="{{ url_for('product_detail', pid=product.id) }}" class="cl-product-card">
-                    <div class="cl-product-img">
-                        <span class="cl-product-badge new">New</span>
-                        <img src="{{ product.image }}" alt="{{ product.name }}">
-                    </div>
-                    <div class="cl-product-body">
-                        <div class="cl-product-cat">{{ product.category.name }}</div>
-                        <div class="cl-product-name">{{ product.name }}</div>
-                        <div class="cl-product-rating">
-                            <span class="cl-stars"><i class="las la-star"></i><i class="las la-star"></i><i class="las la-star"></i><i class="las la-star"></i><i class="las la-star"></i></span>
-                            <span class="cl-rating-count">({{ range(5, 50) | random if False else 18 }})</span>
-                        </div>
-                        <div class="cl-product-price">${{ "%.2f"|format(product.price) }}</div>
-                        <button class="cl-product-add add-cart" data-pid="{{ product.id }}">Add to Cart</button>
-                    </div>
-                </a>
-                {% endfor %}
-            </div>
-        </div>
-    </section>
-    {% endif %}
-
-    <!-- ====== SERVICE FEATURES ====== -->
-    <section class="cl-section">
-        <div class="cl-container">
-            <div class="cl-features">
-                <div class="cl-feature">
-                    <div class="icon" style="background:#fef3c7;color:#d97706"><i class="las la-truck"></i></div>
-                    <h4>Free Shipping</h4>
-                    <p>On orders over $50</p>
-                </div>
-                <div class="cl-feature">
-                    <div class="icon" style="background:#dbeafe;color:#2563eb"><i class="las la-redo"></i></div>
-                    <h4>Easy Returns</h4>
-                    <p>30-day return policy</p>
-                </div>
-                <div class="cl-feature">
-                    <div class="icon" style="background:#dcfce7;color:#16a34a"><i class="las la-headset"></i></div>
-                    <h4>24/7 Support</h4>
-                    <p>Dedicated help team</p>
-                </div>
-                <div class="cl-feature">
-                    <div class="icon" style="background:#fce7f3;color:#e11d48"><i class="las la-lock"></i></div>
-                    <h4>Secure Payment</h4>
-                    <p>100% secure checkout</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- ====== NEWSLETTER ====== -->
-    <section class="cl-section">
-        <div class="cl-container">
-            <div class="cl-newsletter">
-                <h2>Stay in the Loop</h2>
-                <p>Subscribe to get exclusive deals, new arrivals, and insider-only offers straight to your inbox.</p>
-                <form class="cl-newsletter-form" onsubmit="return false">
-                    <input type="email" placeholder="Enter your email address">
-                    <button type="submit">Subscribe</button>
-                </form>
-            </div>
-        </div>
-    </section>
-
-    {% include 'includes/footer.html' %}
-
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/admin.js') }}"></script>
-    <script>
-    $(document).ready(function() {
-        $('.add-cart').click(function(e) {
-            e.preventDefault();
-            var pid = $(this).data('pid');
-            $.post('/cart/add/' + pid, function(res) {
-                if (res.success) $('.cart-count').text(res.cart_count || res.count);
-            }).fail(function() { alert('Please login first!'); });
-        });
-        function initCategoryCarousel(wrapper) {
-            var grid = wrapper.querySelector('.cl-cat-grid, .m-cat-grid');
-            var left = wrapper.querySelector('.cl-cat-arrow-left, .m-cat-arrow-left');
-            var right = wrapper.querySelector('.cl-cat-arrow-right, .m-cat-arrow-right');
-            if (!grid || !left || !right) return;
-            function updateArrows() {
-                left.style.display = grid.scrollLeft > 5 ? 'flex' : 'none';
-                right.style.display = grid.scrollLeft < grid.scrollWidth - grid.clientWidth - 5 ? 'flex' : 'none';
-            }
-            left.addEventListener('click', function() {
-                var item = grid.querySelector('.cl-cat-circle, .m-cat-circle');
-                var scrollAmt = item ? item.offsetWidth + 20 : 220;
-                grid.scrollBy({ left: -scrollAmt, behavior: 'smooth' });
-                setTimeout(updateArrows, 350);
-            });
-            right.addEventListener('click', function() {
-                var item = grid.querySelector('.cl-cat-circle, .m-cat-circle');
-                var scrollAmt = item ? item.offsetWidth + 20 : 220;
-                grid.scrollBy({ left: scrollAmt, behavior: 'smooth' });
-                setTimeout(updateArrows, 350);
-            });
-            grid.addEventListener('scroll', updateArrows);
-            updateArrows();
-        }
-        document.querySelectorAll('.cl-cat-carousel, .m-cat-carousel').forEach(initCategoryCarousel);
-    });
-    </script>
-</body>
-</html>
+{% endblock %}

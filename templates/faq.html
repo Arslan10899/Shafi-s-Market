@@ -1,214 +1,129 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FAQ - ShopName</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;800;900&display=swap">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/line-awesome/1.3.0/line-awesome/css/line-awesome.min.css">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/theme.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/responsive.css') }}">
+{% extends "base.html" %}
+{% block title %}FAQ - Shafi's Market{% endblock %}
+{% block content %}
 
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-</head>
-<body>
+<section class="py-5">
+    <div class="container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb small">
+                <li class="breadcrumb-item"><a href="/" class="text-decoration-none">Home</a></li>
+                <li class="breadcrumb-item active">FAQ</li>
+            </ol>
+        </nav>
 
-    {% include 'includes/navbar.html' %}
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <h2 class="fw-bold mb-2"><i class="fas fa-question-circle text-warning me-2"></i>Frequently Asked Questions</h2>
+                <p class="text-muted mb-4">Find answers to common questions about Shafi's Affiliate Marketplace.</p>
 
-{% from 'includes/breadcrumb.html' import breadcrumb %}
-{{ breadcrumb([{'name': 'FAQ', 'url': '#'}]) }}
-
-    <main>
-        <section class="bg-primary py-5">
-            <div class="container text-center text-white">
-                <h1 class="fw-bold">Frequently Asked Questions</h1>
-                <p class="lead mb-0">Find answers to common questions below</p>
-            </div>
-        </section>
-
-        <section class="py-5">
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-8 mx-auto">
-
-                        <h2 class="fw-bold mb-4">
-                            <i class="fas fa-shopping-cart text-primary me-2"></i> Orders
+                <div class="accordion" id="faqAccordion">
+                    <div class="accordion-item border-0 shadow-sm mb-2">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button fw-semibold" data-bs-toggle="collapse" data-bs-target="#faq1">
+                                What is Shafi's Affiliate Marketplace?
+                            </button>
                         </h2>
-                        <div id="accordionOrders" class="mb-5">
-                            <div class="card mb-2">
-                                <div class="card-header" id="orderHeading1">
-                                    <h5 class="mb-0">
-                                        <button class="btn btn-link text-dark fw-bold" data-bs-toggle="collapse" data-bs-target="#orderCollapse1" aria-expanded="true">
-                                            How do I place an order?
-                                        </button>
-                                    </h5>
-                                </div>
-                                <div id="orderCollapse1" class="collapse show" data-parent="#accordionOrders">
-                                    <div class="card-body">
-                                        Simply browse our catalog, add items to your cart, and proceed to checkout. You will need to provide your shipping details and choose a payment method to complete the purchase.
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="card mb-2">
-                                <div class="card-header" id="orderHeading2">
-                                    <h5 class="mb-0">
-                                        <button class="btn btn-link text-dark fw-bold collapsed" data-bs-toggle="collapse" data-bs-target="#orderCollapse2">
-                                            Can I modify or cancel my order after placing it?
-                                        </button>
-                                    </h5>
-                                </div>
-                                <div id="orderCollapse2" class="collapse" data-parent="#accordionOrders">
-                                    <div class="card-body">
-                                        Orders can be modified or canceled within 30 minutes of placement. Please contact our support team as soon as possible with your order number.
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="card mb-2">
-                                <div class="card-header" id="orderHeading3">
-                                    <h5 class="mb-0">
-                                        <button class="btn btn-link text-dark fw-bold collapsed" data-bs-toggle="collapse" data-bs-target="#orderCollapse3">
-                                            How will I know when my order is confirmed?
-                                        </button>
-                                    </h5>
-                                </div>
-                                <div id="orderCollapse3" class="collapse" data-parent="#accordionOrders">
-                                    <div class="card-body">
-                                        You will receive an order confirmation email with your order number and details shortly after placing your order. You can also check your order status in your account dashboard.
-                                    </div>
-                                </div>
+                        <div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body text-muted small">
+                                Shafi's Affiliate Marketplace is a platform where you can discover and compare products from top global platforms like Amazon, AliExpress, Daraz, and Alibaba — all in one place. We earn commissions through affiliate links at no extra cost to you.
                             </div>
                         </div>
+                    </div>
 
-                        <h2 class="fw-bold mb-4">
-                            <i class="fas fa-credit-card text-primary me-2"></i> Payments
+                    <div class="accordion-item border-0 shadow-sm mb-2">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button fw-semibold collapsed" data-bs-toggle="collapse" data-bs-target="#faq2">
+                                Do I pay extra when buying through your links?
+                            </button>
                         </h2>
-                        <div id="accordionPayments" class="mb-5">
-                            <div class="card mb-2">
-                                <div class="card-header" id="paymentHeading1">
-                                    <h5 class="mb-0">
-                                        <button class="btn btn-link text-dark fw-bold collapsed" data-bs-toggle="collapse" data-bs-target="#paymentCollapse1">
-                                            What payment methods do you accept?
-                                        </button>
-                                    </h5>
-                                </div>
-                                <div id="paymentCollapse1" class="collapse" data-parent="#accordionPayments">
-                                    <div class="card-body">
-                                        We accept Visa, Mastercard, American Express, PayPal, Apple Pay, and Google Pay. All transactions are processed securely.
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="card mb-2">
-                                <div class="card-header" id="paymentHeading2">
-                                    <h5 class="mb-0">
-                                        <button class="btn btn-link text-dark fw-bold collapsed" data-bs-toggle="collapse" data-bs-target="#paymentCollapse2">
-                                            Is my payment information secure?
-                                        </button>
-                                    </h5>
-                                </div>
-                                <div id="paymentCollapse2" class="collapse" data-parent="#accordionPayments">
-                                    <div class="card-body">
-                                        Yes, we use industry-standard SSL encryption to protect your payment information. Your payment details are never stored on our servers.
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="card mb-2">
-                                <div class="card-header" id="paymentHeading3">
-                                    <h5 class="mb-0">
-                                        <button class="btn btn-link text-dark fw-bold collapsed" data-bs-toggle="collapse" data-bs-target="#paymentCollapse3">
-                                            When will my card be charged?
-                                        </button>
-                                    </h5>
-                                </div>
-                                <div id="paymentCollapse3" class="collapse" data-parent="#accordionPayments">
-                                    <div class="card-body">
-                                        Your card will be charged immediately upon placing the order. If the order is canceled, a refund will be processed within 5-7 business days.
-                                    </div>
-                                </div>
+                        <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body text-muted small">
+                                No! You pay the exact same price as you would when visiting the merchant directly. We receive a small commission from the merchant at no additional cost to you.
                             </div>
                         </div>
+                    </div>
 
-                        <h2 class="fw-bold mb-4">
-                            <i class="fas fa-truck text-primary me-2"></i> Shipping
+                    <div class="accordion-item border-0 shadow-sm mb-2">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button fw-semibold collapsed" data-bs-toggle="collapse" data-bs-target="#faq3">
+                                How do I make a purchase?
+                            </button>
                         </h2>
-                        <div id="accordionShipping" class="mb-5">
-                            <div class="card mb-2">
-                                <div class="card-header" id="shipHeading1">
-                                    <h5 class="mb-0">
-                                        <button class="btn btn-link text-dark fw-bold collapsed" data-bs-toggle="collapse" data-bs-target="#shipCollapse1">
-                                            How long does shipping take?
-                                        </button>
-                                    </h5>
-                                </div>
-                                <div id="shipCollapse1" class="collapse" data-parent="#accordionShipping">
-                                    <div class="card-body">
-                                        Standard shipping takes 5-7 business days. Express shipping takes 2-3 business days. International shipping may take 10-15 business days depending on the destination.
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="card mb-2">
-                                <div class="card-header" id="shipHeading2">
-                                    <h5 class="mb-0">
-                                        <button class="btn btn-link text-dark fw-bold collapsed" data-bs-toggle="collapse" data-bs-target="#shipCollapse2">
-                                            Do you offer free shipping?
-                                        </button>
-                                    </h5>
-                                </div>
-                                <div id="shipCollapse2" class="collapse" data-parent="#accordionShipping">
-                                    <div class="card-body">
-                                        Yes, we offer free standard shipping on all orders over $50. Free express shipping is available on orders over $100.
-                                    </div>
-                                </div>
+                        <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body text-muted small">
+                                Simply browse our product catalog, click the "Buy Now" button on any product, and you'll be redirected to the merchant's website where you can complete your purchase securely.
                             </div>
                         </div>
+                    </div>
 
-                        <h2 class="fw-bold mb-4">
-                            <i class="fas fa-undo text-primary me-2"></i> Returns
+                    <div class="accordion-item border-0 shadow-sm mb-2">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button fw-semibold collapsed" data-bs-toggle="collapse" data-bs-target="#faq4">
+                                What is an affiliate link?
+                            </button>
                         </h2>
-                        <div id="accordionReturns" class="mb-5">
-                            <div class="card mb-2">
-                                <div class="card-header" id="returnHeading1">
-                                    <h5 class="mb-0">
-                                        <button class="btn btn-link text-dark fw-bold collapsed" data-bs-toggle="collapse" data-bs-target="#returnCollapse1">
-                                            What is your return policy?
-                                        </button>
-                                    </h5>
-                                </div>
-                                <div id="returnCollapse1" class="collapse" data-parent="#accordionReturns">
-                                    <div class="card-body">
-                                        We offer a 30-day return policy for most items. Products must be unused and in their original packaging. Some exceptions apply for perishable goods and personalized items.
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="card mb-2">
-                                <div class="card-header" id="returnHeading2">
-                                    <h5 class="mb-0">
-                                        <button class="btn btn-link text-dark fw-bold collapsed" data-bs-toggle="collapse" data-bs-target="#returnCollapse2">
-                                            How long do refunds take?
-                                        </button>
-                                    </h5>
-                                </div>
-                                <div id="returnCollapse2" class="collapse" data-parent="#accordionReturns">
-                                    <div class="card-body">
-                                        Once we receive your return, refunds are processed within 5-7 business days. The amount will be credited to your original payment method.
-                                    </div>
-                                </div>
+                        <div id="faq4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body text-muted small">
+                                An affiliate link is a special URL that tracks referrals. When you click a product on our site and make a purchase, the merchant credits us with a small commission. Your price remains the same.
                             </div>
                         </div>
+                    </div>
 
+                    <div class="accordion-item border-0 shadow-sm mb-2">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button fw-semibold collapsed" data-bs-toggle="collapse" data-bs-target="#faq5">
+                                Can I return or exchange products?
+                            </button>
+                        </h2>
+                        <div id="faq5" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body text-muted small">
+                                Returns and exchanges are handled entirely by the merchant you purchased from. Please refer to the merchant's return policy. We're an affiliate platform and don't handle inventory or shipments.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item border-0 shadow-sm mb-2">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button fw-semibold collapsed" data-bs-toggle="collapse" data-bs-target="#faq6">
+                                How do I contact customer support?
+                            </button>
+                        </h2>
+                        <div id="faq6" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body text-muted small">
+                                For questions about the marketplace itself, you can reach us through our social media channels linked in the footer. For product-specific issues, please contact the merchant directly.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item border-0 shadow-sm mb-2">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button fw-semibold collapsed" data-bs-toggle="collapse" data-bs-target="#faq7">
+                                How do I become an affiliate?
+                            </button>
+                        </h2>
+                        <div id="faq7" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body text-muted small">
+                                Register an account on our platform, then visit your Dashboard to create and manage your affiliate links. Share your unique links to earn commissions on referred sales.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item border-0 shadow-sm mb-2">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button fw-semibold collapsed" data-bs-toggle="collapse" data-bs-target="#faq8">
+                                Is my personal information secure?
+                            </button>
+                        </h2>
+                        <div id="faq8" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body text-muted small">
+                                Yes. We take your privacy seriously. Your personal data is encrypted and never shared with third parties. For more details, please read our Privacy Policy.
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-        </section>
-    </main>
+        </div>
+    </div>
+</section>
 
-    {% include 'includes/footer.html' %}
-
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/admin.js') }}"></script>
-</body>
-</html>
+{% endblock %}

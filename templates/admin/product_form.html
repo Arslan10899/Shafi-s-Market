@@ -1,0 +1,107 @@
+{% extends "admin/base.html" %}
+{% block title %}{% if edit_mode %}Edit Product{% else %}Add Product{% endif %}{% endblock %}
+{% block admin_content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="fw-bold mb-0"><i class="fas fa-{% if edit_mode %}edit{% else %}plus{% endif %} me-2"></i>{% if edit_mode %}Edit Product{% else %}Add Product{% endif %}</h4>
+    <a href="/admin/products" class="btn btn-outline-secondary btn-sm rounded-pill"><i class="fas fa-arrow-left me-1"></i> Back</a>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-4">
+        {% if error %}
+        <div class="alert alert-danger">{{ error }}</div>
+        {% endif %}
+
+        <form method="POST" action="/admin/products/{% if edit_mode %}edit/{{ product.id }}{% else %}add{% endif %}" enctype="multipart/form-data">
+            <div class="row g-3">
+                <div class="col-md-8">
+                    <label class="form-label small fw-semibold">Title *</label>
+                    <input type="text" name="title" class="form-control" value="{{ product.title if product else '' }}" required>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label small fw-semibold">Category</label>
+                    <select name="category_id" class="form-select">
+                        <option value="">No category</option>
+                        {% for cat in categories %}
+                        <option value="{{ cat.id }}" {% if product and product.category_id == cat.id %}selected{% endif %}>{{ cat.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label small fw-semibold">Price</label>
+                    <input type="number" name="price" class="form-control" step="0.01" min="0" value="{{ product.price if product else '' }}">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label small fw-semibold">Old Price (for discount display)</label>
+                    <input type="number" name="old_price" class="form-control" step="0.01" min="0" value="{{ product.old_price if product else '' }}">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label small fw-semibold">Rating</label>
+                    <input type="number" name="rating" class="form-control" step="0.1" min="0" max="5" value="{{ product.rating if product else '0' }}">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label small fw-semibold">Affiliate Platform</label>
+                    <select name="affiliate_platform" class="form-select" required>
+                        <option value="amazon" {% if product and product.affiliate_platform == 'amazon' %}selected{% endif %}>Amazon</option>
+                        <option value="alibaba" {% if product and product.affiliate_platform == 'alibaba' %}selected{% endif %}>Alibaba</option>
+                        <option value="aliexpress" {% if product and product.affiliate_platform == 'aliexpress' %}selected{% endif %}>AliExpress</option>
+                        <option value="daraz" {% if product and product.affiliate_platform == 'daraz' %}selected{% endif %}>Daraz</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label small fw-semibold">Affiliate URL *</label>
+                    <input type="url" name="affiliate_url" class="form-control" value="{{ product.affiliate_url if product else '' }}" required>
+                </div>
+                <div class="col-12">
+                    <label class="form-label small fw-semibold">Short Description</label>
+                    <input type="text" name="short_description" class="form-control" value="{{ product.short_description if product else '' }}" maxlength="300">
+                </div>
+                <div class="col-12">
+                    <label class="form-label small fw-semibold">Full Description</label>
+                    <textarea name="description" class="form-control" rows="4">{{ product.description if product else '' }}</textarea>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label small fw-semibold">Image URL (Primary)</label>
+                    <input type="url" name="image" class="form-control" value="{{ product.image if product else '' }}" placeholder="https://...">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label small fw-semibold">Upload Images</label>
+                    <input type="file" name="images" class="form-control" accept="image/*" multiple>
+                    <small class="text-muted">First image = primary. Select multiple files at once.</small>
+                </div>
+                <div class="col-12">
+                    <div class="form-check form-check-inline">
+                        <input type="checkbox" name="is_featured" class="form-check-input" id="chkFeatured" {% if product and product.is_featured %}checked{% endif %}>
+                        <label class="form-check-label" for="chkFeatured">Featured</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input type="checkbox" name="is_new" class="form-check-input" id="chkNew" {% if product and product.is_new %}checked{% endif %}>
+                        <label class="form-check-label" for="chkNew">New</label>
+                    </div>
+                </div>
+                {% if edit_mode and product.images %}
+                <div class="col-12">
+                    <hr>
+                    <h6 class="fw-bold"><i class="fas fa-images me-1"></i> Gallery Images ({{ product.images|length }})</h6>
+                    <div class="d-flex flex-wrap gap-2 mt-2">
+                        {% for img in product.images %}
+                        <div class="position-relative" style="width:100px">
+                            <img src="{{ img.image_url }}" class="rounded border" style="width:100px;height:100px;object-fit:cover">
+                            <form method="POST" action="/admin/products/images/delete/{{ img.id }}" style="position:absolute;top:-6px;right:-6px">
+                                <button type="submit" class="btn btn-danger btn-sm rounded-circle p-0" style="width:22px;height:22px;font-size:11px" onclick="return confirm('Delete this image?')">&times;</button>
+                            </form>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+                <div class="col-12">
+                    <button type="submit" class="btn btn-warning rounded-pill px-4"><i class="fas fa-save me-1"></i> {% if edit_mode %}Update{% else %}Save{% endif %} Product</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

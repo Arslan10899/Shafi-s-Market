@@ -1,0 +1,491 @@
+{% extends "base.html" %}
+{% block title %}My Dashboard{% endblock %}
+{% block content %}
+
+<div class="container-fluid py-4" style="background:#f8f9fa;min-height:calc(100vh - 76px)">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-lg-2 mb-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-3">
+                    <div class="text-center mb-3">
+                        <div class="rounded-circle bg-warning d-flex align-items-center justify-content-center mx-auto mb-2 text-white fw-bold" style="width:56px;height:56px;font-size:22px">
+                            {{ (profile.full_name or profile.username)[:1] | upper }}
+                        </div>
+                        <h6 class="fw-bold mb-0 small">{{ profile.full_name or profile.username }}</h6>
+                        <span class="badge bg-info text-dark">{{ profile.role | title }}</span>
+                    </div>
+                    <hr class="my-2">
+                    <ul class="nav flex-column nav-pills gap-1">
+                        <li class="nav-item">
+                            <a href="/dashboard?tab=overview" class="nav-link small py-2 {% if current_tab == 'overview' or not current_tab %}active bg-warning text-dark{% else %}text-dark{% endif %}">
+                                <i class="fas fa-tachometer-alt me-2"></i>Overview
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/dashboard?tab=products" class="nav-link small py-2 {% if current_tab == 'products' %}active bg-warning text-dark{% else %}text-dark{% endif %}">
+                                <i class="fas fa-box me-2"></i>Products
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/dashboard?tab=categories" class="nav-link small py-2 {% if current_tab == 'categories' %}active bg-warning text-dark{% else %}text-dark{% endif %}">
+                                <i class="fas fa-tags me-2"></i>Categories
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/dashboard?tab=platforms" class="nav-link small py-2 {% if current_tab == 'platforms' %}active bg-warning text-dark{% else %}text-dark{% endif %}">
+                                <i class="fas fa-shopping-cart me-2"></i>Platforms
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/dashboard?tab=links" class="nav-link small py-2 {% if current_tab == 'links' %}active bg-warning text-dark{% else %}text-dark{% endif %}">
+                                <i class="fas fa-link me-2"></i>My Links
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/dashboard?tab=clicks" class="nav-link small py-2 {% if current_tab == 'clicks' %}active bg-warning text-dark{% else %}text-dark{% endif %}">
+                                <i class="fas fa-chart-line me-2"></i>My Clicks
+                            </a>
+                        </li>
+                        <li><hr class="my-2"></li>
+                        <li class="nav-item">
+                            <a href="/" class="nav-link small py-2 text-dark">
+                                <i class="fas fa-store me-2"></i>View Site
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main -->
+        <div class="col-lg-10">
+
+            {% if current_tab == 'overview' or not current_tab %}
+            <!-- ═══ OVERVIEW ═══ -->
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold mb-0"><i class="fas fa-tachometer-alt me-2 text-warning"></i>Overview</h5>
+            </div>
+            <div class="row g-3 mb-4">
+                <div class="col-6 col-md-3">
+                    <div class="card border-0 shadow-sm bg-primary text-white">
+                        <div class="card-body text-center py-3">
+                            <i class="fas fa-box fa-2x mb-1"></i>
+                            <h3 class="fw-bold mb-0">{{ total_products }}</h3>
+                            <small>Products</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="card border-0 shadow-sm bg-success text-white">
+                        <div class="card-body text-center py-3">
+                            <i class="fas fa-tags fa-2x mb-1"></i>
+                            <h3 class="fw-bold mb-0">{{ total_categories }}</h3>
+                            <small>Categories</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="card border-0 shadow-sm bg-info text-white">
+                        <div class="card-body text-center py-3">
+                            <i class="fas fa-shopping-cart fa-2x mb-1"></i>
+                            <h3 class="fw-bold mb-0">{{ total_platforms }}</h3>
+                            <small>Platforms</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="card border-0 shadow-sm bg-warning text-dark">
+                        <div class="card-body text-center py-3">
+                            <i class="fas fa-chart-line fa-2x mb-1"></i>
+                            <h3 class="fw-bold mb-0">{{ total_clicks }}</h3>
+                            <small>My Clicks</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-header bg-white fw-semibold d-flex justify-content-between align-items-center">
+                            <span><i class="fas fa-link me-1 text-warning"></i>My Links</span>
+                            <a href="/dashboard?tab=links" class="btn btn-sm btn-outline-warning rounded-pill">Manage</a>
+                        </div>
+                        <div class="card-body">
+                            {% if links %}
+                            <div class="list-group list-group-flush">
+                                {% for link in links[:5] %}
+                                <div class="list-group-item px-0 d-flex justify-content-between align-items-center">
+                                    <div class="small">
+                                        <strong>{{ link.title }}</strong>
+                                        <div class="text-muted">{{ link.url[:50] }}...</div>
+                                    </div>
+                                    <span class="badge bg-{{ 'success' if link.clicks_count > 0 else 'secondary' }}">{{ link.clicks_count or 0 }}</span>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            <p class="text-muted small mb-0 text-center py-3">No links yet. <a href="/dashboard?tab=links" class="text-decoration-none">Add one</a></p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-header bg-white fw-semibold"><i class="fas fa-box me-1 text-warning"></i>Recent Products</div>
+                        <div class="card-body p-0">
+                            <table class="table table-hover mb-0 small">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Product</th>
+                                        <th>Price</th>
+                                        <th>Platform</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for p in products[:5] %}
+                                    <tr>
+                                        <td><a href="/product/{{ p.slug }}" class="text-decoration-none">{{ p.title[:40] }}</a></td>
+                                        <td>{% if p.price %}${{ "%.2f"|format(p.price) }}{% else %}-{% endif %}</td>
+                                        <td><span class="badge bg-light text-dark">{{ p.affiliate_platform|title }}</span></td>
+                                    </tr>
+                                    {% else %}
+                                    <tr><td colspan="3" class="text-center text-muted py-3">No products</td></tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {% elif current_tab == 'products' %}
+            <!-- ═══ PRODUCTS ═══ -->
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold mb-0"><i class="fas fa-box me-2 text-warning"></i>Products</h5>
+            </div>
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0 align-middle">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Image</th>
+                                    <th>Title</th>
+                                    <th>Category</th>
+                                    <th>Price</th>
+                                    <th>Rating</th>
+                                    <th>Platform</th>
+                                    <th>Link</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for p in products %}
+                                <tr>
+                                    <td>
+                                        <img src="{{ p.image or 'https://placehold.co/48x48/f5f5f5/333?text=P' }}" class="rounded" width="48" height="48" style="object-fit:cover">
+                                    </td>
+                                    <td class="small">{{ p.title[:60] }}{% if p.title|length > 60 %}...{% endif %}</td>
+                                    <td><span class="badge bg-light text-dark">{{ p.category.name if p.category else '—' }}</span></td>
+                                    <td>{% if p.price %}${{ "%.2f"|format(p.price) }}{% else %}-{% endif %}</td>
+                                    <td>
+                                        {% if p.rating %}
+                                        <span class="text-warning small">★</span> {{ p.rating }}
+                                        {% else %}-{% endif %}
+                                    </td>
+                                    <td><span class="badge bg-info text-dark">{{ p.affiliate_platform|title }}</span></td>
+                                    <td>
+                                        <a href="/product/{{ p.slug }}" class="btn btn-sm btn-outline-warning rounded-pill" target="_blank"><i class="fas fa-external-link-alt"></i></a>
+                                    </td>
+                                </tr>
+                                {% else %}
+                                <tr><td colspan="7" class="text-center text-muted py-4">No products found</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            {% elif current_tab == 'categories' %}
+            <!-- ═══ CATEGORIES ═══ -->
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold mb-0"><i class="fas fa-tags me-2 text-warning"></i>Categories</h5>
+            </div>
+            <div class="row g-3">
+                {% for cat in categories %}
+                <div class="col-6 col-md-4 col-lg-3">
+                    <div class="card border-0 shadow-sm h-100">
+                        <img src="{{ cat.image or 'https://placehold.co/300x150/f5f5f5/333?text=Category' }}" class="card-img-top" style="height:120px;object-fit:cover" alt="{{ cat.name }}">
+                        <div class="card-body text-center">
+                            <h6 class="fw-bold mb-1">{{ cat.name }}</h6>
+                            {% if cat.description %}
+                            <p class="small text-muted mb-2">{{ cat.description[:60] }}</p>
+                            {% endif %}
+                            <a href="/shop?category={{ cat.slug }}" class="btn btn-sm btn-outline-warning rounded-pill">Browse</a>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <div class="col-12 text-center py-5"><p class="text-muted">No categories</p></div>
+                {% endfor %}
+            </div>
+
+            {% elif current_tab == 'platforms' %}
+            <!-- ═══ PLATFORMS ═══ -->
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold mb-0"><i class="fas fa-shopping-cart me-2 text-warning"></i>Platforms</h5>
+            </div>
+            <div class="row g-3">
+                {% for plat in platforms %}
+                <div class="col-6 col-md-4 col-lg-3">
+                    <div class="card border-0 shadow-sm h-100 text-center py-4">
+                        <div class="card-body">
+                            <i class="{{ plat.icon }} fa-3x mb-3 text-warning"></i>
+                            <h6 class="fw-bold">{{ plat.name }}</h6>
+                            {% if plat.base_url %}
+                            <a href="{{ plat.base_url }}" target="_blank" class="btn btn-sm btn-outline-warning rounded-pill mt-2">Visit</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <div class="col-12 text-center py-5"><p class="text-muted">No platforms</p></div>
+                {% endfor %}
+            </div>
+
+            {% elif current_tab == 'links' %}
+            <!-- ═══ MY LINKS ═══ -->
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold mb-0"><i class="fas fa-link me-2 text-warning"></i>My Links</h5>
+                <button class="btn btn-warning btn-sm rounded-pill" data-bs-toggle="modal" data-bs-target="#addLinkModal">
+                    <i class="fas fa-plus me-1"></i> Add Link
+                </button>
+            </div>
+
+            {% if request.query_params.get('error') == 'url_required' %}
+            <div class="alert alert-danger alert-dismissible fade show">URL is required.<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+            {% endif %}
+
+            {% if links %}
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0 align-middle">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Title</th>
+                                    <th>URL</th>
+                                    <th>Platform</th>
+                                    <th class="text-center">Clicks</th>
+                                    <th style="width:90px">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for link in links %}
+                                <tr>
+                                    <td>
+                                        <strong class="small">{{ link.title }}</strong>
+                                        {% if link.description %}
+                                        <div class="text-muted small">{{ link.description[:60] }}{% if link.description|length > 60 %}...{% endif %}</div>
+                                        {% endif %}
+                                    </td>
+                                    <td class="small text-muted" style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
+                                        <a href="/dashboard/go/{{ link.id }}" target="_blank" class="text-decoration-none">{{ link.url[:40] }}...</a>
+                                    </td>
+                                    <td>
+                                        {% if link.platform %}
+                                        <span class="badge bg-light text-dark">{{ link.platform.name }}</span>
+                                        {% else %}
+                                        <span class="badge bg-secondary">Direct</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge bg-{{ 'success' if link.clicks_count > 0 else 'secondary' }}">
+                                            {{ link.clicks_count or 0 }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex gap-1">
+                                            <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editLinkModal{{ link.id }}" title="Edit"><i class="fas fa-edit"></i></button>
+                                            <a href="/dashboard/links/delete/{{ link.id }}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete this link?')" title="Delete"><i class="fas fa-trash"></i></a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="card border-0 shadow-sm">
+                <div class="card-body text-center py-5">
+                    <i class="fas fa-link fa-3x text-muted mb-3"></i>
+                    <p class="text-muted mb-3">You haven't added any affiliate links yet.</p>
+                    <button class="btn btn-warning rounded-pill" data-bs-toggle="modal" data-bs-target="#addLinkModal">
+                        <i class="fas fa-plus me-1"></i> Add Your First Link
+                    </button>
+                </div>
+            </div>
+            {% endif %}
+
+            {% elif current_tab == 'clicks' %}
+            <!-- ═══ MY CLICKS ═══ -->
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold mb-0"><i class="fas fa-chart-line me-2 text-warning"></i>My Clicks</h5>
+            </div>
+
+            <div class="row g-3 mb-4">
+                <div class="col-md-4">
+                    <div class="card border-0 shadow-sm bg-success text-white">
+                        <div class="card-body text-center py-3">
+                            <i class="fas fa-mouse-pointer fa-2x mb-1"></i>
+                            <h3 class="fw-bold mb-0">{{ total_clicks }}</h3>
+                            <small>Total Clicks</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card border-0 shadow-sm bg-primary text-white">
+                        <div class="card-body text-center py-3">
+                            <i class="fas fa-link fa-2x mb-1"></i>
+                            <h3 class="fw-bold mb-0">{{ total_links }}</h3>
+                            <small>Total Links</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card border-0 shadow-sm bg-info text-white">
+                        <div class="card-body text-center py-3">
+                            <i class="fas fa-percentage fa-2x mb-1"></i>
+                            <h3 class="fw-bold mb-0">{{ "%.1f"|format(total_clicks / total_links) if total_links > 0 else 0 }}</h3>
+                            <small>Avg Clicks/Link</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white fw-semibold">Click Details</div>
+                <div class="card-body p-0">
+                    <table class="table table-hover mb-0 align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Link</th>
+                                <th>Platform</th>
+                                <th>URL</th>
+                                <th class="text-center">Clicks</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for link in links %}
+                            <tr>
+                                <td class="small fw-semibold">{{ link.title }}</td>
+                                <td>
+                                    {% if link.platform %}
+                                    <span class="badge bg-light text-dark">{{ link.platform.name }}</span>
+                                    {% else %}
+                                    <span class="badge bg-secondary">Direct</span>
+                                    {% endif %}
+                                </td>
+                                <td class="small text-muted" style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ link.url[:50] }}...</td>
+                                <td class="text-center">
+                                    <span class="badge bg-{{ 'success' if link.clicks_count > 0 else 'secondary' }} fs-6">
+                                        {{ link.clicks_count or 0 }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr><td colspan="4" class="text-center text-muted py-4">No links to track clicks</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% endif %}
+
+        </div>
+    </div>
+</div>
+
+<!-- Add Link Modal -->
+<div class="modal fade" id="addLinkModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="POST" action="/dashboard/links/add">
+                <div class="modal-header"><h5 class="modal-title"><i class="fas fa-plus-circle me-2 text-warning"></i>Add New Link</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Title *</label>
+                        <input type="text" name="title" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">URL *</label>
+                        <input type="url" name="url" class="form-control" placeholder="https://..." required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Platform</label>
+                        <select name="platform_id" class="form-select">
+                            <option value="0">None (Direct Link)</option>
+                            {% for p in platforms %}
+                            <option value="{{ p.id }}">{{ p.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Description</label>
+                        <textarea name="description" class="form-control" rows="2"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-warning rounded-pill"><i class="fas fa-plus me-1"></i> Add Link</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Modals -->
+{% for link in links %}
+<div class="modal fade" id="editLinkModal{{ link.id }}" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="POST" action="/dashboard/links/edit/{{ link.id }}">
+                <div class="modal-header"><h5 class="modal-title"><i class="fas fa-edit me-2 text-warning"></i>Edit Link</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Title</label>
+                        <input type="text" name="title" class="form-control" value="{{ link.title }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">URL</label>
+                        <input type="url" name="url" class="form-control" value="{{ link.url }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Platform</label>
+                        <select name="platform_id" class="form-select">
+                            <option value="0" {% if not link.platform_id %}selected{% endif %}>None (Direct Link)</option>
+                            {% for p in platforms %}
+                            <option value="{{ p.id }}" {% if link.platform_id == p.id %}selected{% endif %}>{{ p.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Description</label>
+                        <textarea name="description" class="form-control" rows="2">{{ link.description }}</textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-warning rounded-pill"><i class="fas fa-save me-1"></i> Update</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+{% endblock %}

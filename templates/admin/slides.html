@@ -1,0 +1,174 @@
+{% extends "admin/base.html" %}
+{% block title %}Hero Slider{% endblock %}
+{% block admin_content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="fw-bold mb-0"><i class="fas fa-images me-2 text-warning"></i>Hero Slider</h4>
+    <button class="btn btn-warning rounded-pill" data-bs-toggle="modal" data-bs-target="#addSlideModal">
+        <i class="fas fa-plus me-1"></i> Add Slide
+    </button>
+</div>
+
+<div class="row g-4">
+    {% for slide in slides %}
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm h-100">
+            <div style="height:200px;overflow:hidden;border-radius:12px 12px 0 0;position:relative">
+                <img src="{{ slide.image_url }}" class="w-100 h-100" style="object-fit:cover" alt="{{ slide.title }}">
+                <div class="position-absolute top-0 end-0 m-2 d-flex gap-1">
+                    {% if slide.is_active %}
+                    <span class="badge bg-success">Active</span>
+                    {% else %}
+                    <span class="badge bg-secondary">Inactive</span>
+                    {% endif %}
+                    <span class="badge bg-dark">#{{ slide.sort_order }}</span>
+                </div>
+            </div>
+            <div class="card-body">
+                <h6 class="fw-bold mb-1">{{ slide.title }}</h6>
+                {% if slide.subtitle %}
+                <p class="small text-muted mb-2">{{ slide.subtitle[:100] }}{% if slide.subtitle|length > 100 %}...{% endif %}</p>
+                {% endif %}
+                <div class="d-flex justify-content-between align-items-center">
+                    <small class="text-muted">
+                        <i class="fas fa-link me-1"></i>
+                        <a href="{{ slide.btn_url }}" class="text-decoration-none" target="_blank">{{ slide.btn_text }}</a>
+                    </small>
+                    <div class="d-flex gap-1">
+                        <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editSlideModal{{ slide.id }}" title="Edit">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <a href="/admin/slides/delete/{{ slide.id }}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete this slide?')" title="Delete">
+                            <i class="fas fa-trash"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Modal -->
+    <div class="modal fade" id="editSlideModal{{ slide.id }}" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <form method="POST" action="/admin/slides/edit/{{ slide.id }}" enctype="multipart/form-data">
+                    <div class="modal-header">
+                        <h5 class="modal-title"><i class="fas fa-edit me-2 text-warning"></i>Edit Slide</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row g-3">
+                            <div class="col-md-8">
+                                <label class="form-label small fw-semibold">Title *</label>
+                                <input type="text" name="title" class="form-control" value="{{ slide.title }}" required>
+                            </div>
+                            <div class="col-md-4 d-flex align-items-center pt-3">
+                                <div class="form-check form-switch">
+                                    <input type="checkbox" name="is_active" class="form-check-input" id="active{{ slide.id }}" {% if slide.is_active %}checked{% endif %}>
+                                    <label class="form-check-label" for="active{{ slide.id }}">Active</label>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label small fw-semibold">Subtitle</label>
+                                <input type="text" name="subtitle" class="form-control" value="{{ slide.subtitle }}">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-semibold">Button Text</label>
+                                <input type="text" name="btn_text" class="form-control" value="{{ slide.btn_text }}">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-semibold">Button URL</label>
+                                <input type="text" name="btn_url" class="form-control" value="{{ slide.btn_url }}">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label small fw-semibold">Button Style</label>
+                                <select name="btn_type" class="form-select">
+                                    <option value="primary" {% if slide.btn_type == 'primary' %}selected{% endif %}>Yellow (Primary)</option>
+                                    <option value="outline" {% if slide.btn_type == 'outline' %}selected{% endif %}>Outline (Light)</option>
+                                </select>
+                            </div>
+                            <div class="col-md-8">
+                                <label class="form-label small fw-semibold">Image URL</label>
+                                <input type="url" name="image" class="form-control" value="{{ slide.image_url }}" placeholder="https://...">
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label small fw-semibold">Or Upload Image</label>
+                                <input type="file" name="image_file" class="form-control" accept="image/*">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-warning rounded-pill"><i class="fas fa-save me-1"></i> Update Slide</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="col-12 text-center py-5">
+        <i class="fas fa-images fa-4x text-muted mb-3"></i>
+        <h5>No slides yet</h5>
+        <p class="text-muted">Add your first hero slider slide</p>
+        <button class="btn btn-warning rounded-pill" data-bs-toggle="modal" data-bs-target="#addSlideModal">
+            <i class="fas fa-plus me-1"></i> Add Slide
+        </button>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Add Modal -->
+<div class="modal fade" id="addSlideModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form method="POST" action="/admin/slides/add" enctype="multipart/form-data">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-plus-circle me-2 text-warning"></i>Add New Slide</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label small fw-semibold">Title *</label>
+                            <input type="text" name="title" class="form-control" required placeholder="e.g. Big Sale Weekend">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label small fw-semibold">Subtitle</label>
+                            <input type="text" name="subtitle" class="form-control" placeholder="e.g. Up to 50% off on all items">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">Button Text</label>
+                            <input type="text" name="btn_text" class="form-control" placeholder="Shop Now" value="Shop Now">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">Button URL</label>
+                            <input type="text" name="btn_url" class="form-control" placeholder="/shop" value="/shop">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-semibold">Button Style</label>
+                            <select name="btn_type" class="form-select">
+                                <option value="primary">Yellow (Primary)</option>
+                                <option value="outline">Outline (Light)</option>
+                            </select>
+                        </div>
+                        <div class="col-md-8">
+                            <label class="form-label small fw-semibold">Image URL</label>
+                            <input type="url" name="image" class="form-control" placeholder="https://images.unsplash.com/...">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label small fw-semibold">Or Upload Image</label>
+                            <input type="file" name="image_file" class="form-control" accept="image/*">
+                            <small class="text-muted">Recommended: 1600x900px or larger. First file = gallery.</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-warning rounded-pill"><i class="fas fa-plus me-1"></i> Add Slide</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,128 @@
+{% extends "admin/base.html" %}
+{% block title %}Platforms{% endblock %}
+{% block admin_content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="fw-bold mb-0"><i class="fas fa-shopping-cart me-2 text-warning"></i>Affiliate Platforms</h4>
+    <button class="btn btn-warning rounded-pill" data-bs-toggle="modal" data-bs-target="#addPlatformModal">
+        <i class="fas fa-plus me-1"></i> Add Platform
+    </button>
+</div>
+
+{% if request.query_params.get('error') == 'exists' %}
+<div class="alert alert-danger alert-dismissible fade show">Platform name already exists.<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+{% endif %}
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0 align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Platform</th>
+                        <th>Icon</th>
+                        <th>Base URL</th>
+                        <th>Status</th>
+                        <th style="width:100px">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in platforms %}
+                    <tr>
+                        <td>{{ p.id }}</td>
+                        <td><strong>{{ p.name }}</strong></td>
+                        <td><i class="{{ p.icon }} me-1"></i><code class="small">{{ p.icon }}</code></td>
+                        <td class="small"><a href="{{ p.base_url }}" target="_blank" class="text-decoration-none">{{ p.base_url[:50] }}{% if p.base_url|length > 50 %}...{% endif %}</a></td>
+                        <td>{% if p.is_active %}<span class="badge bg-success">Active</span>{% else %}<span class="badge bg-secondary">Inactive</span>{% endif %}</td>
+                        <td>
+                            <div class="d-flex gap-1">
+                                <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editPlatformModal{{ p.id }}" title="Edit"><i class="fas fa-edit"></i></button>
+                                <a href="/admin/platforms/delete/{{ p.id }}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete platform {{ p.name }}?')" title="Delete"><i class="fas fa-trash"></i></a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Add Modal -->
+<div class="modal fade" id="addPlatformModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="POST" action="/admin/platforms/add">
+                <div class="modal-header"><h5 class="modal-title"><i class="fas fa-plus-circle me-2 text-warning"></i>Add Platform</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label small fw-semibold">Platform Name *</label>
+                            <input type="text" name="name" class="form-control" required placeholder="e.g. Amazon">
+                        </div>
+                        <div class="col-md-8">
+                            <label class="form-label small fw-semibold">Icon Class</label>
+                            <input type="text" name="icon" class="form-control" value="fas fa-shopping-cart" placeholder="fab fa-amazon">
+                        </div>
+                        <div class="col-md-4 d-flex align-items-center pt-3">
+                            <div class="form-check form-switch">
+                                <input type="checkbox" name="is_active" class="form-check-input" id="addPlatActive" checked>
+                                <label class="form-check-label" for="addPlatActive">Active</label>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label small fw-semibold">Base URL</label>
+                            <input type="url" name="base_url" class="form-control" placeholder="https://www.amazon.com">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-warning rounded-pill"><i class="fas fa-plus me-1"></i> Add</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Modals -->
+{% for p in platforms %}
+<div class="modal fade" id="editPlatformModal{{ p.id }}" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="POST" action="/admin/platforms/edit/{{ p.id }}">
+                <div class="modal-header"><h5 class="modal-title"><i class="fas fa-edit me-2 text-warning"></i>Edit Platform</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label small fw-semibold">Platform Name *</label>
+                            <input type="text" name="name" class="form-control" value="{{ p.name }}" required>
+                        </div>
+                        <div class="col-md-8">
+                            <label class="form-label small fw-semibold">Icon Class</label>
+                            <input type="text" name="icon" class="form-control" value="{{ p.icon }}">
+                        </div>
+                        <div class="col-md-4 d-flex align-items-center pt-3">
+                            <div class="form-check form-switch">
+                                <input type="checkbox" name="is_active" class="form-check-input" id="platActive{{ p.id }}" {% if p.is_active %}checked{% endif %}>
+                                <label class="form-check-label" for="platActive{{ p.id }}">Active</label>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label small fw-semibold">Base URL</label>
+                            <input type="url" name="base_url" class="form-control" value="{{ p.base_url }}">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-warning rounded-pill"><i class="fas fa-save me-1"></i> Update</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+{% endblock %}

@@ -1,0 +1,40 @@
+{% extends "admin/base.html" %}
+{% block title %}Affiliate Clicks{% endblock %}
+{% block admin_content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="fw-bold mb-0"><i class="fas fa-chart-line me-2"></i>Affiliate Clicks</h4>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0 align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>ID</th>
+                        <th>Product</th>
+                        <th>Platform</th>
+                        <th>Clicked At</th>
+                        <th>IP</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for click in clicks %}
+                    <tr>
+                        <td class="text-muted">{{ click.id }}</td>
+                        <td>{{ click.product_title[:50] }}</td>
+                        <td><span class="badge bg-light text-dark">{{ click.platform|title }}</span></td>
+                        <td><small>{{ click.clicked_at.strftime('%Y-%m-%d %H:%M') if click.clicked_at else '-' }}</small></td>
+                        <td><small class="text-muted">{{ click.ip_address }}</small></td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="5" class="text-center text-muted py-4">No clicks recorded yet.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
