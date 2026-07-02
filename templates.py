@@ -1,14 +1,4 @@
-import os
-from jinja2 import Environment, FileSystemLoader, select_autoescape
-from starlette.templating import _TemplateResponse
-
-TEMPLATES_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "templates")
-
-_env = Environment(
-    loader=FileSystemLoader(TEMPLATES_DIR),
-    autoescape=select_autoescape(["html", "xml"]),
-    cache_size=200,
-)
+from flask import session, render_template as flask_render
 
 _social_cache = None
 
@@ -33,18 +23,19 @@ def invalidate_social_cache():
     _social_cache = None
 
 
-def render(name: str, context: dict, status_code: int = 200):
-    if "request" not in context:
-        raise ValueError("context must include a 'request' key")
-    if "social_links" not in context:
-        context["social_links"] = _load_social_links()
-    template = _env.get_template(name)
-    return _TemplateResponse(
-        template,
-        context,
-        status_code=status_code,
-    )
+def social_links_context():
+    return {"social_links": _load_social_links()}
 
 
-def get_template(name: str):
-    return _env.get_template(name)
+def render(template_name, **context):
+    context.setdefault("user", get_user_from_session())
+    return flask_render(template_name, **context)
+
+
+def get_user_from_session():
+    return {
+        "id": session.get("user_id"),
+        "username": session.get("username"),
+        "role": session.get("role", "affiliate"),
+        "profile_image": session.get("profile_image", ""),
+    } if session.get("user_id") else {}

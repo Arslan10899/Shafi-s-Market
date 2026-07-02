@@ -264,7 +264,7 @@
                 </button>
             </div>
 
-            {% if request.query_params.get('error') == 'url_required' %}
+            {% if request.args.get('error') == 'url_required' %}
             <div class="alert alert-danger alert-dismissible fade show">URL is required.<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
             {% endif %}
 

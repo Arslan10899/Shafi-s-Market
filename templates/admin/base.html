@@ -18,14 +18,14 @@
                 <small class="text-secondary">{{ user.username }}</small>
             </div>
             <ul class="nav flex-column">
-                <li class="nav-item"><a href="/admin" class="nav-link text-white {% if request.url.path == '/admin' %}active bg-warning text-dark rounded{% endif %}"><i class="fas fa-tachometer-alt me-2"></i>Dashboard</a></li>
-                <li class="nav-item"><a href="/admin/users" class="nav-link text-white {% if 'users' in request.url.path %}active bg-warning text-dark rounded{% endif %}"><i class="fas fa-users me-2"></i>Users</a></li>
-                <li class="nav-item"><a href="/admin/products" class="nav-link text-white {% if 'products' in request.url.path %}active bg-warning text-dark rounded{% endif %}"><i class="fas fa-box me-2"></i>Products</a></li>
-                <li class="nav-item"><a href="/admin/categories" class="nav-link text-white {% if 'categories' in request.url.path %}active bg-warning text-dark rounded{% endif %}"><i class="fas fa-tags me-2"></i>Categories</a></li>
-                <li class="nav-item"><a href="/admin/platforms" class="nav-link text-white {% if 'platforms' in request.url.path %}active bg-warning text-dark rounded{% endif %}"><i class="fas fa-shopping-cart me-2"></i>Platforms</a></li>
-                <li class="nav-item"><a href="/admin/slides" class="nav-link text-white {% if 'slides' in request.url.path %}active bg-warning text-dark rounded{% endif %}"><i class="fas fa-images me-2"></i>Hero Slider</a></li>
-                <li class="nav-item"><a href="/admin/social-links" class="nav-link text-white {% if 'social-links' in request.url.path %}active bg-warning text-dark rounded{% endif %}"><i class="fas fa-share-alt me-2"></i>Social Links</a></li>
-                <li class="nav-item"><a href="/admin/clicks" class="nav-link text-white {% if 'clicks' in request.url.path %}active bg-warning text-dark rounded{% endif %}"><i class="fas fa-chart-line me-2"></i>Clicks</a></li>
+                <li class="nav-item"><a href="/admin" class="nav-link text-white {% if request.path == '/admin' %}active bg-warning text-dark rounded{% endif %}"><i class="fas fa-tachometer-alt me-2"></i>Dashboard</a></li>
+                <li class="nav-item"><a href="/admin/users" class="nav-link text-white {% if 'users' in request.path %}active bg-warning text-dark rounded{% endif %}"><i class="fas fa-users me-2"></i>Users</a></li>
+                <li class="nav-item"><a href="/admin/products" class="nav-link text-white {% if 'products' in request.path %}active bg-warning text-dark rounded{% endif %}"><i class="fas fa-box me-2"></i>Products</a></li>
+                <li class="nav-item"><a href="/admin/categories" class="nav-link text-white {% if 'categories' in request.path %}active bg-warning text-dark rounded{% endif %}"><i class="fas fa-tags me-2"></i>Categories</a></li>
+                <li class="nav-item"><a href="/admin/platforms" class="nav-link text-white {% if 'platforms' in request.path %}active bg-warning text-dark rounded{% endif %}"><i class="fas fa-shopping-cart me-2"></i>Platforms</a></li>
+                <li class="nav-item"><a href="/admin/slides" class="nav-link text-white {% if 'slides' in request.path %}active bg-warning text-dark rounded{% endif %}"><i class="fas fa-images me-2"></i>Hero Slider</a></li>
+                <li class="nav-item"><a href="/admin/social-links" class="nav-link text-white {% if 'social-links' in request.path %}active bg-warning text-dark rounded{% endif %}"><i class="fas fa-share-alt me-2"></i>Social Links</a></li>
+                <li class="nav-item"><a href="/admin/clicks" class="nav-link text-white {% if 'clicks' in request.path %}active bg-warning text-dark rounded{% endif %}"><i class="fas fa-chart-line me-2"></i>Clicks</a></li>
                 <li><hr class="border-secondary"></li>
                 <li class="nav-item"><a href="/" class="nav-link text-white"><i class="fas fa-store me-2"></i>View Site</a></li>
                 <li class="nav-item"><a href="/auth/logout" class="nav-link text-white"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>

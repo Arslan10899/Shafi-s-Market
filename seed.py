@@ -18,7 +18,6 @@ def seed():
             print("Data already seeded.")
             return
 
-        # Admin
         admin = User(
             username="admin",
             email="admin@shafishop.com",
@@ -101,8 +100,6 @@ def seed():
             )
             db.add(prod)
 
-        # Hero slides
-        # Platforms
         if not db.query(Platform).first():
             platforms = [
                 ("Amazon", "fab fa-amazon", "https://www.amazon.com"),
@@ -116,7 +113,6 @@ def seed():
             db.commit()
             print("Platforms seeded!")
 
-        # Social links
         if not db.query(SocialLink).first():
             socials = [
                 ("Facebook", "https://facebook.com/safimarket", "fab fa-facebook", 1),

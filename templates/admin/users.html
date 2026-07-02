@@ -9,7 +9,7 @@
     </button>
 </div>
 
-{% if request.query_params.get('error') == 'exists' %}
+{% if request.args.get('error') == 'exists' %}
 <div class="alert alert-danger alert-dismissible fade show">Username or email already exists.<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
 {% endif %}
 

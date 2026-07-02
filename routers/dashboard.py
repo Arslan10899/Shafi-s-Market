@@ -1,28 +1,25 @@
-from fastapi import APIRouter, Depends, HTTPException, Request, Form, Query
-from fastapi.responses import RedirectResponse
-from sqlalchemy.orm import Session, joinedload
+from flask import Blueprint, request, redirect, abort, session
+from sqlalchemy.orm import joinedload
 from sqlalchemy import func
 
 from database import get_db
-from models import User, UserLink, Platform, Product, Category, AffiliateClick
-from routers.auth import get_user_from_token, get_current_user
-from templates import render
+from models import User, UserLink, Platform, Product, Category
+from templates import render, get_user_from_session
 
-router = APIRouter(prefix="/dashboard", tags=["dashboard"])
+bp = Blueprint("dashboard", __name__, url_prefix="/dashboard")
 
 
-@router.get("")
-def user_dashboard(
-    request: Request,
-    tab: str = Query("overview"),
-    db: Session = Depends(get_db),
-):
-    current_user = get_current_user(request, db)
-    if not current_user:
-        return RedirectResponse(url="/auth/login", status_code=303)
+@bp.route("")
+def user_dashboard():
+    if not session.get("user_id"):
+        return redirect("/auth/login")
+    current_user_id = session["user_id"]
+    user_dict = get_user_from_session()
+    tab = request.args.get("tab", "overview")
 
-    user_dict = get_user_from_token(request)
-    links = db.query(UserLink).options(joinedload(UserLink.platform)).filter(UserLink.user_id == current_user.id).order_by(UserLink.created_at.desc()).all()
+    db = get_db()
+    current_user = db.query(User).filter(User.id == current_user_id).first()
+    links = db.query(UserLink).options(joinedload(UserLink.platform)).filter(UserLink.user_id == current_user_id).order_by(UserLink.created_at.desc()).all()
     platforms = db.query(Platform).order_by(Platform.name).all()
     categories = db.query(Category).order_by(Category.name).all()
     products = db.query(Product).options(joinedload(Product.category)).order_by(Product.created_at.desc()).all()
@@ -31,85 +28,86 @@ def user_dashboard(
     total_platforms = db.query(func.count(Platform.id)).scalar() or 0
     total_user_links = len(links)
     total_user_clicks = sum(l.clicks_count for l in links)
+    db.close()
 
-    ctx = {
-        "request": request,
-        "user": user_dict,
-        "profile": current_user,
-        "links": links,
-        "platforms": platforms,
-        "categories": categories,
-        "products": products,
-        "total_links": total_user_links,
-        "total_clicks": total_user_clicks,
-        "total_products": total_products,
-        "total_categories": total_categories,
-        "total_platforms": total_platforms,
-        "current_tab": tab,
-    }
-    return render("user_dashboard.html", ctx)
+    return render("user_dashboard.html",
+        user=user_dict,
+        profile=current_user,
+        links=links,
+        platforms=platforms,
+        categories=categories,
+        products=products,
+        total_links=total_user_links,
+        total_clicks=total_user_clicks,
+        total_products=total_products,
+        total_categories=total_categories,
+        total_platforms=total_platforms,
+        current_tab=tab,
+    )
 
 
-@router.post("/links/add")
-def add_link(
-    request: Request, db: Session = Depends(get_db),
-    title: str = Form(""), url: str = Form(""),
-    description: str = Form(""), platform_id: int = Form(0),
-):
-    current_user = get_current_user(request, db)
-    if not current_user:
-        return RedirectResponse(url="/auth/login", status_code=303)
-    if not url.strip():
-        return RedirectResponse(url="/dashboard?tab=links&error=url_required", status_code=302)
+@bp.route("/links/add", methods=["POST"])
+def add_link():
+    if not session.get("user_id"):
+        return redirect("/auth/login")
+    db = get_db()
+    url = request.form.get("url", "").strip()
+    if not url:
+        db.close()
+        return redirect("/dashboard?tab=links&error=url_required")
     link = UserLink(
-        user_id=current_user.id,
-        url=url.strip(),
-        title=title.strip() or "Untitled",
-        description=description.strip(),
-        platform_id=platform_id if platform_id > 0 else None,
+        user_id=session["user_id"],
+        url=url,
+        title=request.form.get("title", "").strip() or "Untitled",
+        description=request.form.get("description", "").strip(),
+        platform_id=int(request.form.get("platform_id", 0)) or None,
     )
     db.add(link)
     db.commit()
-    return RedirectResponse(url="/dashboard?tab=links", status_code=302)
+    db.close()
+    return redirect("/dashboard?tab=links")
 
 
-@router.post("/links/edit/{lid}")
-def edit_link(
-    lid: int, request: Request, db: Session = Depends(get_db),
-    title: str = Form(""), url: str = Form(""),
-    description: str = Form(""), platform_id: int = Form(0),
-):
-    current_user = get_current_user(request, db)
-    if not current_user:
-        return RedirectResponse(url="/auth/login", status_code=303)
-    link = db.query(UserLink).filter(UserLink.id == lid, UserLink.user_id == current_user.id).first()
+@bp.route("/links/edit/<int:lid>", methods=["POST"])
+def edit_link(lid):
+    if not session.get("user_id"):
+        return redirect("/auth/login")
+    db = get_db()
+    link = db.query(UserLink).filter(UserLink.id == lid, UserLink.user_id == session["user_id"]).first()
     if not link:
-        raise HTTPException(status_code=404)
-    link.title = title.strip() or link.title
-    link.url = url.strip() or link.url
-    link.description = description.strip()
-    link.platform_id = platform_id if platform_id > 0 else None
+        db.close()
+        abort(404)
+    link.title = request.form.get("title", "").strip() or link.title
+    link.url = request.form.get("url", "").strip() or link.url
+    link.description = request.form.get("description", "").strip()
+    link.platform_id = int(request.form.get("platform_id", 0)) or None
     db.commit()
-    return RedirectResponse(url="/dashboard?tab=links", status_code=302)
+    db.close()
+    return redirect("/dashboard?tab=links")
 
 
-@router.get("/links/delete/{lid}")
-def delete_link(lid: int, request: Request, db: Session = Depends(get_db)):
-    current_user = get_current_user(request, db)
-    if not current_user:
-        return RedirectResponse(url="/auth/login", status_code=303)
-    link = db.query(UserLink).filter(UserLink.id == lid, UserLink.user_id == current_user.id).first()
+@bp.route("/links/delete/<int:lid>")
+def delete_link(lid):
+    if not session.get("user_id"):
+        return redirect("/auth/login")
+    db = get_db()
+    link = db.query(UserLink).filter(UserLink.id == lid, UserLink.user_id == session["user_id"]).first()
     if link:
         db.delete(link)
         db.commit()
-    return RedirectResponse(url="/dashboard?tab=links", status_code=302)
+    db.close()
+    return redirect("/dashboard?tab=links")
 
 
-@router.get("/go/{lid}")
-def click_link(lid: int, request: Request, db: Session = Depends(get_db)):
+@bp.route("/go/<int:lid>")
+def click_link(lid):
+    db = get_db()
     link = db.query(UserLink).filter(UserLink.id == lid).first()
     if not link:
-        raise HTTPException(status_code=404)
+        db.close()
+        abort(404)
     link.clicks_count = (link.clicks_count or 0) + 1
     db.commit()
-    return RedirectResponse(url=link.url, status_code=302)
+    url = link.url
+    db.close()
+    return redirect(url)

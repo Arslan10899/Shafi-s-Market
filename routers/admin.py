@@ -1,221 +1,176 @@
-from fastapi import APIRouter, Depends, HTTPException, Request, UploadFile, File, Form
-from fastapi.responses import RedirectResponse
-from sqlalchemy.orm import Session, joinedload
+from flask import Blueprint, request, redirect, abort, session
+from sqlalchemy.orm import joinedload
 from sqlalchemy import func, desc
 from slugify import slugify
 import os
 import random
 import string
 import time as time_module
-from typing import List
 
 from database import get_db
 from models import Product, ProductImage, Category, User, HeroSlide, AffiliateClick, SocialLink, Platform, UserLink
 from config import UPLOAD_DIR, ALLOWED_EXTENSIONS
-from routers.auth import get_user_from_token, require_admin
 import bcrypt as _bcrypt
 from templates import render, invalidate_social_cache
 
-router = APIRouter(prefix="/admin", tags=["admin"])
+bp = Blueprint("admin", __name__, url_prefix="/admin")
 
 
-def allowed_file(filename: str) -> bool:
+def allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
-def gen_slug(text: str) -> str:
+def gen_slug(text):
     base = slugify(text)[:200]
     suffix = "".join(random.choices(string.ascii_lowercase + string.digits, k=6))
     return f"{base}-{suffix}"
 
 
-def save_upload(file) -> str:
+def save_upload(file):
     ext = file.filename.rsplit(".", 1)[1].lower() if "." in file.filename else "jpg"
     filename = f"prod_{random.randint(10000,99999)}_{int(time_module.time())}.{ext}"
     path = os.path.join(UPLOAD_DIR, filename)
-    content = file.file.read()
-    with open(path, "wb") as f:
-        f.write(content)
+    file.save(path)
     return f"/static/uploads/{filename}"
+
+
+def require_admin():
+    if not session.get("user_id") or session.get("role") != "admin":
+        return None
+    return {"id": session["user_id"], "username": session["username"], "role": session["role"]}
 
 
 def get_user_dict(user):
     return {"id": user.id, "username": user.username, "role": user.role}
 
 
-@router.get("")
-def admin_dashboard(request: Request, db: Session = Depends(get_db)):
-    user = require_admin(request, db)
+@bp.route("")
+def admin_dashboard():
+    user = require_admin()
     if not user:
-        return RedirectResponse(url="/auth/login", status_code=303)
-
-    return render("admin/dashboard.html", {
-        "request": request,
-        "user": get_user_dict(user),
+        return redirect("/auth/login")
+    db = get_db()
+    ctx = {
+        "user": user,
         "total_products": db.query(func.count(Product.id)).scalar() or 0,
         "total_categories": db.query(func.count(Category.id)).scalar() or 0,
         "total_clicks": db.query(func.count(AffiliateClick.id)).scalar() or 0,
         "total_users": db.query(func.count(User.id)).scalar() or 0,
         "recent_products": db.query(Product).order_by(desc(Product.created_at)).limit(5).all(),
-    })
+    }
+    db.close()
+    return render("admin/dashboard.html", **ctx)
 
 
-@router.get("/products")
-def admin_products(request: Request, db: Session = Depends(get_db)):
-    user = require_admin(request, db)
+@bp.route("/products")
+def admin_products():
+    user = require_admin()
     if not user:
-        return RedirectResponse(url="/auth/login", status_code=303)
-
+        return redirect("/auth/login")
+    db = get_db()
     products = db.query(Product).options(joinedload(Product.category)).order_by(desc(Product.created_at)).all()
-    return render("admin/products.html", {
-        "request": request,
-        "user": get_user_dict(user),
-        "products": products,
-    })
+    db.close()
+    return render("admin/products.html", user=user, products=products)
 
 
-@router.get("/products/add")
-def admin_add_product_page(request: Request, db: Session = Depends(get_db)):
-    user = require_admin(request, db)
+@bp.route("/products/add")
+def admin_add_product_page():
+    user = require_admin()
     if not user:
-        return RedirectResponse(url="/auth/login", status_code=303)
-
+        return redirect("/auth/login")
+    db = get_db()
     categories = db.query(Category).order_by(Category.name).all()
-    return render("admin/product_form.html", {
-        "request": request,
-        "user": get_user_dict(user),
-        "categories": categories,
-        "product": None,
-        "edit_mode": False,
-    })
+    db.close()
+    return render("admin/product_form.html", user=user, categories=categories, product=None, edit_mode=False)
 
 
-@router.post("/products/add")
-def admin_add_product(
-    request: Request,
-    db: Session = Depends(get_db),
-    title: str = Form(""),
-    short_description: str = Form(""),
-    description: str = Form(""),
-    price: str = Form(""),
-    old_price: str = Form(""),
-    rating: str = Form("0"),
-    category_id: str = Form(""),
-    affiliate_platform: str = Form("amazon"),
-    affiliate_url: str = Form(""),
-    is_featured: str = Form(""),
-    is_new: str = Form(""),
-    image: str = Form(""),
-    images: List[UploadFile] = File(None),
-):
-    user = require_admin(request, db)
+@bp.route("/products/add", methods=["POST"])
+def admin_add_product():
+    user = require_admin()
     if not user:
-        return RedirectResponse(url="/auth/login", status_code=303)
-
-    title = title.strip()
+        return redirect("/auth/login")
+    db = get_db()
+    title = request.form.get("title", "").strip()
     if not title:
         categories = db.query(Category).order_by(Category.name).all()
-        return render("admin/product_form.html", {
-            "request": request, "user": get_user_dict(user), "categories": categories,
-            "product": None, "edit_mode": False, "error": "Title is required"
-        })
+        db.close()
+        return render("admin/product_form.html", user=user, categories=categories, product=None, edit_mode=False, error="Title is required")
 
-    image_url = image
-
+    image_url = request.form.get("image", "")
     slug = gen_slug(title)
     product = Product(
         title=title, slug=slug,
-        short_description=short_description,
-        description=description,
+        short_description=request.form.get("short_description", ""),
+        description=request.form.get("description", ""),
         image=image_url,
-        price=float(price) if price else None,
-        old_price=float(old_price) if old_price else None,
-        rating=float(rating),
-        category_id=int(category_id) if category_id else None,
-        affiliate_platform=affiliate_platform,
-        affiliate_url=affiliate_url,
-        is_featured=is_featured == "on",
-        is_new=is_new == "on",
+        price=float(request.form.get("price", 0) or 0) or None,
+        old_price=float(request.form.get("old_price", 0) or 0) or None,
+        rating=float(request.form.get("rating", 0)),
+        category_id=int(request.form.get("category_id", 0)) or None,
+        affiliate_platform=request.form.get("affiliate_platform", "amazon"),
+        affiliate_url=request.form.get("affiliate_url", ""),
+        is_featured=request.form.get("is_featured") == "on",
+        is_new=request.form.get("is_new") == "on",
     )
     db.add(product)
     db.flush()
 
-    # Save gallery images from uploaded files
-    if images:
-        for idx, f in enumerate(images):
-            if f.filename and allowed_file(f.filename):
-                url = save_upload(f)
-                pi = ProductImage(product_id=product.id, image_url=url, sort_order=idx)
-                db.add(pi)
-                if not image_url:
-                    product.image = url
-                    image_url = url
+    images = request.files.getlist("images")
+    for idx, f in enumerate(images):
+        if f.filename and allowed_file(f.filename):
+            url = save_upload(f)
+            pi = ProductImage(product_id=product.id, image_url=url, sort_order=idx)
+            db.add(pi)
+            if not image_url:
+                product.image = url
+                image_url = url
 
     db.commit()
-    return RedirectResponse(url="/admin/products", status_code=302)
+    db.close()
+    return redirect("/admin/products")
 
 
-@router.get("/products/edit/{pid}")
-def admin_edit_product_page(pid: int, request: Request, db: Session = Depends(get_db)):
-    user = require_admin(request, db)
+@bp.route("/products/edit/<int:pid>")
+def admin_edit_product_page(pid):
+    user = require_admin()
     if not user:
-        return RedirectResponse(url="/auth/login", status_code=303)
-
+        return redirect("/auth/login")
+    db = get_db()
     product = db.query(Product).filter(Product.id == pid).first()
     if not product:
-        raise HTTPException(status_code=404)
-
-    # Load images eagerly
+        db.close()
+        abort(404)
     product.images = db.query(ProductImage).filter(ProductImage.product_id == pid).order_by(ProductImage.sort_order).all()
-
     categories = db.query(Category).order_by(Category.name).all()
-    return render("admin/product_form.html", {
-        "request": request,
-        "user": get_user_dict(user),
-        "categories": categories,
-        "product": product,
-        "edit_mode": True,
-    })
+    db.close()
+    return render("admin/product_form.html", user=user, categories=categories, product=product, edit_mode=True)
 
 
-@router.post("/products/edit/{pid}")
-def admin_edit_product(
-    pid: int,
-    request: Request,
-    db: Session = Depends(get_db),
-    title: str = Form(""),
-    short_description: str = Form(""),
-    description: str = Form(""),
-    price: str = Form(""),
-    old_price: str = Form(""),
-    rating: str = Form("0"),
-    category_id: str = Form(""),
-    affiliate_platform: str = Form("amazon"),
-    affiliate_url: str = Form(""),
-    is_featured: str = Form(""),
-    is_new: str = Form(""),
-    image: str = Form(""),
-    images: List[UploadFile] = File(None),
-):
-    user = require_admin(request, db)
+@bp.route("/products/edit/<int:pid>", methods=["POST"])
+def admin_edit_product(pid):
+    user = require_admin()
     if not user:
-        return RedirectResponse(url="/auth/login", status_code=303)
-
+        return redirect("/auth/login")
+    db = get_db()
     product = db.query(Product).filter(Product.id == pid).first()
     if not product:
-        raise HTTPException(status_code=404)
+        db.close()
+        abort(404)
 
-    product.title = title or product.title
-    product.short_description = short_description or product.short_description
-    product.description = description or product.description
-    product.price = float(price) if price else None
-    product.old_price = float(old_price) if old_price else None
-    product.rating = float(rating)
-    product.category_id = int(category_id) if category_id else None
-    product.affiliate_platform = affiliate_platform or product.affiliate_platform
-    product.affiliate_url = affiliate_url or product.affiliate_url
-    product.is_featured = is_featured == "on"
-    product.is_new = is_new == "on"
+    product.title = request.form.get("title", "") or product.title
+    product.short_description = request.form.get("short_description", "") or product.short_description
+    product.description = request.form.get("description", "") or product.description
+    product.price = float(request.form.get("price", 0) or 0) or None
+    product.old_price = float(request.form.get("old_price", 0) or 0) or None
+    product.rating = float(request.form.get("rating", 0))
+    product.category_id = int(request.form.get("category_id", 0)) or None
+    product.affiliate_platform = request.form.get("affiliate_platform", "") or product.affiliate_platform
+    product.affiliate_url = request.form.get("affiliate_url", "") or product.affiliate_url
+    product.is_featured = request.form.get("is_featured") == "on"
+    product.is_new = request.form.get("is_new") == "on"
+
+    images = request.files.getlist("images")
+    image_field = request.form.get("image", "")
 
     if images:
         for idx, f in enumerate(images):
@@ -225,144 +180,129 @@ def admin_edit_product(
                 db.add(pi)
                 if not product.image:
                     product.image = url
-    elif image:
-        product.image = image
+    elif image_field:
+        product.image = image_field
 
     db.commit()
-    return RedirectResponse(url="/admin/products", status_code=302)
+    db.close()
+    return redirect("/admin/products")
 
 
-@router.get("/products/delete/{pid}")
-def admin_delete_product(pid: int, request: Request, db: Session = Depends(get_db)):
-    user = require_admin(request, db)
+@bp.route("/products/delete/<int:pid>")
+def admin_delete_product(pid):
+    user = require_admin()
     if not user:
-        return RedirectResponse(url="/auth/login", status_code=303)
-
+        return redirect("/auth/login")
+    db = get_db()
     product = db.query(Product).filter(Product.id == pid).first()
     if product:
         db.delete(product)
         db.commit()
-    return RedirectResponse(url="/admin/products", status_code=302)
+    db.close()
+    return redirect("/admin/products")
 
 
-@router.post("/products/images/delete/{img_id}")
-def admin_delete_product_image(img_id: int, request: Request, db: Session = Depends(get_db)):
-    user = require_admin(request, db)
+@bp.route("/products/images/delete/<int:img_id>", methods=["POST"])
+def admin_delete_product_image(img_id):
+    user = require_admin()
     if not user:
-        return RedirectResponse(url="/auth/login", status_code=303)
-
+        return redirect("/auth/login")
+    db = get_db()
     img = db.query(ProductImage).filter(ProductImage.id == img_id).first()
     if img:
         pid = img.product_id
         db.delete(img)
         db.commit()
-        return RedirectResponse(url=f"/admin/products/edit/{pid}", status_code=302)
-    raise HTTPException(status_code=404)
+        db.close()
+        return redirect(f"/admin/products/edit/{pid}")
+    db.close()
+    abort(404)
 
 
-@router.get("/categories")
-def admin_categories(request: Request, db: Session = Depends(get_db)):
-    user = require_admin(request, db)
+@bp.route("/categories")
+def admin_categories():
+    user = require_admin()
     if not user:
-        return RedirectResponse(url="/auth/login", status_code=303)
-
+        return redirect("/auth/login")
+    db = get_db()
     categories = db.query(Category).order_by(Category.name).all()
     product_counts = {}
     for cat in categories:
         product_counts[cat.id] = db.query(func.count(Product.id)).filter(Product.category_id == cat.id).scalar() or 0
-
-    return render("admin/categories.html", {
-        "request": request,
-        "user": get_user_dict(user),
-        "categories": categories,
-        "product_counts": product_counts,
-    })
+    db.close()
+    return render("admin/categories.html", user=user, categories=categories, product_counts=product_counts)
 
 
-@router.post("/categories/add")
-def admin_add_category(
-    request: Request,
-    db: Session = Depends(get_db),
-    name: str = Form(""),
-    description: str = Form(""),
-    image: str = Form(""),
-    image_file: UploadFile = File(None),
-):
-    user = require_admin(request, db)
+@bp.route("/categories/add", methods=["POST"])
+def admin_add_category():
+    user = require_admin()
     if not user:
-        return RedirectResponse(url="/auth/login", status_code=303)
-
-    name = name.strip()
+        return redirect("/auth/login")
+    db = get_db()
+    name = request.form.get("name", "").strip()
     if not name:
-        return RedirectResponse(url="/admin/categories", status_code=302)
-
+        db.close()
+        return redirect("/admin/categories")
     slug = slugify(name)[:120]
     if not slug:
         slug = "category-" + "".join(random.choices(string.digits, k=6))
-
     existing = db.query(Category).filter(Category.slug == slug).first()
     if existing:
         slug = f"{slug}-{random.randint(100,999)}"
-
-    image_url = image
+    image_url = request.form.get("image", "")
+    image_file = request.files.get("image_file")
     if image_file and image_file.filename and allowed_file(image_file.filename):
         image_url = save_upload(image_file)
-
-    cat = Category(name=name, slug=slug, description=description, image=image_url)
+    cat = Category(name=name, slug=slug, description=request.form.get("description", ""), image=image_url)
     db.add(cat)
     db.commit()
-    return RedirectResponse(url="/admin/categories", status_code=302)
+    db.close()
+    return redirect("/admin/categories")
 
 
-@router.post("/categories/edit/{cid}")
-def admin_edit_category(
-    cid: int,
-    request: Request,
-    db: Session = Depends(get_db),
-    name: str = Form(""),
-    description: str = Form(""),
-    image: str = Form(""),
-    image_file: UploadFile = File(None),
-):
-    user = require_admin(request, db)
+@bp.route("/categories/edit/<int:cid>", methods=["POST"])
+def admin_edit_category(cid):
+    user = require_admin()
     if not user:
-        return RedirectResponse(url="/auth/login", status_code=303)
-
+        return redirect("/auth/login")
+    db = get_db()
     cat = db.query(Category).filter(Category.id == cid).first()
     if not cat:
-        raise HTTPException(status_code=404)
-
-    cat.name = name or cat.name
-    cat.description = description or cat.description
-
+        db.close()
+        abort(404)
+    cat.name = request.form.get("name", "") or cat.name
+    cat.description = request.form.get("description", "") or cat.description
+    image_file = request.files.get("image_file")
+    image = request.form.get("image", "")
     if image_file and image_file.filename and allowed_file(image_file.filename):
         cat.image = save_upload(image_file)
     elif image:
         cat.image = image
-
     db.commit()
-    return RedirectResponse(url="/admin/categories", status_code=302)
+    db.close()
+    return redirect("/admin/categories")
 
 
-@router.get("/categories/delete/{cid}")
-def admin_delete_category(cid: int, request: Request, db: Session = Depends(get_db)):
-    user = require_admin(request, db)
+@bp.route("/categories/delete/<int:cid>")
+def admin_delete_category(cid):
+    user = require_admin()
     if not user:
-        return RedirectResponse(url="/auth/login", status_code=303)
-
+        return redirect("/auth/login")
+    db = get_db()
     cat = db.query(Category).filter(Category.id == cid).first()
     if cat:
         db.delete(cat)
         db.commit()
-    return RedirectResponse(url="/admin/categories", status_code=302)
+    db.close()
+    return redirect("/admin/categories")
 
 
-@router.get("/clicks")
-def admin_clicks(request: Request, db: Session = Depends(get_db)):
-    user = require_admin(request, db)
+@bp.route("/clicks")
+def admin_clicks():
+    user = require_admin()
     if not user:
-        return RedirectResponse(url="/auth/login", status_code=303)
-
+        return redirect("/auth/login")
+    db = get_db()
     clicks = db.query(AffiliateClick).order_by(desc(AffiliateClick.clicked_at)).limit(100).all()
     click_data = []
     for click in clicks:
@@ -374,317 +314,300 @@ def admin_clicks(request: Request, db: Session = Depends(get_db)):
             "clicked_at": click.clicked_at,
             "ip_address": click.ip_address,
         })
-
-    return render("admin/clicks.html", {
-        "request": request,
-        "user": get_user_dict(user),
-        "clicks": click_data,
-    })
+    db.close()
+    return render("admin/clicks.html", user=user, clicks=click_data)
 
 
-@router.get("/slides")
-def admin_slides(request: Request, db: Session = Depends(get_db)):
-    user = require_admin(request, db)
+@bp.route("/slides")
+def admin_slides():
+    user = require_admin()
     if not user:
-        return RedirectResponse(url="/auth/login", status_code=303)
-
+        return redirect("/auth/login")
+    db = get_db()
     slides = db.query(HeroSlide).order_by(HeroSlide.sort_order).all()
-    return render("admin/slides.html", {
-        "request": request,
-        "user": get_user_dict(user),
-        "slides": slides,
-    })
+    db.close()
+    return render("admin/slides.html", user=user, slides=slides)
 
 
-@router.post("/slides/add")
-def admin_add_slide(
-    request: Request,
-    db: Session = Depends(get_db),
-    title: str = Form(""),
-    subtitle: str = Form(""),
-    image: str = Form(""),
-    btn_text: str = Form(""),
-    btn_url: str = Form(""),
-    btn_type: str = Form("primary"),
-    image_file: UploadFile = File(None),
-):
-    user = require_admin(request, db)
+@bp.route("/slides/add", methods=["POST"])
+def admin_add_slide():
+    user = require_admin()
     if not user:
-        return RedirectResponse(url="/auth/login", status_code=303)
-
-    if not title.strip():
-        return RedirectResponse(url="/admin/slides", status_code=302)
-
-    image_url = image
+        return redirect("/auth/login")
+    db = get_db()
+    title = request.form.get("title", "").strip()
+    if not title:
+        db.close()
+        return redirect("/admin/slides")
+    image_url = request.form.get("image", "")
+    image_file = request.files.get("image_file")
     if image_file and image_file.filename and allowed_file(image_file.filename):
         image_url = save_upload(image_file)
-
     max_order = db.query(func.max(HeroSlide.sort_order)).scalar() or 0
     slide = HeroSlide(
-        title=title.strip(),
-        subtitle=subtitle.strip(),
+        title=title,
+        subtitle=request.form.get("subtitle", "").strip(),
         image_url=image_url,
-        btn_text=btn_text.strip() or "Shop Now",
-        btn_url=btn_url.strip() or "/shop",
-        btn_type=btn_type,
+        btn_text=request.form.get("btn_text", "").strip() or "Shop Now",
+        btn_url=request.form.get("btn_url", "").strip() or "/shop",
+        btn_type=request.form.get("btn_type", "primary"),
         sort_order=max_order + 1,
         is_active=True,
     )
     db.add(slide)
     db.commit()
-    return RedirectResponse(url="/admin/slides", status_code=302)
+    db.close()
+    return redirect("/admin/slides")
 
 
-@router.post("/slides/edit/{sid}")
-def admin_edit_slide(
-    sid: int,
-    request: Request,
-    db: Session = Depends(get_db),
-    title: str = Form(""),
-    subtitle: str = Form(""),
-    image: str = Form(""),
-    btn_text: str = Form(""),
-    btn_url: str = Form(""),
-    btn_type: str = Form("primary"),
-    is_active: str = Form(""),
-    image_file: UploadFile = File(None),
-):
-    user = require_admin(request, db)
+@bp.route("/slides/edit/<int:sid>", methods=["POST"])
+def admin_edit_slide(sid):
+    user = require_admin()
     if not user:
-        return RedirectResponse(url="/auth/login", status_code=303)
-
+        return redirect("/auth/login")
+    db = get_db()
     slide = db.query(HeroSlide).filter(HeroSlide.id == sid).first()
     if not slide:
-        raise HTTPException(status_code=404)
-
-    slide.title = title.strip() or slide.title
-    slide.subtitle = subtitle.strip() or slide.subtitle
-    slide.btn_text = btn_text.strip() or slide.btn_text
-    slide.btn_url = btn_url.strip() or slide.btn_url
-    slide.btn_type = btn_type or slide.btn_type
-    slide.is_active = is_active == "on"
-
+        db.close()
+        abort(404)
+    slide.title = request.form.get("title", "").strip() or slide.title
+    slide.subtitle = request.form.get("subtitle", "").strip() or slide.subtitle
+    slide.btn_text = request.form.get("btn_text", "").strip() or slide.btn_text
+    slide.btn_url = request.form.get("btn_url", "").strip() or slide.btn_url
+    slide.btn_type = request.form.get("btn_type", "") or slide.btn_type
+    slide.is_active = request.form.get("is_active") == "on"
+    image_file = request.files.get("image_file")
+    image = request.form.get("image", "")
     if image_file and image_file.filename and allowed_file(image_file.filename):
         slide.image_url = save_upload(image_file)
     elif image:
         slide.image_url = image
-
     db.commit()
-    return RedirectResponse(url="/admin/slides", status_code=302)
+    db.close()
+    return redirect("/admin/slides")
 
 
-@router.get("/slides/delete/{sid}")
-def admin_delete_slide(sid: int, request: Request, db: Session = Depends(get_db)):
-    user = require_admin(request, db)
+@bp.route("/slides/delete/<int:sid>")
+def admin_delete_slide(sid):
+    user = require_admin()
     if not user:
-        return RedirectResponse(url="/auth/login", status_code=303)
-
+        return redirect("/auth/login")
+    db = get_db()
     slide = db.query(HeroSlide).filter(HeroSlide.id == sid).first()
     if slide:
         db.delete(slide)
         db.commit()
-    return RedirectResponse(url="/admin/slides", status_code=302)
+    db.close()
+    return redirect("/admin/slides")
 
 
-@router.get("/social-links")
-def admin_social_links(request: Request, db: Session = Depends(get_db)):
-    user = require_admin(request, db)
+@bp.route("/social-links")
+def admin_social_links():
+    user = require_admin()
     if not user:
-        return RedirectResponse(url="/auth/login", status_code=303)
+        return redirect("/auth/login")
+    db = get_db()
     links = db.query(SocialLink).order_by(SocialLink.sort_order).all()
-    return render("admin/social_links.html", {
-        "request": request, "user": get_user_dict(user), "links": links,
-    })
+    db.close()
+    return render("admin/social_links.html", user=user, links=links)
 
 
-@router.post("/social-links/add")
-def admin_add_social_link(
-    request: Request, db: Session = Depends(get_db),
-    platform: str = Form(...), url: str = Form(...),
-    icon: str = Form("fas fa-link"), sort_order: int = Form(0),
-):
-    user = require_admin(request, db)
+@bp.route("/social-links/add", methods=["POST"])
+def admin_add_social_link():
+    user = require_admin()
     if not user:
-        return RedirectResponse(url="/auth/login", status_code=303)
-    db.add(SocialLink(platform=platform.strip(), url=url.strip(), icon=icon.strip(), sort_order=sort_order))
+        return redirect("/auth/login")
+    db = get_db()
+    db.add(SocialLink(
+        platform=request.form.get("platform", "").strip(),
+        url=request.form.get("url", "").strip(),
+        icon=request.form.get("icon", "fas fa-link").strip(),
+        sort_order=int(request.form.get("sort_order", 0)),
+    ))
     db.commit()
+    db.close()
     invalidate_social_cache()
-    return RedirectResponse(url="/admin/social-links", status_code=302)
+    return redirect("/admin/social-links")
 
 
-@router.post("/social-links/edit/{lid}")
-def admin_edit_social_link(
-    lid: int, request: Request, db: Session = Depends(get_db),
-    platform: str = Form(...), url: str = Form(...),
-    icon: str = Form("fas fa-link"), sort_order: int = Form(0),
-    is_active: str = Form(""),
-):
-    user = require_admin(request, db)
+@bp.route("/social-links/edit/<int:lid>", methods=["POST"])
+def admin_edit_social_link(lid):
+    user = require_admin()
     if not user:
-        return RedirectResponse(url="/auth/login", status_code=303)
+        return redirect("/auth/login")
+    db = get_db()
     link = db.query(SocialLink).filter(SocialLink.id == lid).first()
     if not link:
-        raise HTTPException(status_code=404)
-    link.platform = platform.strip()
-    link.url = url.strip()
-    link.icon = icon.strip() or "fas fa-link"
-    link.sort_order = sort_order
-    link.is_active = is_active == "on"
+        db.close()
+        abort(404)
+    link.platform = request.form.get("platform", "").strip()
+    link.url = request.form.get("url", "").strip()
+    link.icon = request.form.get("icon", "fas fa-link").strip()
+    link.sort_order = int(request.form.get("sort_order", 0))
+    link.is_active = request.form.get("is_active") == "on"
     db.commit()
+    db.close()
     invalidate_social_cache()
-    return RedirectResponse(url="/admin/social-links", status_code=302)
+    return redirect("/admin/social-links")
 
 
-@router.get("/social-links/delete/{lid}")
-def admin_delete_social_link(lid: int, request: Request, db: Session = Depends(get_db)):
-    user = require_admin(request, db)
+@bp.route("/social-links/delete/<int:lid>")
+def admin_delete_social_link(lid):
+    user = require_admin()
     if not user:
-        return RedirectResponse(url="/auth/login", status_code=303)
+        return redirect("/auth/login")
+    db = get_db()
     link = db.query(SocialLink).filter(SocialLink.id == lid).first()
     if link:
         db.delete(link)
         db.commit()
         invalidate_social_cache()
-    return RedirectResponse(url="/admin/social-links", status_code=302)
+    db.close()
+    return redirect("/admin/social-links")
 
 
-# ─── Users ────────────────────────────────────────────────
-@router.get("/users")
-def admin_users(request: Request, db: Session = Depends(get_db)):
-    user = require_admin(request, db)
+@bp.route("/users")
+def admin_users():
+    user = require_admin()
     if not user:
-        return RedirectResponse(url="/auth/login", status_code=303)
+        return redirect("/auth/login")
+    db = get_db()
     users = db.query(User).options(joinedload(User.links)).order_by(User.created_at.desc()).all()
-    return render("admin/users.html", {
-        "request": request, "user": get_user_dict(user),
-        "users": users,
-    })
+    db.close()
+    return render("admin/users.html", user=user, users=users)
 
 
-@router.post("/users/add")
-def admin_add_user(
-    request: Request, db: Session = Depends(get_db),
-    username: str = Form(...), email: str = Form(...),
-    password: str = Form(...), full_name: str = Form(""),
-    phone: str = Form(""), website: str = Form(""),
-    bio: str = Form(""), role: str = Form("affiliate"),
-    is_active: str = Form(""),
-):
-    user = require_admin(request, db)
+@bp.route("/users/add", methods=["POST"])
+def admin_add_user():
+    user = require_admin()
     if not user:
-        return RedirectResponse(url="/auth/login", status_code=303)
+        return redirect("/auth/login")
+    db = get_db()
+    username = request.form.get("username", "")
+    email = request.form.get("email", "")
+    password = request.form.get("password", "")
     existing = db.query(User).filter((User.username == username) | (User.email == email)).first()
     if existing:
-        return RedirectResponse(url="/admin/users?error=exists", status_code=302)
+        db.close()
+        return redirect("/admin/users?error=exists")
     new_user = User(
         username=username, email=email,
         password_hash=_bcrypt.hashpw(password.encode(), _bcrypt.gensalt()).decode(),
-        full_name=full_name, phone=phone, website=website, bio=bio,
-        role=role, is_active=(is_active == "on"),
+        full_name=request.form.get("full_name", ""),
+        phone=request.form.get("phone", ""),
+        website=request.form.get("website", ""),
+        bio=request.form.get("bio", ""),
+        role=request.form.get("role", "affiliate"),
+        is_active=(request.form.get("is_active") == "on"),
     )
     db.add(new_user)
     db.commit()
-    return RedirectResponse(url="/admin/users", status_code=302)
+    db.close()
+    return redirect("/admin/users")
 
 
-@router.post("/users/edit/{uid}")
-def admin_edit_user(
-    uid: int, request: Request, db: Session = Depends(get_db),
-    username: str = Form(...), email: str = Form(...),
-    full_name: str = Form(""), phone: str = Form(""),
-    website: str = Form(""), bio: str = Form(""),
-    role: str = Form("affiliate"), password: str = Form(""),
-    is_active: str = Form(""), storage_used_mb: float = Form(0),
-):
-    user = require_admin(request, db)
+@bp.route("/users/edit/<int:uid>", methods=["POST"])
+def admin_edit_user(uid):
+    user = require_admin()
     if not user:
-        return RedirectResponse(url="/auth/login", status_code=303)
+        return redirect("/auth/login")
+    db = get_db()
     target = db.query(User).filter(User.id == uid).first()
     if not target:
-        raise HTTPException(status_code=404)
-    target.username = username
-    target.email = email
-    target.full_name = full_name
-    target.phone = phone
-    target.website = website
-    target.bio = bio
-    target.role = role
-    target.is_active = (is_active == "on")
-    target.storage_used_mb = storage_used_mb
+        db.close()
+        abort(404)
+    target.username = request.form.get("username", "")
+    target.email = request.form.get("email", "")
+    target.full_name = request.form.get("full_name", "")
+    target.phone = request.form.get("phone", "")
+    target.website = request.form.get("website", "")
+    target.bio = request.form.get("bio", "")
+    target.role = request.form.get("role", "affiliate")
+    target.is_active = (request.form.get("is_active") == "on")
+    target.storage_used_mb = float(request.form.get("storage_used_mb", 0))
+    password = request.form.get("password", "")
     if password:
         target.password_hash = _bcrypt.hashpw(password.encode(), _bcrypt.gensalt()).decode()
     db.commit()
-    return RedirectResponse(url="/admin/users", status_code=302)
+    db.close()
+    return redirect("/admin/users")
 
 
-@router.get("/users/delete/{uid}")
-def admin_delete_user(uid: int, request: Request, db: Session = Depends(get_db)):
-    user = require_admin(request, db)
+@bp.route("/users/delete/<int:uid>")
+def admin_delete_user(uid):
+    user = require_admin()
     if not user:
-        return RedirectResponse(url="/auth/login", status_code=303)
+        return redirect("/auth/login")
+    db = get_db()
     target = db.query(User).filter(User.id == uid).first()
-    if target and target.id != user.id:
+    if target and target.id != user["id"]:
         db.delete(target)
         db.commit()
-    return RedirectResponse(url="/admin/users", status_code=302)
+    db.close()
+    return redirect("/admin/users")
 
 
-# ─── Platforms ────────────────────────────────────────────
-@router.get("/platforms")
-def admin_platforms(request: Request, db: Session = Depends(get_db)):
-    user = require_admin(request, db)
+@bp.route("/platforms")
+def admin_platforms():
+    user = require_admin()
     if not user:
-        return RedirectResponse(url="/auth/login", status_code=303)
+        return redirect("/auth/login")
+    db = get_db()
     platforms = db.query(Platform).order_by(Platform.name).all()
-    return render("admin/platforms.html", {
-        "request": request, "user": get_user_dict(user), "platforms": platforms,
-    })
+    db.close()
+    return render("admin/platforms.html", user=user, platforms=platforms)
 
 
-@router.post("/platforms/add")
-def admin_add_platform(
-    request: Request, db: Session = Depends(get_db),
-    name: str = Form(...), icon: str = Form("fas fa-shopping-cart"),
-    base_url: str = Form(""), is_active: str = Form(""),
-):
-    user = require_admin(request, db)
+@bp.route("/platforms/add", methods=["POST"])
+def admin_add_platform():
+    user = require_admin()
     if not user:
-        return RedirectResponse(url="/auth/login", status_code=303)
+        return redirect("/auth/login")
+    db = get_db()
+    name = request.form.get("name", "")
     existing = db.query(Platform).filter(Platform.name == name).first()
     if existing:
-        return RedirectResponse(url="/admin/platforms?error=exists", status_code=302)
-    db.add(Platform(name=name, icon=icon, base_url=base_url, is_active=(is_active == "on")))
+        db.close()
+        return redirect("/admin/platforms?error=exists")
+    db.add(Platform(
+        name=name,
+        icon=request.form.get("icon", "fas fa-shopping-cart"),
+        base_url=request.form.get("base_url", ""),
+        is_active=(request.form.get("is_active") == "on"),
+    ))
     db.commit()
-    return RedirectResponse(url="/admin/platforms", status_code=302)
+    db.close()
+    return redirect("/admin/platforms")
 
 
-@router.post("/platforms/edit/{pid}")
-def admin_edit_platform(
-    pid: int, request: Request, db: Session = Depends(get_db),
-    name: str = Form(...), icon: str = Form("fas fa-shopping-cart"),
-    base_url: str = Form(""), is_active: str = Form(""),
-):
-    user = require_admin(request, db)
+@bp.route("/platforms/edit/<int:pid>", methods=["POST"])
+def admin_edit_platform(pid):
+    user = require_admin()
     if not user:
-        return RedirectResponse(url="/auth/login", status_code=303)
+        return redirect("/auth/login")
+    db = get_db()
     plat = db.query(Platform).filter(Platform.id == pid).first()
     if not plat:
-        raise HTTPException(status_code=404)
-    plat.name = name
-    plat.icon = icon
-    plat.base_url = base_url
-    plat.is_active = (is_active == "on")
+        db.close()
+        abort(404)
+    plat.name = request.form.get("name", "")
+    plat.icon = request.form.get("icon", "fas fa-shopping-cart")
+    plat.base_url = request.form.get("base_url", "")
+    plat.is_active = (request.form.get("is_active") == "on")
     db.commit()
-    return RedirectResponse(url="/admin/platforms", status_code=302)
+    db.close()
+    return redirect("/admin/platforms")
 
 
-@router.get("/platforms/delete/{pid}")
-def admin_delete_platform(pid: int, request: Request, db: Session = Depends(get_db)):
-    user = require_admin(request, db)
+@bp.route("/platforms/delete/<int:pid>")
+def admin_delete_platform(pid):
+    user = require_admin()
     if not user:
-        return RedirectResponse(url="/auth/login", status_code=303)
+        return redirect("/auth/login")
+    db = get_db()
     plat = db.query(Platform).filter(Platform.id == pid).first()
     if plat:
         db.delete(plat)
         db.commit()
-    return RedirectResponse(url="/admin/platforms", status_code=302)
+    db.close()
+    return redirect("/admin/platforms")
