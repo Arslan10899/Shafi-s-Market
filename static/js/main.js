@@ -10,8 +10,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Product gallery thumbnail sync + slow transition
     var gallery = document.getElementById('productGallery');
     if (gallery) {
-        // Slow down carousel
-        var carouselObj = bootstrap.Carousel.getOrCreateInstance(gallery, { interval: false });
         // Override BS internal transition timing
         gallery.querySelectorAll('.carousel-item').forEach(function(el) {
             el.style.transition = 'transform 1.5s ease';

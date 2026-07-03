@@ -12,7 +12,7 @@
             {"title": "New Arrivals Every Day", "subtitle": "Stay ahead with the latest trends and newest products from around the world.", "image_url": "https://images.unsplash.com/photo-1483985988355-763728e1935b?w=1600&q=80", "btn_text": "Explore New Arrivals", "btn_url": "/shop?sort=newest", "btn_type": "primary"},
         ] %}
     {% endif %}
-    <div id="heroCarousel" class="carousel slide carousel-fade" data-bs-ride="carousel" data-bs-interval="5000">
+    <div id="heroCarousel" class="carousel slide carousel-fade" data-bs-ride="carousel" data-bs-interval="20000">
         <div class="carousel-indicators">
             {% for slide in slides %}
             <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="{{ loop.index0 }}"{% if loop.first %} class="active"{% endif %}></button>
