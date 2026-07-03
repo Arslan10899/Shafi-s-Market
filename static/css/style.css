@@ -132,7 +132,7 @@ body {
 }
 /* Slower carousel transition */
 .carousel-item {
-    transition-duration: 0.8s !important;
+    transition-duration: 1.5s !important;
 }
 
 /* ===== CATEGORY CARDS ===== */
