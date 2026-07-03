@@ -88,12 +88,15 @@
                     </span>
                     {% if product.old_price %}
                     {% set op = price_parts(product.old_price) %}
-                    <span class="price-old ms-3">
-                        <span class="price-currency">{{ cur }}</span>
-                        <span class="price-whole">{{ op.int }}</span>
-                        <span class="price-decimal">.{{ op.dec }}</span>
-                    </span>
-                    <span class="badge bg-danger ms-2">Save {{ ((product.old_price - product.price) / product.old_price * 100)|int }}%</span>
+                    <div class="mt-1">
+                        <span class="price-old">
+                            <span class="text-muted small">List Price: </span>
+                            <span class="price-currency">{{ cur }}</span>
+                            <span class="price-whole">{{ op.int }}</span>
+                            <span class="price-decimal">.{{ op.dec }}</span>
+                        </span>
+                        <span class="badge bg-danger ms-2">Save {{ ((product.old_price - product.price) / product.old_price * 100)|int }}%</span>
+                    </div>
                     {% endif %}
                     {% else %}
                     <span class="fs-5 fw-semibold">Price not available — check the merchant site</span>

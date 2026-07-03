@@ -46,7 +46,8 @@
                 </span>
                 {% if product.old_price %}
                 {% set op = price_parts(product.old_price) %}
-                <span class="price-old ms-1 d-block">
+                <span class="price-old d-block">
+                    <span class="text-muted small">List Price: </span>
                     <span class="price-currency">{{ cur }}</span>
                     <span class="price-whole">{{ op.int }}</span>
                     <span class="price-decimal">.{{ op.dec }}</span>

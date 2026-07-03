@@ -226,9 +226,22 @@ body {
     font-weight: 400;
     color: inherit;
 }
-.price-amazon .price-old {
+.price-old .price-currency {
+    font-size: 0.65em;
+    vertical-align: super;
+    font-weight: 400;
+}
+.price-old .price-whole {
     font-size: 0.85em;
     font-weight: 400;
     text-decoration: line-through;
+}
+.price-old .price-decimal {
+    font-size: 0.65em;
+    vertical-align: super;
+    font-weight: 400;
+    text-decoration: line-through;
+}
+.price-old {
     color: #6b7280;
 }
