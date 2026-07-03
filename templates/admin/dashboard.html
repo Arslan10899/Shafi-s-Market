@@ -62,7 +62,7 @@
                 <tr>
                     <td><a href="/admin/products/edit/{{ p.id }}" class="text-decoration-none">{{ p.title[:50] }}</a></td>
                     <td><span class="badge bg-light text-dark">{{ p.affiliate_platform|title }}</span></td>
-                    <td>{% if p.price %}${{ "%.2f"|format(p.price) }}{% else %}-{% endif %}</td>
+                    <td>{% if p.price %}{{ CURRENCIES.get(p.currency or 'USD', {}).get('symbol', '$') }}{{ "%.2f"|format(p.price) }}{% else %}-{% endif %}</td>
                     <td><small class="text-muted">{{ p.created_at.strftime('%Y-%m-%d') if p.created_at else '-' }}</small></td>
                 </tr>
                 {% else %}

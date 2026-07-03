@@ -30,7 +30,7 @@
                             <a href="/admin/products/edit/{{ p.id }}" class="text-decoration-none fw-semibold">{{ p.title[:60] }}</a>
                         </td>
                         <td><span class="badge bg-light text-dark">{{ p.affiliate_platform|title }}</span></td>
-                        <td>{% if p.price %}${{ "%.2f"|format(p.price) }}{% else %}-{% endif %}</td>
+                        <td>{% if p.price %}{{ CURRENCIES.get(p.currency or 'USD', {}).get('symbol', '$') }}{{ "%.2f"|format(p.price) }}{% else %}-{% endif %}</td>
                         <td><span class="text-warning">{{ p.rating }}</span></td>
                         <td>{% if p.is_active %}<span class="badge bg-success">Active</span>{% else %}<span class="badge bg-secondary">Inactive</span>{% endif %}</td>
                         <td>

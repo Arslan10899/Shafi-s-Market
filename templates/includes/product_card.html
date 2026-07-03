@@ -37,9 +37,10 @@
         <div class="d-flex align-items-center justify-content-between mt-auto">
             <div>
                 {% if product.price %}
-                <span class="fw-bold fs-5 text-dark">{{ CURRENCIES.get(product.currency, {}).get('symbol', '$') }}{{ "%.2f"|format(product.price) }}</span>
+                {% set sym = CURRENCIES.get(product.currency or 'USD', {}).get('symbol', '$') %}
+                <span class="fw-bold fs-5 text-dark">{{ sym }}{{ "%.2f"|format(product.price) }}</span>
                 {% if product.old_price %}
-                <span class="text-muted text-decoration-line-through small ms-1">{{ CURRENCIES.get(product.currency, {}).get('symbol', '$') }}{{ "%.2f"|format(product.old_price) }}</span>
+                <span class="text-muted text-decoration-line-through small ms-1">{{ sym }}{{ "%.2f"|format(product.old_price) }}</span>
                 {% endif %}
                 {% else %}
                 <span class="text-muted fw-semibold">See price</span>
