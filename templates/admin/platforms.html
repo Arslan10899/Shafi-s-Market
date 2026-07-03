@@ -32,7 +32,7 @@
                     <tr>
                         <td>{{ p.id }}</td>
                         <td><strong>{{ p.name }}</strong></td>
-                        <td><i class="{{ p.icon }} me-1"></i><code class="small">{{ p.icon }}</code></td>
+                        <td><span class="platform-badge platform-{{ p.name|lower }}">{{ p.name[:1] }}</span> <code class="small">{{ p.icon }}</code></td>
                         <td class="small"><a href="{{ p.base_url }}" target="_blank" class="text-decoration-none">{{ p.base_url[:50] }}{% if p.base_url|length > 50 %}...{% endif %}</a></td>
                         <td>{% if p.is_active %}<span class="badge bg-success">Active</span>{% else %}<span class="badge bg-secondary">Inactive</span>{% endif %}</td>
                         <td>

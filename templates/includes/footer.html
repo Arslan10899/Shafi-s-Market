@@ -4,9 +4,9 @@
             <div class="col-lg-4">
                 <h5 class="fw-bold mb-3"><span class="text-warning">Shafi's</span> Market</h5>
                 <p class="text-secondary small">Your trusted affiliate marketplace. We connect you with the best deals from Amazon, Alibaba, AliExpress, and Daraz.</p>
-                <div class="d-flex gap-3 fs-5">
+                <div class="d-flex gap-2">
                     {% for link in social_links|default([]) %}
-                    <a href="{{ link.url }}" class="text-secondary hover-warning" target="_blank" rel="noopener" title="{{ link.platform }}"><i class="{{ link.icon }}"></i></a>
+                    <a href="{{ link.url }}" class="social-icon-fallback platform-{{ link.platform|lower }}" target="_blank" rel="noopener" title="{{ link.platform }}">{{ link.platform[:1] }}</a>
                     {% endfor %}
                 </div>
             </div>
