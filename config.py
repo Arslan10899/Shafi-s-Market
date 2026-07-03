@@ -7,6 +7,8 @@ os.makedirs(os.path.join(BASE_DIR, 'database'), exist_ok=True)
 SECRET_KEY = os.environ.get("SECRET_KEY", "change-this-in-production-2025-affiliate")
 UPLOAD_DIR = os.environ.get("UPLOAD_DIR", os.path.join(BASE_DIR, "static", "uploads"))
 os.makedirs(UPLOAD_DIR, exist_ok=True)
+BACKUP_DIR = os.path.join(BASE_DIR, "backups")
+os.makedirs(BACKUP_DIR, exist_ok=True)
 
 ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif", "webp"}
 

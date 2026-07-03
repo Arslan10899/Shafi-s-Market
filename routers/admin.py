@@ -625,7 +625,160 @@ def admin_backup():
     user = require_admin()
     if not user:
         return redirect("/auth/login")
-    return render("admin/backup.html", user=user)
+    from config import BACKUP_DIR
+    saved = []
+    if os.path.isdir(BACKUP_DIR):
+        for fn in sorted(os.listdir(BACKUP_DIR), reverse=True):
+            if fn.endswith(".zip"):
+                fpath = os.path.join(BACKUP_DIR, fn)
+                stat = os.stat(fpath)
+                sz = stat.st_size
+                if sz < 1024:
+                    size_str = f"{sz} B"
+                elif sz < 1024*1024:
+                    size_str = f"{sz/1024:.1f} KB"
+                else:
+                    size_str = f"{sz/1024/1024:.1f} MB"
+                saved.append({
+                    "name": fn,
+                    "size": size_str,
+                    "created": dt_module.fromtimestamp(stat.st_ctime).strftime("%Y-%m-%d %H:%M"),
+                })
+    return render("admin/backup.html", user=user, saved_backups=saved)
+
+
+def _make_backup_zip():
+    import zipfile, io
+    from database import engine
+
+    db = get_db()
+    db.close()
+    engine.dispose()
+
+    buf = io.BytesIO()
+    with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as zf:
+        zf.write(DB_PATH, arcname="affiliate.db")
+        if os.path.isdir(UPLOAD_DIR):
+            for root, dirs, files in os.walk(UPLOAD_DIR):
+                for fn in files:
+                    fpath = os.path.join(root, fn)
+                    arcname = os.path.join("uploads", os.path.relpath(fpath, UPLOAD_DIR))
+                    zf.write(fpath, arcname=arcname)
+
+    import database as db_mod
+    from database import DATABASE_URL
+    db_mod.engine = create_engine(DATABASE_URL, echo=False, connect_args={"check_same_thread": False})
+
+    return buf.getvalue()
+
+
+def _restore_backup_zip(data):
+    import zipfile, io
+    from database import engine
+
+    db = get_db()
+    db.close()
+    engine.dispose()
+
+    zf = zipfile.ZipFile(io.BytesIO(data))
+    db_extracted = False
+    for name in zf.namelist():
+        arcname = name.replace("\\", "/")
+        if arcname == "affiliate.db":
+            os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
+            with open(DB_PATH, "wb") as f:
+                f.write(zf.read(name))
+            db_extracted = True
+        elif arcname.startswith("uploads/"):
+            rel = arcname[len("uploads/"):]
+            if not rel:
+                continue
+            dest = os.path.join(UPLOAD_DIR, rel)
+            if name.endswith("/"):
+                os.makedirs(dest, exist_ok=True)
+            else:
+                os.makedirs(os.path.dirname(dest), exist_ok=True)
+                with open(dest, "wb") as f:
+                    f.write(zf.read(name))
+    zf.close()
+
+    import database as db_mod
+    from database import DATABASE_URL
+    db_mod.engine = create_engine(DATABASE_URL, echo=False, connect_args={"check_same_thread": False})
+
+    return db_extracted
+
+
+@bp.route("/backup/create", methods=["POST"])
+def admin_backup_create():
+    user = require_admin()
+    if not user:
+        return redirect("/auth/login")
+    from config import BACKUP_DIR
+    try:
+        data = _make_backup_zip()
+        fname = f"backup_{dt_module.now().strftime('%Y%m%d_%H%M%S')}.zip"
+        with open(os.path.join(BACKUP_DIR, fname), "wb") as f:
+            f.write(data)
+        return redirect("/admin/backup?success=created")
+    except Exception as e:
+        return redirect(f"/admin/backup?error={str(e)[:50]}")
+
+
+@bp.route("/backup/saved/restore/<filename>")
+def admin_backup_saved_restore(filename):
+    user = require_admin()
+    if not user:
+        return redirect("/auth/login")
+    from config import BACKUP_DIR
+    if ".." in filename or "/" in filename or "\\" in filename:
+        return redirect("/admin/backup?error=invalid")
+    fpath = os.path.join(BACKUP_DIR, filename)
+    if not os.path.isfile(fpath):
+        return redirect("/admin/backup?error=File+not+found")
+    try:
+        with open(fpath, "rb") as f:
+            ok = _restore_backup_zip(f.read())
+        if not ok:
+            return redirect("/admin/backup?error=invalid")
+        return redirect("/admin/backup?success=restored")
+    except Exception as e:
+        return redirect(f"/admin/backup?error={str(e)[:50]}")
+
+
+@bp.route("/backup/saved/download/<filename>")
+def admin_backup_saved_download(filename):
+    user = require_admin()
+    if not user:
+        return redirect("/auth/login")
+    from config import BACKUP_DIR
+    if ".." in filename or "/" in filename or "\\" in filename:
+        return redirect("/admin/backup?error=invalid")
+    fpath = os.path.join(BACKUP_DIR, filename)
+    if not os.path.isfile(fpath):
+        return redirect("/admin/backup?error=File+not+found")
+    from flask import Response as FlaskResponse
+    with open(fpath, "rb") as f:
+        data = f.read()
+    return FlaskResponse(
+        data,
+        mimetype="application/zip",
+        headers={"Content-Disposition": f"attachment; filename={filename}"},
+    )
+
+
+@bp.route("/backup/saved/delete/<filename>")
+def admin_backup_saved_delete(filename):
+    user = require_admin()
+    if not user:
+        return redirect("/auth/login")
+    from config import BACKUP_DIR
+    if ".." in filename or "/" in filename or "\\" in filename:
+        return redirect("/admin/backup?error=invalid")
+    fpath = os.path.join(BACKUP_DIR, filename)
+    if os.path.isfile(fpath):
+        os.remove(fpath)
+    return redirect("/admin/backup?success=deleted")
 
 
 @bp.route("/backup/export")
@@ -634,39 +787,17 @@ def admin_backup_export():
     if not user:
         return redirect("/auth/login")
 
-    import zipfile, io
     from flask import Response as FlaskResponse
-    from database import engine
 
-    # Flush all pending reads by closing any open session
-    db = get_db()
-    db.close()
-    engine.dispose()
-
-    buf = io.BytesIO()
-    with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as zf:
-        # Add database file
-        zf.write(DB_PATH, arcname="affiliate.db")
-
-        # Add all uploaded files
-        if os.path.isdir(UPLOAD_DIR):
-            for root, dirs, files in os.walk(UPLOAD_DIR):
-                for fn in files:
-                    fpath = os.path.join(root, fn)
-                    arcname = os.path.join("uploads", os.path.relpath(fpath, UPLOAD_DIR))
-                    zf.write(fpath, arcname=arcname)
-
-    # Re-initialize engine
-    import database as db_mod
-    from database import DATABASE_URL
-    db_mod.engine = create_engine(DATABASE_URL, echo=False, connect_args={"check_same_thread": False})
-
-    buf.seek(0)
-    return FlaskResponse(
-        buf.getvalue(),
-        mimetype="application/zip",
-        headers={"Content-Disposition": f"attachment; filename=shafi_backup_{dt_module.now().strftime('%Y%m%d_%H%M%S')}.zip"},
-    )
+    try:
+        data = _make_backup_zip()
+        return FlaskResponse(
+            data,
+            mimetype="application/zip",
+            headers={"Content-Disposition": f"attachment; filename=shafi_backup_{dt_module.now().strftime('%Y%m%d_%H%M%S')}.zip"},
+        )
+    except Exception as e:
+        return redirect(f"/admin/backup?error={str(e)[:50]}")
 
 
 @bp.route("/backup/import", methods=["POST"])
@@ -674,8 +805,6 @@ def admin_backup_import():
     user = require_admin()
     if not user:
         return redirect("/auth/login")
-
-    import zipfile, io
 
     file = request.files.get("backup_file")
     if not file or not file.filename:
@@ -685,48 +814,9 @@ def admin_backup_import():
         return redirect("/admin/backup?error=invalid")
 
     try:
-        from database import engine
-        from config import UPLOAD_DIR
-
-        # Close all connections before replacing db file
-        db = get_db()
-        db.close()
-        engine.dispose()
-
-        zf = zipfile.ZipFile(io.BytesIO(file.read()))
-        db_extracted = False
-
-        for name in zf.namelist():
-            # Normalise path separators
-            arcname = name.replace("\\", "/")
-            if arcname == "affiliate.db":
-                # Extract database — replace in-place
-                os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
-                with open(DB_PATH, "wb") as f:
-                    f.write(zf.read(name))
-                db_extracted = True
-            elif arcname.startswith("uploads/"):
-                rel = arcname[len("uploads/"):]
-                if not rel:
-                    continue
-                dest = os.path.join(UPLOAD_DIR, rel)
-                if name.endswith("/"):
-                    os.makedirs(dest, exist_ok=True)
-                else:
-                    os.makedirs(os.path.dirname(dest), exist_ok=True)
-                    with open(dest, "wb") as f:
-                        f.write(zf.read(name))
-
-        zf.close()
-
-        # Re-initialize engine
-        import database as db_mod
-        from database import DATABASE_URL
-        db_mod.engine = create_engine(DATABASE_URL, echo=False, connect_args={"check_same_thread": False})
-
-        if not db_extracted:
+        ok = _restore_backup_zip(file.read())
+        if not ok:
             return redirect("/admin/backup?error=invalid")
-
-        return redirect("/admin/backup?success=1")
+        return redirect("/admin/backup?success=restored")
     except Exception as e:
         return redirect(f"/admin/backup?error={str(e)[:50]}")
