@@ -32,7 +32,20 @@
                     <tr>
                         <td>{{ p.id }}</td>
                         <td><strong>{{ p.name }}</strong></td>
-                        <td><span class="platform-badge platform-{{ p.name|lower }}">{{ p.name[:1] }}</span> <code class="small">{{ p.icon }}</code></td>
+                        <td><span class="platform-badge platform-{{ p.name|lower }}">{{ p.name[:1] }}</span> <code class="small">{{ p.icon }}</code>
+                            {% set pn = p.name|lower %}
+                            {% if 'amaz' in pn %}
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="#FF9900" viewBox="0 0 16 16"><path d="M13.5 0c1.028 0 1.47.146 1.799.463.33.318.42.776.448 1.815L15.76 2H.24c.028-1.04.117-1.497.449-1.815C1.018.146 1.46 0 2.5 0h11zM.208 3h15.584l-.442 9.382c-.067 1.405-.1 2.108-.427 2.642a2.5 2.5 0 0 1-1.076.904c-.56.254-1.262.286-2.665.328L11.023 16H4.978l-.159-.744c-1.403-.042-2.105-.074-2.665-.328a2.5 2.5 0 0 1-1.076-.904c-.328-.534-.36-1.237-.427-2.642L.208 3z"/></svg>
+                            {% elif 'alib' in pn %}
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="#FF6A00" viewBox="0 0 16 16"><circle cx="8" cy="4" r="3"/><path d="M2 13c0-3 3-5 6-5s6 2 6 5H2z"/></svg>
+                            {% elif 'aliex' in pn %}
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="#E62E04" viewBox="0 0 16 16"><path d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2zm4 1v2h1.5v4.5a1.5 1.5 0 0 0 3 0V5H10V3H4z"/></svg>
+                            {% elif 'dara' in pn %}
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="#FF7A00" viewBox="0 0 16 16"><path d="M2.5 0h11a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-11a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2zm2 4a.5.5 0 0 0-.5.5v2a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 .5-.5v-2a.5.5 0 0 0-.5-.5h-7zm0 5a.5.5 0 0 0-.5.5v2a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5v-2a.5.5 0 0 0-.5-.5h-4z"/></svg>
+                            {% elif 'eba' in pn %}
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="#0064D2" viewBox="0 0 16 16"><path d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2zm5.5 3.75c0 .69.56 1.25 1.25 1.25h3.5a1.25 1.25 0 0 0 0-2.5h-3.5c-.69 0-1.25.56-1.25 1.25zm-1.25 3.5c0 .69.56 1.25 1.25 1.25h3.5a1.25 1.25 0 0 0 0-2.5h-3.5c-.69 0-1.25.56-1.25 1.25z"/></svg>
+                            {% endif %}
+                        </td>
                         <td class="small"><a href="{{ p.base_url }}" target="_blank" class="text-decoration-none">{{ p.base_url[:50] }}{% if p.base_url|length > 50 %}...{% endif %}</a></td>
                         <td>{% if p.is_active %}<span class="badge bg-success">Active</span>{% else %}<span class="badge bg-secondary">Inactive</span>{% endif %}</td>
                         <td>

@@ -186,14 +186,6 @@ body {
 .platform-twitter { background:#1DA1F2; color:#fff; }
 .platform-youtube { background:#FF0000; color:#fff; }
 
-/* ===== SOCIAL LINK ICON FALLBACK ===== */
-.social-icon-fallback {
-    display: inline-flex; align-items: center; justify-content: center;
-    width: 36px; height: 36px; border-radius: 50%;
-    font-size: 0.75rem; font-weight: 700; color: #fff;
-    text-decoration: none;
-}
-
 /* ===== UTILITY ===== */
 .hover-warning:hover { color: #f59e0b !important; }
 
