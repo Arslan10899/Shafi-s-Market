@@ -300,11 +300,11 @@ body {
 
 /* ===== CATEGORY SWIPER SLIDER (Disney Style) ===== */
 .catSwiper {
-    padding: 30px 55px 20px !important;
+    padding: 10px 55px 15px !important;
     overflow: visible !important;
 }
 .catSwiper .swiper-wrapper {
-    padding: 30px 0 10px;
+    padding: 15px 0 5px;
     align-items: stretch;
 }
 .catSwiper .swiper-slide {
@@ -343,14 +343,14 @@ body {
 .cat-swiper-next { right: 0; }
 .cat-swiper-prev { left: 0; }
 
-/* ===== DISNEY-STYLE CATEGORY CARDS ===== */
+/* ===== ROUND CATEGORY CARDS (Professional) ===== */
 .cat-card-link {
     text-decoration: none;
     display: block;
     outline: none;
 }
 .cat-card {
-    width: 160px;
+    width: 145px;
     position: relative;
     display: flex;
     flex-direction: column;
@@ -359,22 +359,22 @@ body {
     transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 .cat-card:hover {
-    transform: translateY(-8px);
+    transform: translateY(-6px);
 }
 .cat-card-bg {
-    width: 140px;
-    height: 140px;
+    width: 110px;
+    height: 110px;
     border-radius: 50%;
     position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+    background: #fff;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.06);
     transition: box-shadow 0.4s ease, transform 0.4s ease;
-    overflow: hidden;
 }
 .cat-card:hover .cat-card-bg {
-    box-shadow: 0 16px 40px rgba(0,0,0,0.18);
+    box-shadow: 0 8px 28px rgba(0,0,0,0.10);
     transform: scale(1.04);
 }
 .cat-card-glow {
@@ -383,7 +383,7 @@ body {
     border-radius: 50%;
     opacity: 0;
     transition: opacity 0.4s ease;
-    background: radial-gradient(circle at 50% 0%, rgba(255,255,255,0.5) 0%, transparent 60%);
+    background: radial-gradient(circle at 50% 0%, rgba(255,255,255,0.6) 0%, transparent 60%);
     pointer-events: none;
 }
 .cat-card:hover .cat-card-glow {
@@ -391,39 +391,43 @@ body {
 }
 .cat-card-img-wrap {
     position: absolute;
-    top: -30px;
-    width: 155px;
-    height: 155px;
+    width: 125px;
+    height: 125px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 3px solid #fff;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 2;
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 2;
-    filter: drop-shadow(0 8px 20px rgba(0,0,0,0.15));
-    transition: filter 0.4s ease, transform 0.4s ease;
+    transition: transform 0.4s ease, box-shadow 0.4s ease;
 }
 .cat-card:hover .cat-card-img-wrap {
-    filter: drop-shadow(0 14px 30px rgba(0,0,0,0.2));
-    transform: scale(1.08) translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.14);
+    transform: translate(-50%, -50%) scale(1.08);
 }
 .cat-card-img {
     width: 100%;
     height: 100%;
-    object-fit: contain;
+    object-fit: cover;
+    border-radius: 50%;
     transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 .cat-card:hover .cat-card-img {
     transform: scale(1.1);
 }
 .cat-card-name {
-    margin-top: 118px;
-    font-weight: 800;
-    font-size: 0.85rem;
-    color: #1e293b;
+    margin-top: 8px;
+    font-weight: 600;
+    font-size: 0.92rem;
+    color: #334155;
     text-align: center;
-    letter-spacing: 0.3px;
-    position: relative;
-    z-index: 1;
-    padding: 4px 8px;
+    white-space: nowrap;
+    padding: 2px 6px;
     transition: color 0.3s ease;
 }
 .cat-card-link:hover .cat-card-name {
@@ -466,21 +470,21 @@ body {
 
 /* ===== RESPONSIVE ===== */
 @media (max-width: 992px) {
-    .cat-card { width: 130px; }
-    .cat-card-bg { width: 115px; height: 115px; }
-    .cat-card-img-wrap { width: 128px; height: 128px; top: -25px; }
-    .cat-card-name { margin-top: 98px; font-size: 0.78rem; }
-    .catSwiper { padding: 25px 40px 15px !important; }
+    .cat-card { width: 120px; }
+    .cat-card-bg { width: 95px; height: 95px; }
+    .cat-card-img-wrap { width: 108px; height: 108px; }
+    .cat-card-name { margin-top: 6px; font-size: 0.82rem; }
+    .catSwiper { padding: 8px 40px 15px !important; }
     .cat-swiper-next,
     .cat-swiper-prev { width: 36px; height: 36px; }
     .cat-swiper-next::after,
     .cat-swiper-prev::after { font-size: 0.8rem; }
 }
 @media (max-width: 576px) {
-    .cat-card { width: 110px; }
-    .cat-card-bg { width: 100px; height: 100px; }
-    .cat-card-img-wrap { width: 112px; height: 112px; top: -22px; }
-    .cat-card-name { margin-top: 86px; font-size: 0.72rem; }
+    .cat-card { width: 100px; }
+    .cat-card-bg { width: 82px; height: 82px; }
+    .cat-card-img-wrap { width: 94px; height: 94px; }
+    .cat-card-name { margin-top: 5px; font-size: 0.75rem; }
 }
 @media (max-width: 768px) {
     .hero-slider, .hero-slider .carousel, .hero-slider .carousel-inner,
