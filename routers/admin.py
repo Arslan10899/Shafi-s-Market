@@ -53,6 +53,26 @@ def admin_dashboard():
     if not user:
         return redirect("/auth/login")
     db = get_db()
+
+    # Products per category for doughnut chart
+    cats = db.query(Category.name, func.count(Product.id)).outerjoin(Product, Product.category_id == Category.id).group_by(Category.id).order_by(Category.name).all()
+    cat_labels = [r[0] for r in cats]
+    cat_data = [r[1] for r in cats]
+
+    # Clicks per day last 7 days
+    today = dt_module.utcnow().date()
+    click_dates = []
+    click_counts = []
+    for i in range(6, -1, -1):
+        day = today - dt_module.timedelta(days=i)
+        cnt = db.query(func.count(AffiliateClick.id)).filter(func.date(AffiliateClick.clicked_at) == day).scalar() or 0
+        click_dates.append(day.strftime('%d-%m'))
+        click_counts.append(cnt)
+
+    # Featured vs non-featured
+    featured_count = db.query(func.count(Product.id)).filter(Product.is_featured == True).scalar() or 0
+    new_count = db.query(func.count(Product.id)).filter(Product.is_new == True).scalar() or 0
+
     ctx = {
         "user": user,
         "total_products": db.query(func.count(Product.id)).scalar() or 0,
@@ -60,6 +80,12 @@ def admin_dashboard():
         "total_clicks": db.query(func.count(AffiliateClick.id)).scalar() or 0,
         "total_users": db.query(func.count(User.id)).scalar() or 0,
         "recent_products": db.query(Product).order_by(desc(Product.created_at)).limit(5).all(),
+        "cat_labels": json.dumps(cat_labels),
+        "cat_data": json.dumps(cat_data),
+        "click_dates": json.dumps(click_dates),
+        "click_counts": json.dumps(click_counts),
+        "featured_count": featured_count,
+        "new_count": new_count,
     }
     db.close()
     return render("admin/dashboard.html", **ctx)
