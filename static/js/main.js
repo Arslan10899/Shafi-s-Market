@@ -38,4 +38,18 @@ document.addEventListener('DOMContentLoaded', function() {
             el.style.transition = 'transform 1.5s ease';
         });
     }
+
+    // Category slider horizontal scroll
+    var slider = document.getElementById('catSlider');
+    var prevBtn = document.getElementById('catPrev');
+    var nextBtn = document.getElementById('catNext');
+    if (slider && prevBtn && nextBtn) {
+        var scrollAmount = 200;
+        prevBtn.addEventListener('click', function() {
+            slider.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+        });
+        nextBtn.addEventListener('click', function() {
+            slider.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+        });
+    }
 });

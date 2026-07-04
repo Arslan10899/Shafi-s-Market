@@ -47,34 +47,38 @@
     </div>
 </section>
 
-<!-- CATEGORIES -->
+<!-- CATEGORIES (Horizontal Slider) -->
 <section class="py-5">
-    <div class="container">
+    <div class="container position-relative">
         <h2 class="fw-bold text-center mb-5" style="color:#0f172a">Shop by Category</h2>
-        <div class="row g-4 justify-content-center">
-            {% set cat_colors = [
-                {'from': '#fef3c7', 'to': '#fde68a', 'tag': '#f59e0b'},
-                {'from': '#dbeafe', 'to': '#bfdbfe', 'tag': '#3b82f6'},
-                {'from': '#d1fae5', 'to': '#a7f3d0', 'tag': '#10b981'},
-                {'from': '#fce7f3', 'to': '#fbcfe8', 'tag': '#ec4899'},
-                {'from': '#ede9fe', 'to': '#ddd6fe', 'tag': '#8b5cf6'},
-                {'from': '#ffedd5', 'to': '#fed7aa', 'tag': '#f97316'},
-            ] %}
-            {% for cat in categories %}
-            {% set cc = cat_colors[loop.index0 % cat_colors|length] %}
-            <div class="col-4 col-md-3 col-lg-2 col-xl-2 text-center">
-                <a href="/shop?category={{ cat.slug }}" class="text-decoration-none d-block">
-                    <div class="cat-circle-wrap mx-auto">
-                        <div class="cat-circle" style="background:linear-gradient(135deg,{{ cc.from }},{{ cc.to }})">
-                            <div class="cat-img-pop">
-                                <img src="{{ cat.image or 'https://placehold.co/200x200/f5f5f5/333?text=' + cat.name }}" alt="{{ cat.name }}" loading="lazy">
+        <div class="cat-slider-wrap">
+            <button class="cat-slide-btn cat-slide-prev" id="catPrev"><i class="fas fa-chevron-left"></i></button>
+            <div class="cat-slider" id="catSlider">
+                {% set cat_colors = [
+                    {'from': '#fef3c7', 'to': '#fde68a', 'tag': '#f59e0b'},
+                    {'from': '#dbeafe', 'to': '#bfdbfe', 'tag': '#3b82f6'},
+                    {'from': '#d1fae5', 'to': '#a7f3d0', 'tag': '#10b981'},
+                    {'from': '#fce7f3', 'to': '#fbcfe8', 'tag': '#ec4899'},
+                    {'from': '#ede9fe', 'to': '#ddd6fe', 'tag': '#8b5cf6'},
+                    {'from': '#ffedd5', 'to': '#fed7aa', 'tag': '#f97316'},
+                ] %}
+                {% for cat in categories %}
+                {% set cc = cat_colors[loop.index0 % cat_colors|length] %}
+                <div class="cat-slide-item text-center">
+                    <a href="/shop?category={{ cat.slug }}" class="text-decoration-none d-block">
+                        <div class="cat-circle-wrap mx-auto">
+                            <div class="cat-circle" style="background:linear-gradient(135deg,{{ cc.from }},{{ cc.to }})">
+                                <div class="cat-img-pop">
+                                    <img src="{{ cat.image or 'https://placehold.co/200x200/f5f5f5/333?text=' + cat.name }}" alt="{{ cat.name }}" loading="lazy">
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <span class="cat-name">{{ cat.name }}</span>
-                </a>
+                        <span class="cat-name">{{ cat.name }}</span>
+                    </a>
+                </div>
+                {% endfor %}
             </div>
-            {% endfor %}
+            <button class="cat-slide-btn cat-slide-next" id="catNext"><i class="fas fa-chevron-right"></i></button>
         </div>
     </div>
 </section>
