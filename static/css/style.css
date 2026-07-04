@@ -137,22 +137,25 @@ body {
 
 /* ===== CATEGORY CARDS ===== */
 .category-card {
-    border-radius: 12px;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border-radius: 16px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
 }
 .category-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 20px rgba(0,0,0,0.08) !important;
+    transform: translateY(-6px) scale(1.02);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.12) !important;
 }
 .category-icon {
     width: 64px;
     height: 64px;
-    background: #fef3c7;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin: 0 auto;
+    transition: transform 0.3s ease;
+}
+.category-card:hover .category-icon {
+    transform: scale(1.15) rotate(-5deg);
 }
 
 /* ===== ADMIN SIDEBAR ===== */
