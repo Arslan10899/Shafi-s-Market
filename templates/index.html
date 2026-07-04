@@ -74,9 +74,20 @@
         <h2 class="fw-bold text-center mb-5" style="color:#0f172a">Shop by Category</h2>
         <div class="swiper catSwiper">
             <div class="swiper-wrapper">
-                {% set soft_bgs = ['#f8fafc','#f1f5f9','#fef2f2','#fffbeb','#f0fdf4','#ecfdf5','#eff6ff','#faf5ff','#fdf2f8','#f0f9ff'] %}
+                {% set cat_colors = [
+                    'linear-gradient(145deg,#fbbf24,#f59e0b)',
+                    'linear-gradient(145deg,#60a5fa,#3b82f6)',
+                    'linear-gradient(145deg,#34d399,#10b981)',
+                    'linear-gradient(145deg,#f472b6,#ec4899)',
+                    'linear-gradient(145deg,#a78bfa,#8b5cf6)',
+                    'linear-gradient(145deg,#fb923c,#f97316)',
+                    'linear-gradient(145deg,#2dd4bf,#14b8a6)',
+                    'linear-gradient(145deg,#f87171,#ef4444)',
+                    'linear-gradient(145deg,#818cf8,#6366f1)',
+                    'linear-gradient(145deg,#38bdf8,#0ea5e9)',
+                ] %}
                 {% for cat in categories %}
-                {% set bg = soft_bgs[loop.index0 % soft_bgs|length] %}
+                {% set bg = cat_colors[loop.index0 % cat_colors|length] %}
                 <div class="swiper-slide">
                     <a href="/shop?category={{ cat.slug }}" class="cat-card-link">
                         <div class="cat-card">
