@@ -51,9 +51,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 prevEl: '.cat-swiper-prev',
             },
             breakpoints: {
-                320: { slidesPerView: 3, spaceBetween: 12 },
-                480: { slidesPerView: 4, spaceBetween: 14 },
-                768: { slidesPerView: 5, spaceBetween: 16 },
+                320: { slidesPerView: 2, spaceBetween: 10 },
+                480: { slidesPerView: 3, spaceBetween: 12 },
+                768: { slidesPerView: 4, spaceBetween: 16 },
                 992: { slidesPerView: 6, spaceBetween: 20 },
             }
         });

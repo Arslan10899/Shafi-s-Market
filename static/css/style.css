@@ -274,8 +274,8 @@ body {
 
 /* ===== RESPONSIVE ===== */
 @media (max-width: 992px) {
-    .cat-circle-wrap { width: 95px; height: 95px; }
-    .cat-img-pop { width: 112px; height: 112px; }
+    .cat-circle-wrap { width: 110px; height: 110px; }
+    .cat-img-pop { width: 130px; height: 130px; }
     .catSwiper { padding: 15px 40px !important; }
     .cat-swiper-next,
     .cat-swiper-prev { width: 36px; height: 36px; }
@@ -283,9 +283,9 @@ body {
     .cat-swiper-prev::after { font-size: 0.8rem; }
 }
 @media (max-width: 576px) {
-    .cat-circle-wrap { width: 80px; height: 80px; }
-    .cat-img-pop { width: 96px; height: 96px; }
-    .cat-name { font-size: 0.7rem; }
+    .cat-circle-wrap { width: 95px; height: 95px; }
+    .cat-img-pop { width: 115px; height: 115px; }
+    .cat-name { font-size: 0.75rem; }
 }
 @media (max-width: 768px) {
     .hero-slider, .hero-slider .carousel, .hero-slider .carousel-inner,
