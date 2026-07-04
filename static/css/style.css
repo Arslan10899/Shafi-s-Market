@@ -499,7 +499,6 @@ body {
     .hero-control-icon { width: 36px; height: 36px; }
     .hero-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
     .hero-slide::before { height: 60px; }
-}
     .product-img { height: 150px; }
     .admin-sidebar { width: 60px !important; font-size: 0; }
     .admin-sidebar .nav-link span { display: none; }
