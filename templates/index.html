@@ -74,10 +74,13 @@
         <h2 class="fw-bold text-center mb-5" style="color:#0f172a">Shop by Category</h2>
         <div class="swiper catSwiper">
             <div class="swiper-wrapper">
+                {% set border_colors = ['#f59e0b','#3b82f6','#10b981','#ec4899','#8b5cf6','#f97316','#14b8a6','#ef4444','#6366f1','#0ea5e9'] %}
                 {% for cat in categories %}
+                {% set bc = border_colors[loop.index0 % border_colors|length] %}
                 <div class="swiper-slide">
                     <a href="/shop?category={{ cat.slug }}" class="cat-card-link">
                         <div class="cat-card">
+                            <div class="cat-card-bg" style="border-color:{{ bc }}"></div>
                             <div class="cat-card-img-wrap">
                                 <img src="{{ cat.image or 'https://placehold.co/200x200/f5f5f5/333?text=' + cat.name }}" alt="{{ cat.name }}" loading="lazy" class="cat-card-img">
                             </div>

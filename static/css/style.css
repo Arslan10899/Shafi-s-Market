@@ -342,7 +342,7 @@ body {
 .cat-swiper-next { right: 0; }
 .cat-swiper-prev { left: 0; }
 
-/* ===== ROUND CATEGORY CARDS (Border Style) ===== */
+/* ===== ROUND CATEGORY CARDS ===== */
 .cat-card-link {
     text-decoration: none;
     display: block;
@@ -360,20 +360,41 @@ body {
 .cat-card:hover {
     transform: translateY(-5px);
 }
+.cat-card-bg {
+    width: 118px;
+    height: 118px;
+    border-radius: 50%;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: 2.5px solid;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.04);
+    transition: box-shadow 0.4s ease, transform 0.4s ease;
+}
+.cat-card:hover .cat-card-bg {
+    box-shadow: 0 8px 28px rgba(0,0,0,0.09);
+    transform: scale(1.04);
+}
 .cat-card-img-wrap {
+    position: absolute;
     width: 113px;
     height: 113px;
     border-radius: 50%;
     overflow: hidden;
-    box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 2;
     display: flex;
     align-items: center;
     justify-content: center;
     transition: transform 0.4s ease, box-shadow 0.4s ease;
 }
 .cat-card:hover .cat-card-img-wrap {
-    box-shadow: 0 8px 24px rgba(0,0,0,0.14);
-    transform: scale(1.06);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+    transform: translate(-50%, -50%) scale(1.06);
 }
 .cat-card-img {
     width: 100%;
@@ -435,7 +456,8 @@ body {
 /* ===== RESPONSIVE ===== */
 @media (max-width: 992px) {
     .cat-card { width: 135px; }
-    .cat-card-img-wrap { width: 100px; height: 100px; }
+    .cat-card-bg { width: 100px; height: 100px; border-width: 2px; }
+    .cat-card-img-wrap { width: 96px; height: 96px; }
     .cat-card-name { margin-top: 10px; font-size: 0.84rem; }
     .catSwiper { padding: 5px 40px 10px !important; }
     .cat-swiper-next,
@@ -445,12 +467,14 @@ body {
 }
 @media (max-width: 768px) {
     .cat-card { width: 120px; }
-    .cat-card-img-wrap { width: 90px; height: 90px; }
+    .cat-card-bg { width: 90px; height: 90px; border-width: 2px; }
+    .cat-card-img-wrap { width: 86px; height: 86px; }
     .cat-card-name { margin-top: 8px; font-size: 0.8rem; }
 }
 @media (max-width: 576px) {
     .cat-card { width: 108px; }
-    .cat-card-img-wrap { width: 82px; height: 82px; }
+    .cat-card-bg { width: 82px; height: 82px; border-width: 2px; }
+    .cat-card-img-wrap { width: 78px; height: 78px; }
     .cat-card-name { margin-top: 6px; font-size: 0.74rem; }
 }
 @media (max-width: 768px) {
