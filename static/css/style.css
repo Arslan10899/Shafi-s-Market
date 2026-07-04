@@ -349,7 +349,7 @@ body {
     outline: none;
 }
 .cat-card {
-    width: 180px;
+    width: 195px;
     position: relative;
     display: flex;
     flex-direction: column;
@@ -361,8 +361,8 @@ body {
     transform: translateY(-6px);
 }
 .cat-card-bg {
-    width: 135px;
-    height: 135px;
+    width: 145px;
+    height: 145px;
     border-radius: 50%;
     position: relative;
     display: flex;
@@ -390,8 +390,8 @@ body {
 }
 .cat-card-img-wrap {
     position: absolute;
-    width: 150px;
-    height: 150px;
+    width: 162px;
+    height: 162px;
     border-radius: 50%;
     overflow: hidden;
     border: 3px solid #fff;
@@ -420,7 +420,7 @@ body {
     transform: scale(1.1);
 }
 .cat-card-name {
-    margin-top: 10px;
+    margin-top: 14px;
     font-weight: 600;
     font-size: 0.95rem;
     color: #334155;
@@ -468,10 +468,10 @@ body {
 
 /* ===== RESPONSIVE ===== */
 @media (max-width: 992px) {
-    .cat-card { width: 150px; }
-    .cat-card-bg { width: 115px; height: 115px; }
-    .cat-card-img-wrap { width: 130px; height: 130px; }
-    .cat-card-name { margin-top: 8px; font-size: 0.88rem; }
+    .cat-card { width: 160px; }
+    .cat-card-bg { width: 122px; height: 122px; }
+    .cat-card-img-wrap { width: 138px; height: 138px; }
+    .cat-card-name { margin-top: 12px; font-size: 0.88rem; }
     .catSwiper { padding: 8px 40px 15px !important; }
     .cat-swiper-next,
     .cat-swiper-prev { width: 36px; height: 36px; }
@@ -479,16 +479,16 @@ body {
     .cat-swiper-prev::after { font-size: 0.8rem; }
 }
 @media (max-width: 768px) {
-    .cat-card { width: 130px; }
-    .cat-card-bg { width: 100px; height: 100px; }
-    .cat-card-img-wrap { width: 114px; height: 114px; }
-    .cat-card-name { margin-top: 6px; font-size: 0.82rem; }
+    .cat-card { width: 140px; }
+    .cat-card-bg { width: 108px; height: 108px; }
+    .cat-card-img-wrap { width: 122px; height: 122px; }
+    .cat-card-name { margin-top: 10px; font-size: 0.82rem; }
 }
 @media (max-width: 576px) {
-    .cat-card { width: 115px; }
-    .cat-card-bg { width: 90px; height: 90px; }
-    .cat-card-img-wrap { width: 102px; height: 102px; }
-    .cat-card-name { margin-top: 5px; font-size: 0.78rem; }
+    .cat-card { width: 120px; }
+    .cat-card-bg { width: 95px; height: 95px; }
+    .cat-card-img-wrap { width: 108px; height: 108px; }
+    .cat-card-name { margin-top: 8px; font-size: 0.78rem; }
 }
 @media (max-width: 768px) {
     .hero-slider, .hero-slider .carousel, .hero-slider .carousel-inner,
