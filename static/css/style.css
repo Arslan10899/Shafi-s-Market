@@ -135,26 +135,41 @@ body {
     transition-duration: 1.5s !important;
 }
 
-/* ===== CATEGORY CARDS ===== */
+/* ===== CATEGORY CIRCLES ===== */
 .category-circle {
-    width: 100px;
-    height: 100px;
+    width: 110px;
+    height: 110px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    font-size: 2.2rem;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04);
+    transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
     cursor: pointer;
+    position: relative;
+}
+.category-circle::after {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    border-radius: 50%;
+    border: 2px solid currentColor;
+    opacity: 0.12;
+    transition: opacity 0.3s ease;
 }
 .category-circle:hover {
-    transform: translateY(-4px) scale(1.08);
-    box-shadow: 0 10px 25px rgba(0,0,0,0.15) !important;
+    transform: translateY(-6px) scale(1.06);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.1), 0 4px 8px rgba(0,0,0,0.06);
+}
+.category-circle:hover::after {
+    opacity: 0.25;
 }
 .category-circle-icon {
-    transition: transform 0.3s ease;
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 .category-circle:hover .category-circle-icon {
-    transform: rotate(-8deg) scale(1.1);
+    transform: scale(1.15);
 }
 
 /* ===== ADMIN SIDEBAR ===== */

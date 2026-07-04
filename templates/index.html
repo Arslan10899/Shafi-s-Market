@@ -71,24 +71,24 @@
     <div class="container">
         <h2 class="fw-bold mb-4 text-center"><i class="fas fa-layer-group me-2" style="background:linear-gradient(135deg,#f59e0b,#ef4444);-webkit-background-clip:text;-webkit-text-fill-color:transparent"></i>Shop by Category</h2>
         <div class="row g-3 justify-content-center">
-            {% set colors = [
-                {'bg': 'linear-gradient(135deg,#fef3c7,#fde68a)', 'icon': '#f59e0b', 'hover': '#d97706', 'fa': 'microchip'},
-                {'bg': 'linear-gradient(135deg,#dbeafe,#bfdbfe)', 'icon': '#3b82f6', 'hover': '#2563eb', 'fa': 'tshirt'},
-                {'bg': 'linear-gradient(135deg,#d1fae5,#a7f3d0)', 'icon': '#10b981', 'hover': '#059669', 'fa': 'couch'},
-                {'bg': 'linear-gradient(135deg,#fce7f3,#fbcfe8)', 'icon': '#ec4899', 'hover': '#db2777', 'fa': 'spa'},
-                {'bg': 'linear-gradient(135deg,#ede9fe,#ddd6fe)', 'icon': '#8b5cf6', 'hover': '#7c3aed', 'fa': 'futbol'},
-                {'bg': 'linear-gradient(135deg,#ffedd5,#fed7aa)', 'icon': '#f97316', 'hover': '#ea580c', 'fa': 'gamepad'},
-                {'bg': 'linear-gradient(135deg,#ccfbf1,#99f6e4)', 'icon': '#14b8a6', 'hover': '#0d9488', 'fa': 'book'},
-                {'bg': 'linear-gradient(135deg,#fef2f2,#fecaca)', 'icon': '#ef4444', 'hover': '#dc2626', 'fa': 'car'},
+            {% set cats = [
+                {'fa': 'microchip', 'color': '#f59e0b', 'bg': '#fffbeb'},
+                {'fa': 'tshirt', 'color': '#3b82f6', 'bg': '#eff6ff'},
+                {'fa': 'couch', 'color': '#10b981', 'bg': '#ecfdf5'},
+                {'fa': 'spa', 'color': '#ec4899', 'bg': '#fdf2f8'},
+                {'fa': 'futbol', 'color': '#8b5cf6', 'bg': '#f5f3ff'},
+                {'fa': 'gamepad', 'color': '#f97316', 'bg': '#fff7ed'},
+                {'fa': 'book', 'color': '#14b8a6', 'bg': '#f0fdfa'},
+                {'fa': 'car', 'color': '#ef4444', 'bg': '#fef2f2'},
             ] %}
             {% for cat in categories %}
-            {% set c = colors[loop.index0 % colors|length] %}
-            <div class="col-4 col-md-3 col-lg-2">
-                <a href="/shop?category={{ cat.slug }}" class="text-decoration-none">
-                    <div class="category-circle mx-auto mb-2" style="background:{{ c.bg }};color:{{ c.icon }};border:3px solid {{ c.icon }}40">
-                        <i class="fas fa-{{ c.fa }} fa-2x category-circle-icon"></i>
+            {% set c = cats[loop.index0 % cats|length] %}
+            <div class="col-4 col-md-3 col-lg-2 mb-3">
+                <a href="/shop?category={{ cat.slug }}" class="text-decoration-none d-block">
+                    <div class="category-circle mx-auto" style="background:{{ c.bg }};color:{{ c.color }}">
+                        <i class="fas fa-{{ c.fa }} category-circle-icon"></i>
                     </div>
-                    <h6 class="fw-bold text-center mb-0" style="color:{{ c.hover }}">{{ cat.name }}</h6>
+                    <p class="fw-semibold text-center mt-2 mb-0" style="color:#1e293b;font-size:0.85rem">{{ cat.name }}</p>
                 </a>
             </div>
             {% endfor %}
