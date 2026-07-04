@@ -7,7 +7,7 @@ import os
 import random
 import string
 import time as time_module
-from datetime import datetime as dt_module
+from datetime import datetime, timedelta
 
 from database import get_db
 from models import Product, ProductImage, Category, User, HeroSlide, AffiliateClick, SocialLink, Platform, UserLink, BlogPost
@@ -60,11 +60,11 @@ def admin_dashboard():
     cat_data = [r[1] for r in cats]
 
     # Clicks per day last 7 days
-    today = dt_module.utcnow().date()
+    today = datetime.utcnow().date()
     click_dates = []
     click_counts = []
     for i in range(6, -1, -1):
-        day = today - dt_module.timedelta(days=i)
+        day = today - timedelta(days=i)
         cnt = db.query(func.count(AffiliateClick.id)).filter(func.date(AffiliateClick.clicked_at) == day).scalar() or 0
         click_dates.append(day.strftime('%d-%m'))
         click_counts.append(cnt)
@@ -668,7 +668,7 @@ def admin_backup():
                 saved.append({
                     "name": fn,
                     "size": size_str,
-                    "created": dt_module.fromtimestamp(stat.st_ctime).strftime("%Y-%m-%d %H:%M"),
+                    "created": datetime.fromtimestamp(stat.st_ctime).strftime("%Y-%m-%d %H:%M"),
                 })
     return render("admin/backup.html", user=user, saved_backups=saved)
 
@@ -743,7 +743,7 @@ def admin_backup_create():
     from config import BACKUP_DIR
     try:
         data = _make_backup_zip()
-        fname = f"backup_{dt_module.now().strftime('%Y%m%d_%H%M%S')}.zip"
+        fname = f"backup_{datetime.now().strftime('%Y%m%d_%H%M%S')}.zip"
         with open(os.path.join(BACKUP_DIR, fname), "wb") as f:
             f.write(data)
         return redirect("/admin/backup?success=created")
@@ -820,7 +820,7 @@ def admin_backup_export():
         return FlaskResponse(
             data,
             mimetype="application/zip",
-            headers={"Content-Disposition": f"attachment; filename=shafi_backup_{dt_module.now().strftime('%Y%m%d_%H%M%S')}.zip"},
+            headers={"Content-Disposition": f"attachment; filename=shafi_backup_{datetime.now().strftime('%Y%m%d_%H%M%S')}.zip"},
         )
     except Exception as e:
         return redirect(f"/admin/backup?error={str(e)[:50]}")
