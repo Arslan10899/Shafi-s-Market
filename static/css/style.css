@@ -301,7 +301,7 @@ body {
 /* ===== CATEGORY SWIPER SLIDER ===== */
 .catSwiper {
     padding: 5px 48px 10px !important;
-    overflow: visible !important;
+    overflow: hidden;
 }
 .catSwiper .swiper-wrapper {
     padding: 5px 0 5px;
