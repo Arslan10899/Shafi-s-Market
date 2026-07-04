@@ -51,10 +51,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 prevEl: '.cat-swiper-prev',
             },
             breakpoints: {
-                320: { slidesPerView: 2, spaceBetween: 10 },
+                320: { slidesPerView: 2, spaceBetween: 8 },
                 480: { slidesPerView: 3, spaceBetween: 12 },
                 768: { slidesPerView: 4, spaceBetween: 16 },
-                992: { slidesPerView: 6, spaceBetween: 20 },
+                992: { slidesPerView: 5, spaceBetween: 18 },
+                1200: { slidesPerView: 6, spaceBetween: 20 },
             }
         });
     }
