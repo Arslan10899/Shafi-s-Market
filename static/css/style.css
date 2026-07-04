@@ -313,34 +313,28 @@ body {
 .cat-swiper-next,
 .cat-swiper-prev {
     position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 44px;
-    height: 44px;
+    top: 44%;
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
-    background: rgba(255,255,255,0.9);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    box-shadow: 0 4px 20px rgba(0,0,0,0.12);
-    color: #475569;
-    transition: all 0.3s ease;
-    margin-top: 0;
+    background: transparent;
+    color: #94a3b8;
+    transition: color 0.3s ease, transform 0.3s ease;
     border: none;
+    cursor: pointer;
 }
 .cat-swiper-next::after,
 .cat-swiper-prev::after {
-    font-size: 1rem;
+    font-size: 1.2rem;
     font-weight: 700;
 }
 .cat-swiper-next:hover,
 .cat-swiper-prev:hover {
-    background: #f59e0b;
-    color: #fff;
-    box-shadow: 0 8px 25px rgba(245,158,11,0.45);
-    transform: translateY(-50%) scale(1.1);
+    color: #f59e0b;
+    transform: scale(1.15);
 }
-.cat-swiper-next { right: 0; }
-.cat-swiper-prev { left: 0; }
+.cat-swiper-next { right: 2px; }
+.cat-swiper-prev { left: 2px; }
 
 /* ===== ROUND CATEGORY CARDS ===== */
 .cat-card-link {
@@ -454,9 +448,9 @@ body {
     .cat-card-name { margin-top: 10px; font-size: 0.86rem; }
     .catSwiper { padding: 5px 40px 10px !important; }
     .cat-swiper-next,
-    .cat-swiper-prev { width: 34px; height: 34px; }
+    .cat-swiper-prev { width: 30px; height: 30px; top: 43%; }
     .cat-swiper-next::after,
-    .cat-swiper-prev::after { font-size: 0.75rem; }
+    .cat-swiper-prev::after { font-size: 0.9rem; }
 }
 @media (max-width: 768px) {
     .cat-card { width: 170px; }
