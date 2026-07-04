@@ -2,14 +2,14 @@
 {% block title %}Shafi's Affiliate Marketplace{% endblock %}
 {% block content %}
 
-<!-- HERO SLIDER -->
+<!-- HERO SLIDER (Pixi Theme Style) -->
 <section class="hero-slider">
     {% set slides = hero_slides if hero_slides else [] %}
     {% if slides|length == 0 %}
         {% set slides = [
-            {"title": "Shop the Best Deals", "subtitle": "Curated products from Amazon, Alibaba, AliExpress & Daraz — all in one place.", "image_url": "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=1600&q=80", "btn_text": "Start Shopping", "btn_url": "/shop", "btn_type": "primary"},
-            {"title": "Top Brands, Best Prices", "subtitle": "Discover thousands of products at unbeatable prices from top global brands.", "image_url": "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=1600&q=80", "btn_text": "View Best Deals", "btn_url": "/shop?sort=price_asc", "btn_type": "primary"},
-            {"title": "New Arrivals Every Day", "subtitle": "Stay ahead with the latest trends and newest products from around the world.", "image_url": "https://images.unsplash.com/photo-1483985988355-763728e1935b?w=1600&q=80", "btn_text": "Explore New Arrivals", "btn_url": "/shop?sort=newest", "btn_type": "primary"},
+            {"title": "Shop the <span class='highlight'>Best Deals</span>", "subtitle": "Curated products from Amazon, Alibaba, AliExpress & Daraz — all in one place.", "image_url": "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=1600&q=80", "btn_text": "Start Shopping", "btn_url": "/shop", "btn_type": "primary"},
+            {"title": "Top <span class='highlight'>Brands</span>, Best Prices", "subtitle": "Discover thousands of products at unbeatable prices from top global brands.", "image_url": "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=1600&q=80", "btn_text": "View Best Deals", "btn_url": "/shop?sort=price_asc", "btn_type": "primary"},
+            {"title": "New <span class='highlight'>Arrivals</span> Every Day", "subtitle": "Stay ahead with the latest trends and newest products from around the world.", "image_url": "https://images.unsplash.com/photo-1483985988355-763728e1935b?w=1600&q=80", "btn_text": "Explore Now", "btn_url": "/shop?sort=newest", "btn_type": "primary"},
         ] %}
     {% endif %}
     <div id="heroCarousel" class="carousel slide carousel-fade" data-bs-ride="carousel" data-bs-interval="20000">
@@ -21,18 +21,39 @@
         <div class="carousel-inner">
             {% for slide in slides %}
             <div class="carousel-item{% if loop.first %} active{% endif %}">
-                <div class="hero-slide d-flex align-items-center" style="background-image: url('{{ slide.image_url }}');">
+                <div class="hero-slide" style="background-image: url('{{ slide.image_url }}');">
                     <div class="hero-overlay"></div>
-                    <div class="container text-center text-white position-relative">
-                        <h1 class="display-3 fw-bold mb-3 hero-title">{{ slide.title }}</h1>
-                        {% if slide.subtitle %}
-                        <p class="lead mb-4 hero-subtitle">{{ slide.subtitle }}</p>
-                        {% endif %}
-                        {% if slide.btn_url %}
-                        <a href="{{ slide.btn_url }}" class="btn {% if slide.btn_type == 'outline' %}btn-outline-light hero-btn-outline{% else %}btn-warning hero-btn{% endif %} btn-lg px-5 py-3 fw-semibold rounded-pill">
-                            <i class="fas fa-shopping-bag me-2"></i>{{ slide.btn_text }}
-                        </a>
-                        {% endif %}
+                    <div class="container">
+                        <div class="hero-content-wrap">
+                            <div class="hero-badge">
+                                <i class="fas fa-bolt me-1"></i> Premium Collection
+                            </div>
+                            <h1 class="hero-title">{{ slide.title | safe }}</h1>
+                            {% if slide.subtitle %}
+                            <p class="hero-subtitle">{{ slide.subtitle }}</p>
+                            {% endif %}
+                            {% if slide.btn_url %}
+                            <div class="hero-actions">
+                                <a href="{{ slide.btn_url }}" class="btn {% if slide.btn_type == 'outline' %}hero-btn-outline{% else %}hero-btn{% endif %}">
+                                    <i class="fas fa-shopping-bag me-2"></i>{{ slide.btn_text }}
+                                </a>
+                            </div>
+                            {% endif %}
+                            <div class="hero-stats">
+                                <div class="hero-stat-item">
+                                    <div class="hero-stat-number">10K+</div>
+                                    <div class="hero-stat-label">Products</div>
+                                </div>
+                                <div class="hero-stat-item">
+                                    <div class="hero-stat-number">500+</div>
+                                    <div class="hero-stat-label">Brands</div>
+                                </div>
+                                <div class="hero-stat-item">
+                                    <div class="hero-stat-number">50K+</div>
+                                    <div class="hero-stat-label">Happy Customers</div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
