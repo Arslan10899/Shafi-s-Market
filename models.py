@@ -132,3 +132,18 @@ class UserLink(Base):
 
     user = relationship("User", backref="links")
     platform = relationship("Platform")
+
+
+class BlogPost(Base):
+    __tablename__ = "blog_posts"
+
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String(200), nullable=False)
+    slug = Column(String(220), unique=True, nullable=False, index=True)
+    content = Column(Text, nullable=False)
+    excerpt = Column(String(300), default="")
+    image = Column(String(300), default="")
+    author = Column(String(100), default="Admin")
+    is_published = Column(Boolean, default=True)
+    created_at = Column(DateTime, server_default=func.now())
+    updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())

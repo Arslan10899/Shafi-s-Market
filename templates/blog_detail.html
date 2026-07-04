@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}{{ post.title }} - Shafi's Affiliate Marketplace{% endblock %}
+{% block content %}
+
+<section class="py-4">
+    <div class="container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb small">
+                <li class="breadcrumb-item"><a href="/" class="text-decoration-none">Home</a></li>
+                <li class="breadcrumb-item"><a href="/blog" class="text-decoration-none">Blog</a></li>
+                <li class="breadcrumb-item active" aria-current="page">{{ post.title[:40] ~ '...' if post.title|length > 40 else post.title }}</li>
+            </ol>
+        </nav>
+
+        <div class="row g-4">
+            <div class="col-lg-8">
+                <article>
+                    <h1 class="fw-bold mb-3" style="color:#0f172a">{{ post.title }}</h1>
+                    <div class="d-flex gap-3 text-muted small mb-4">
+                        <span><i class="far fa-user me-1"></i>{{ post.author }}</span>
+                        <span><i class="far fa-calendar-alt me-1"></i>{{ post.created_at.strftime('%B %d, %Y') }}</span>
+                    </div>
+
+                    {% if post.image %}
+                    <img src="{{ post.image }}" class="img-fluid rounded mb-4 w-100" alt="{{ post.title }}" style="max-height:400px;object-fit:cover">
+                    {% endif %}
+
+                    <div class="blog-content" style="line-height:1.8;font-size:1.05rem">
+                        {{ post.content | safe }}
+                    </div>
+                </article>
+
+                <div class="mt-5 pt-3 border-top">
+                    <a href="/blog" class="btn btn-outline-warning rounded-pill"><i class="fas fa-arrow-left me-1"></i> Back to Blog</a>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body">
+                        <h5 class="fw-bold mb-3"><i class="fas fa-clock me-1"></i> Recent Posts</h5>
+                        {% if recent %}
+                        <div class="d-flex flex-column gap-3">
+                            {% for r in recent %}
+                            <a href="/blog/{{ r.slug }}" class="text-decoration-none d-flex gap-3">
+                                <img src="{{ r.image or 'https://picsum.photos/seed/blog' ~ r.id ~ '/100/100' }}" class="rounded flex-shrink-0" width="70" height="70" style="object-fit:cover" alt="{{ r.title }}">
+                                <div>
+                                    <h6 class="fw-semibold text-dark mb-1" style="font-size:0.85rem">{{ r.title[:50] ~ '...' if r.title|length > 50 else r.title }}</h6>
+                                    <small class="text-muted">{{ r.created_at.strftime('%b %d, %Y') }}</small>
+                                </div>
+                            </a>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <p class="text-muted small mb-0">No recent posts</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="fw-bold mb-3"><i class="fas fa-store me-1"></i> Shop Categories</h5>
+                        <div class="d-flex flex-column gap-1">
+                            {% for cat in categories %}
+                            <a href="/shop?category={{ cat.slug }}" class="text-decoration-none small text-dark">{{ cat.name }}</a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+.blog-content p { margin-bottom: 1.2rem; }
+.blog-content h2, .blog-content h3 { margin-top: 1.5rem; margin-bottom: 0.8rem; }
+.blog-content img { max-width: 100%; height: auto; border-radius: 8px; margin: 1rem 0; }
+.blog-content ul, .blog-content ol { margin-bottom: 1.2rem; }
+</style>
+
+{% endblock %}

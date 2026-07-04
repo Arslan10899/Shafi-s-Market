@@ -10,7 +10,7 @@ import time as time_module
 from datetime import datetime as dt_module
 
 from database import get_db
-from models import Product, ProductImage, Category, User, HeroSlide, AffiliateClick, SocialLink, Platform, UserLink
+from models import Product, ProductImage, Category, User, HeroSlide, AffiliateClick, SocialLink, Platform, UserLink, BlogPost
 from config import UPLOAD_DIR, DB_PATH, ALLOWED_EXTENSIONS
 from sqlalchemy import create_engine
 import bcrypt as _bcrypt
@@ -820,3 +820,89 @@ def admin_backup_import():
         return redirect("/admin/backup?success=restored")
     except Exception as e:
         return redirect(f"/admin/backup?error={str(e)[:50]}")
+
+
+# ===== BLOG MANAGEMENT =====
+
+@bp.route("/blog")
+def admin_blog():
+    user = require_admin()
+    if not user:
+        return redirect("/auth/login")
+    db = get_db()
+    posts = db.query(BlogPost).order_by(desc(BlogPost.created_at)).all()
+    db.close()
+    return render("admin/blog.html", user=user, posts=posts)
+
+
+@bp.route("/blog/add", methods=["GET", "POST"])
+def admin_blog_add():
+    user = require_admin()
+    if not user:
+        return redirect("/auth/login")
+    if request.method == "GET":
+        return render("admin/blog_form.html", user=user, post=None)
+    title = request.form.get("title", "").strip()
+    content = request.form.get("content", "").strip()
+    excerpt = request.form.get("excerpt", "").strip()
+    image = request.form.get("image", "").strip()
+    author = request.form.get("author", "Admin").strip()
+    if not title or not content:
+        return redirect("/admin/blog/add?error=required")
+    slug = gen_slug(title)
+    db = get_db()
+    post = BlogPost(title=title, slug=slug, content=content, excerpt=excerpt, image=image, author=author)
+    db.add(post)
+    db.commit()
+    db.close()
+    return redirect("/admin/blog?success=added")
+
+
+@bp.route("/blog/edit/<int:pid>", methods=["GET", "POST"])
+def admin_blog_edit(pid):
+    user = require_admin()
+    if not user:
+        return redirect("/auth/login")
+    db = get_db()
+    post = db.query(BlogPost).filter_by(id=pid).first()
+    if not post:
+        db.close()
+        return redirect("/admin/blog?error=notfound")
+    if request.method == "GET":
+        return render("admin/blog_form.html", user=user, post=post)
+    post.title = request.form.get("title", post.title).strip()
+    post.content = request.form.get("content", post.content).strip()
+    post.excerpt = request.form.get("excerpt", post.excerpt).strip()
+    post.image = request.form.get("image", post.image).strip()
+    post.author = request.form.get("author", post.author).strip()
+    db.commit()
+    db.close()
+    return redirect("/admin/blog?success=updated")
+
+
+@bp.route("/blog/toggle/<int:pid>")
+def admin_blog_toggle(pid):
+    user = require_admin()
+    if not user:
+        return redirect("/auth/login")
+    db = get_db()
+    post = db.query(BlogPost).filter_by(id=pid).first()
+    if post:
+        post.is_published = not post.is_published
+        db.commit()
+    db.close()
+    return redirect("/admin/blog")
+
+
+@bp.route("/blog/delete/<int:pid>")
+def admin_blog_delete(pid):
+    user = require_admin()
+    if not user:
+        return redirect("/auth/login")
+    db = get_db()
+    post = db.query(BlogPost).filter_by(id=pid).first()
+    if post:
+        db.delete(post)
+        db.commit()
+    db.close()
+    return redirect("/admin/blog?success=deleted")

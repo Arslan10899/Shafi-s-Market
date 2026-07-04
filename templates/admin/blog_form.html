@@ -1,0 +1,49 @@
+{% extends "admin/base.html" %}
+{% block title %}{{ 'Edit' if post else 'Add' }} Blog Post{% endblock %}
+{% block admin_content %}
+
+<h3 class="fw-bold mb-4"><i class="fas fa-{{ 'edit' if post else 'plus' }} me-2"></i>{{ 'Edit' if post else 'New' }} Blog Post</h3>
+
+{% if request.args.get('error') %}
+<div class="alert alert-danger">{{ request.args.get('error') }}</div>
+{% endif %}
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body">
+        <form method="POST">
+            <div class="mb-3">
+                <label class="form-label fw-semibold">Title *</label>
+                <input type="text" name="title" class="form-control" value="{{ post.title if post else '' }}" required>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label fw-semibold">Content *</label>
+                <textarea name="content" class="form-control" rows="15" required>{{ post.content if post else '' }}</textarea>
+                <small class="text-muted">HTML is allowed</small>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label fw-semibold">Excerpt (short summary)</label>
+                <textarea name="excerpt" class="form-control" rows="2" maxlength="300">{{ post.excerpt if post else '' }}</textarea>
+            </div>
+
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Image URL</label>
+                    <input type="url" name="image" class="form-control" value="{{ post.image if post else '' }}" placeholder="https://...">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Author</label>
+                    <input type="text" name="author" class="form-control" value="{{ post.author if post else 'Admin' }}">
+                </div>
+            </div>
+
+            <div class="mt-4 d-flex gap-2">
+                <button type="submit" class="btn btn-warning rounded-pill"><i class="fas fa-save me-1"></i> {{ 'Update' if post else 'Publish' }}</button>
+                <a href="/admin/blog" class="btn btn-outline-secondary rounded-pill">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

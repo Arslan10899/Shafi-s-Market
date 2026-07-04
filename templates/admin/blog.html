@@ -1,0 +1,64 @@
+{% extends "admin/base.html" %}
+{% block title %}Blog{% endblock %}
+{% block admin_content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="fw-bold mb-0"><i class="fas fa-blog me-2"></i>Blog Posts</h3>
+    <a href="/admin/blog/add" class="btn btn-warning btn-sm rounded-pill"><i class="fas fa-plus me-1"></i> New Post</a>
+</div>
+
+{% if request.args.get('success') %}
+<div class="alert alert-success alert-dismissible fade show">{{ request.args.get('success') }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+{% endif %}
+{% if request.args.get('error') %}
+<div class="alert alert-danger alert-dismissible fade show">{{ request.args.get('error') }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+{% endif %}
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Title</th>
+                        <th>Author</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                        <th style="width:180px">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for post in posts %}
+                    <tr>
+                        <td>
+                            <a href="/blog/{{ post.slug }}" class="text-decoration-none fw-semibold text-dark" target="_blank">{{ post.title[:60] }}{% if post.title|length > 60 %}...{% endif %}</a>
+                        </td>
+                        <td>{{ post.author }}</td>
+                        <td><small>{{ post.created_at.strftime('%b %d, %Y') }}</small></td>
+                        <td>
+                            {% if post.is_published %}
+                            <span class="badge bg-success">Published</span>
+                            {% else %}
+                            <span class="badge bg-secondary">Draft</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="d-flex gap-1">
+                                <a href="/admin/blog/edit/{{ post.id }}" class="btn btn-sm btn-outline-primary rounded-pill"><i class="fas fa-edit"></i></a>
+                                <a href="/admin/blog/toggle/{{ post.id }}" class="btn btn-sm btn-outline-{{ 'warning' if post.is_published else 'success' }} rounded-pill">
+                                    {% if post.is_published %}<i class="fas fa-eye-slash"></i>{% else %}<i class="fas fa-eye"></i>{% endif %}
+                                </a>
+                                <a href="/admin/blog/delete/{{ post.id }}" class="btn btn-sm btn-outline-danger rounded-pill" onclick="return confirm('Delete this post?')"><i class="fas fa-trash"></i></a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="5" class="text-center py-4 text-muted">No blog posts yet</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
