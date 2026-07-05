@@ -133,6 +133,11 @@ def product_detail(slug):
     )
 
 
+@bp.route("/ceo")
+def ceo_page():
+    user = get_user_from_session()
+    return render("ceo.html", user=user, categories=[])
+
 @bp.route("/faq")
 def faq_page():
     user = get_user_from_session()
