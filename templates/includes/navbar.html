@@ -41,11 +41,8 @@
                 {% if user and user.id %}
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle d-flex align-items-center gap-2" href="#" role="button" data-bs-toggle="dropdown">
-                        {% if user.profile_image %}
-                        <img src="{{ user.profile_image }}" class="rounded-circle" width="28" height="28" style="object-fit:cover">
-                        {% else %}
-                        <div class="rounded-circle bg-warning d-flex align-items-center justify-content-center text-white fw-bold" style="width:28px;height:28px;font-size:12px">{{ user.username[:1] | upper }}</div>
-                        {% endif %}
+                        {% set avatar_url = user.profile_image if user.profile_image else 'https://ui-avatars.com/api/?name=' + user.username[:1] + '&background=ffc107&color=000&size=28' %}
+                        <img src="{{ avatar_url }}" class="rounded-circle" width="28" height="28" style="object-fit:cover">
                         <span>{{ user.username }}</span>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end">

@@ -9,9 +9,13 @@
             <div class="card border-0 shadow-sm">
                 <div class="card-body p-3">
                     <div class="text-center mb-3">
-                        <div class="rounded-circle bg-warning d-flex align-items-center justify-content-center mx-auto mb-2 text-white fw-bold" style="width:56px;height:56px;font-size:22px">
-                            {{ (profile.full_name or profile.username)[:1] | upper }}
-                        </div>
+                        {% set profile_img = profile.profile_image %}
+                        {% if profile_img %}
+                        <img src="{{ profile_img }}" class="rounded-circle mx-auto mb-2" width="56" height="56" style="object-fit:cover">
+                        {% else %}
+                        <img src="https://ui-avatars.com/api/?name={{ (profile.full_name or profile.username)[:1] }}&background=ffc107&color=000&size=56" class="rounded-circle mx-auto mb-2" width="56" height="56" style="object-fit:cover">
+                        <a href="/settings" class="d-block small text-warning text-decoration-none"><i class="fas fa-camera me-1"></i>Upload photo</a>
+                        {% endif %}
                         <h6 class="fw-bold mb-0 small">{{ profile.full_name or profile.username }}</h6>
                         <span class="badge bg-info text-dark">{{ profile.role | title }}</span>
                     </div>
