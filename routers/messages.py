@@ -103,6 +103,12 @@ def conversation(pid):
     if not partner:
         db.close()
         abort(404)
+
+    db.query(Message).filter(
+        Message.receiver_id == uid, Message.sender_id == pid, Message.is_read == False
+    ).update({"is_read": True, "status": "read"})
+    db.commit()
+
     msgs = db.query(Message).options(
         joinedload(Message.sender), joinedload(Message.receiver)
     ).filter(
@@ -111,12 +117,6 @@ def conversation(pid):
             and_(Message.sender_id == pid, Message.receiver_id == uid),
         )
     ).order_by(Message.created_at.asc()).all()
-
-    for m in msgs:
-        if m.receiver_id == uid and not m.is_read:
-            m.is_read = True
-            m.status = "read"
-    db.commit()
 
     status, last_seen_str = user_status(partner)
     blocked = partner.is_blocked
@@ -288,16 +288,20 @@ def view(mid):
         if role != "admin":
             db.close()
             abort(403)
-    if msg.receiver_id == uid:
-        if not msg.is_read:
-            msg.is_read = True
-            msg.status = "read"
-            db.commit()
-        elif msg.status == "delivered":
-            msg.status = "read"
-            db.commit()
+
     receiver = msg.sender if msg.receiver_id == uid else msg.receiver
     status, last_seen_str = user_status(receiver)
+
+    if msg.receiver_id == uid and msg.status in ("sent", "delivered"):
+        db.query(Message).filter(Message.id == mid).update({"is_read": True, "status": "read"})
+        db.commit()
+
+    msg = db.query(Message).options(
+        joinedload(Message.sender), joinedload(Message.receiver)
+    ).filter(Message.id == mid).first()
+    receiver = msg.sender if msg.receiver_id == uid else msg.receiver
+    status, last_seen_str = user_status(receiver)
+
     db.close()
     return render("message_view.html",
         user=user_dict,
