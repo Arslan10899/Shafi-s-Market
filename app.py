@@ -47,6 +47,8 @@ def track_activity():
         db.commit()
         db.close()
 
+app.config['PROPAGATE_EXCEPTIONS'] = False
+
 init_db()
 
 if __name__ == '__main__':

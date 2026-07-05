@@ -58,21 +58,19 @@
                             {% elif current_tab == 'drafts' %}<i class="fas fa-pen text-warning me-1"></i> Drafts
                             {% else %}<i class="fas fa-comments text-warning me-1"></i> Conversations{% endif %}
                         </h6>
-                        <span class="badge bg-light text-dark rounded-pill">
-                            {{ conversations|length if current_tab == 'inbox' else messages|length }}
-                        </span>
+                        <span class="badge bg-light text-dark rounded-pill">{{ conversations|length if current_tab == 'inbox' else messages|length }}</span>
                     </div>
 
                     <div class="list-group list-group-flush">
                         {% if current_tab == 'inbox' %}
                             {% for c in conversations %}
-                            <a href="/messages/conversation/{{ c.partner.id }}" class="conv-item list-group-item list-group-item-action px-4 py-3 {% if c.unread > 0 %}unread{% endif %}">
+                            <a href="/messages/conversation/{{ c.partner_id }}" class="conv-item list-group-item list-group-item-action px-4 py-3 {% if c.unread > 0 %}unread{% endif %}">
                                 <div class="d-flex gap-3 align-items-center">
                                     <div class="position-relative flex-shrink-0">
-                                        {% if c.partner.profile_image %}
-                                        <img src="{{ c.partner.profile_image }}" class="conv-avatar">
+                                        {% if c.partner_profile_image %}
+                                        <img src="{{ c.partner_profile_image }}" class="conv-avatar">
                                         {% else %}
-                                        <div class="conv-avatar-initial bg-warning text-white">{{ (c.partner.full_name or c.partner.username)[:1]|upper }}</div>
+                                        <div class="conv-avatar-initial bg-warning text-white">{{ c.partner_full_name[:1]|upper }}</div>
                                         {% endif %}
                                         {% if c.status == 'online' %}
                                         <span class="online-dot bg-success"></span>
@@ -80,18 +78,17 @@
                                     </div>
                                     <div class="flex-grow-1 min-w-0">
                                         <div class="d-flex justify-content-between align-items-center">
-                                            <span class="conv-name small">{{ c.partner.full_name or c.partner.username }}</span>
+                                            <span class="conv-name small">{{ c.partner_full_name }}</span>
                                             <div class="d-flex align-items-center gap-2">
                                                 {% if c.unread > 0 %}<span class="badge bg-danger rounded-pill msg-badge-unread">{{ c.unread }}</span>{% endif %}
-                                                {% if c.last_message %}<span class="text-muted" style="font-size:11px">{{ c.last_message.created_at.strftime('%d %b') }}</span>{% endif %}
+                                                {% if c.last_msg_created_at %}<span class="text-muted" style="font-size:11px">{{ c.last_msg_created_at.strftime('%d %b') }}</span>{% endif %}
                                             </div>
                                         </div>
                                         <div class="d-flex justify-content-between align-items-center mt-1">
                                             <span class="text-muted text-truncate d-block" style="font-size:13px;max-width:350px">
-                                                {% if c.last_message %}
-                                                    {% if c.last_message.sender_id == session.user_id %}<span class="text-secondary">You: </span>{% endif %}
-                                                    {{ c.last_message.content[:60] }}{% if c.last_message.content|length > 60 %}...{% endif %}
-                                                    {% if c.last_message.image %}<i class="fas fa-image ms-1 text-warning"></i>{% endif %}
+                                                {% if c.last_msg_content %}
+                                                    {% if c.last_msg_sender_id == session.user_id %}<span class="text-secondary">You: </span>{% endif %}
+                                                    {{ c.last_msg_content }}{% if c.last_msg_image %}<i class="fas fa-image ms-1 text-warning"></i>{% endif %}
                                                 {% else %}
                                                     <span class="fst-italic">No messages yet</span>
                                                 {% endif %}
@@ -102,7 +99,7 @@
                                             <span class="text-muted" style="font-size:10px">{{ c.last_seen_str }}</span>
                                             {% endif %}
                                         </div>
-                                        {% if c.partner.is_blocked %}
+                                        {% if c.partner_is_blocked %}
                                         <span class="text-danger d-block mt-1" style="font-size:11px"><i class="fas fa-ban me-1"></i>Blocked</span>
                                         {% endif %}
                                     </div>
@@ -122,27 +119,22 @@
                             <a href="/messages/view/{{ m.id }}" class="conv-item list-group-item list-group-item-action px-4 py-3">
                                 <div class="d-flex gap-3 align-items-center">
                                     <div class="flex-shrink-0">
-                                        {% set person = m.receiver if current_tab == 'sent' else m.sender %}
-                                        {% if person and person.profile_image %}
-                                        <img src="{{ person.profile_image }}" class="conv-avatar">
-                                        {% elif person %}
-                                        <div class="conv-avatar-initial bg-warning text-white">{{ (person.full_name or person.username)[:1]|upper }}</div>
+                                        {% if m.person_profile_image %}
+                                        <img src="{{ m.person_profile_image }}" class="conv-avatar">
                                         {% else %}
-                                        <div class="conv-avatar-initial bg-secondary text-white">?</div>
+                                        <div class="conv-avatar-initial bg-warning text-white">{{ m.person_full_name[:1]|upper }}</div>
                                         {% endif %}
                                     </div>
                                     <div class="flex-grow-1 min-w-0">
                                         <div class="d-flex justify-content-between">
-                                            <span class="conv-name small">
-                                                {% if person %}{{ person.full_name or person.username }}{% else %}Unknown{% endif %}
-                                            </span>
+                                            <span class="conv-name small">{{ m.person_full_name }}</span>
                                             <span class="text-muted" style="font-size:11px">{{ m.created_at.strftime('%d %b %Y, %I:%M %p') }}</span>
                                         </div>
                                         <div class="text-muted mt-1">
                                             <span class="text-truncate d-block" style="font-size:13px;max-width:450px">
-                                                {% if current_tab == 'sent' and person %}<span class="text-secondary">To: {{ person.username }}</span> — {% endif %}
-                                                {% if current_tab == 'drafts' and m.receiver %}<span class="text-secondary">To: {{ m.receiver.username }}</span> — {% endif %}
-                                                {% if current_tab == 'drafts' and not m.receiver %}<span class="text-secondary">No recipient</span> — {% endif %}
+                                                {% if current_tab == 'sent' %}<span class="text-secondary">To: {{ m.person_username }}</span> — {% endif %}
+                                                {% if current_tab == 'drafts' and m.receiver_id %}<span class="text-secondary">To: {{ m.person_username }}</span> — {% endif %}
+                                                {% if current_tab == 'drafts' and not m.receiver_id %}<span class="text-secondary">No recipient</span> — {% endif %}
                                                 {{ m.content[:100] }}{% if m.content|length > 100 %}...{% endif %}
                                                 {% if m.image %}<i class="fas fa-image ms-1 text-warning"></i>{% endif %}
                                                 {% if current_tab == 'drafts' %}<i class="fas fa-pen ms-1 text-secondary"></i>{% endif %}

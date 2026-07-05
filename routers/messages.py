@@ -65,14 +65,22 @@ def get_conversations(uid):
         ).count()
         status, last_seen_str = user_status(partner)
         convs.append({
-            "partner": partner,
-            "last_message": last_msg,
+            "partner_id": partner.id,
+            "partner_username": partner.username,
+            "partner_full_name": partner.full_name or partner.username,
+            "partner_profile_image": partner.profile_image or "",
+            "partner_is_blocked": partner.is_blocked,
+            "last_msg_id": last_msg.id if last_msg else None,
+            "last_msg_sender_id": last_msg.sender_id if last_msg else None,
+            "last_msg_content": last_msg.content[:80] if last_msg else None,
+            "last_msg_image": last_msg.image if last_msg else None,
+            "last_msg_created_at": last_msg.created_at if last_msg else None,
             "unread": unread,
             "status": status,
             "last_seen_str": last_seen_str,
         })
     db.close()
-    convs.sort(key=lambda c: c["last_message"].created_at if c["last_message"] else datetime.min, reverse=True)
+    convs.sort(key=lambda c: c["last_msg_created_at"] if c["last_msg_created_at"] else datetime.min, reverse=True)
     return convs
 
 
@@ -120,16 +128,58 @@ def conversation(pid):
     ).order_by(Message.created_at.asc()).all()
 
     status, last_seen_str = user_status(partner)
-    blocked = partner.is_blocked
+
+    msg_list = []
+    for m in msgs:
+        msg_list.append({
+            "id": m.id,
+            "sender_id": m.sender_id,
+            "receiver_id": m.receiver_id,
+            "content": m.content,
+            "image": m.image,
+            "status": m.status,
+            "is_read": m.is_read,
+            "created_at": m.created_at,
+        })
+
+    partner_dict = {
+        "id": partner.id,
+        "username": partner.username,
+        "full_name": partner.full_name or partner.username,
+        "profile_image": partner.profile_image or "",
+        "is_blocked": partner.is_blocked,
+        "last_seen": partner.last_seen,
+    }
     db.close()
     return render("conversation.html",
         user=user_dict,
-        partner=partner,
-        messages=msgs,
+        partner=partner_dict,
+        messages=msg_list,
         partner_status=status,
         partner_last_seen=last_seen_str,
-        partner_blocked=blocked,
+        partner_blocked=partner_dict["is_blocked"],
     )
+
+
+def msg_to_dict(m, uid):
+    if m.sender_id == uid:
+        person = m.receiver
+    else:
+        person = m.sender
+    return {
+        "id": m.id,
+        "sender_id": m.sender_id,
+        "receiver_id": m.receiver_id,
+        "content": m.content,
+        "image": m.image,
+        "status": m.status,
+        "is_read": m.is_read,
+        "created_at": m.created_at,
+        "person_id": person.id if person else None,
+        "person_username": person.username if person else "",
+        "person_full_name": person.full_name or person.username if person else "Unknown",
+        "person_profile_image": person.profile_image or "" if person else "",
+    }
 
 
 @bp.route("/sent")
@@ -144,10 +194,11 @@ def sent():
     ).filter(
         Message.sender_id == uid
     ).order_by(Message.created_at.desc()).all()
+    msg_list = [msg_to_dict(m, uid) for m in messages]
     db.close()
     return render("inbox.html",
         user=user_dict,
-        messages=messages,
+        messages=msg_list,
         unread_count=0,
         current_tab="sent",
     )
@@ -165,10 +216,11 @@ def drafts():
     ).filter(
         Message.sender_id == uid, Message.status == "draft"
     ).order_by(Message.created_at.desc()).all()
+    msg_list = [msg_to_dict(m, uid) for m in messages]
     db.close()
     return render("inbox.html",
         user=user_dict,
-        messages=messages,
+        messages=msg_list,
         unread_count=0,
         current_tab="drafts",
     )
@@ -295,8 +347,8 @@ def view(mid):
             db.close()
             abort(403)
 
-    receiver = msg.sender if msg.receiver_id == uid else msg.receiver
-    status, last_seen_str = user_status(receiver)
+    person = msg.sender if msg.receiver_id == uid else msg.receiver
+    status, last_seen_str = user_status(person)
 
     if msg.receiver_id == uid and msg.status in ("sent", "delivered"):
         db.query(Message).filter(Message.id == mid).update({"is_read": True, "status": "read"})
@@ -305,13 +357,32 @@ def view(mid):
     msg = db.query(Message).options(
         joinedload(Message.sender), joinedload(Message.receiver)
     ).filter(Message.id == mid).first()
-    receiver = msg.sender if msg.receiver_id == uid else msg.receiver
-    status, last_seen_str = user_status(receiver)
+    person = msg.sender if msg.receiver_id == uid else msg.receiver
+    status, last_seen_str = user_status(person)
 
+    msg_dict = {
+        "id": msg.id,
+        "sender_id": msg.sender_id,
+        "receiver_id": msg.receiver_id,
+        "content": msg.content,
+        "image": msg.image,
+        "status": msg.status,
+        "is_read": msg.is_read,
+        "created_at": msg.created_at,
+    }
+
+    person_dict = {
+        "id": person.id if person else None,
+        "username": person.username if person else "",
+        "full_name": person.full_name or person.username if person else "Unknown",
+        "profile_image": person.profile_image or "" if person else "",
+    }
     db.close()
     return render("message_view.html",
         user=user_dict,
-        msg=msg,
+        msg=msg_dict,
+        person=person_dict,
+        is_sender=(msg_dict["sender_id"] == uid),
         receiver_status=status,
         receiver_last_seen=last_seen_str,
     )
