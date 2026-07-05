@@ -19,6 +19,7 @@ class User(Base):
     is_active = Column(Boolean, default=True)
     role = Column(String(50), default="affiliate")
     last_seen = Column(DateTime, nullable=True)
+    is_blocked = Column(Boolean, default=False)
     created_at = Column(DateTime, server_default=func.now())
 
 

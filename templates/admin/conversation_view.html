@@ -1,0 +1,50 @@
+{% extends "admin/base.html" %}
+{% block title %}Conversation: {{ a.username }} &times; {{ b.username }} - Admin{% endblock %}
+{% block admin_content %}
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb small">
+        <li class="breadcrumb-item"><a href="/admin">Admin</a></li>
+        <li class="breadcrumb-item"><a href="/admin/conversations">Conversations</a></li>
+        <li class="breadcrumb-item active">{{ a.username }} &times; {{ b.username }}</li>
+    </ol>
+</nav>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h5 class="mb-0 d-flex align-items-center gap-2">
+        <span>{{ a.full_name or a.username }}</span>
+        <i class="fas fa-exchange-alt text-muted" style="font-size:12px"></i>
+        <span>{{ b.full_name or b.username }}</span>
+    </h5>
+    <div>
+        {% if a.is_blocked or b.is_blocked %}
+        <span class="badge bg-danger"><i class="fas fa-ban me-1"></i>Blocked</span>
+        {% endif %}
+        <span class="badge bg-secondary">{{ messages|length }} messages</span>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-3" style="max-height:600px;overflow-y:auto;background:#f8f9fa">
+        {% if messages %}
+            {% for m in messages %}
+            <div class="d-flex mb-2 {% if m.sender_id == a.id %}justify-content-start{% else %}justify-content-end{% endif %}">
+                <div class="rounded-3 px-3 py-2 shadow-sm {% if m.sender_id == a.id %}bg-white{% else %}bg-warning text-dark{% endif %}" style="max-width:70%">
+                    <div style="font-size:13px;white-space:pre-wrap">{{ m.content }}</div>
+                    {% if m.image %}
+                    <div class="mt-1"><img src="{{ m.image }}" class="img-fluid rounded" style="max-height:150px"></div>
+                    {% endif %}
+                    <div class="d-flex justify-content-between align-items-center mt-1">
+                        <span style="font-size:10px;color:#888">{{ m.sender.username }}</span>
+                        <span style="font-size:10px;color:#888">{{ m.created_at.strftime('%d %b %Y, %I:%M %p') }}</span>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+        <div class="text-center py-5 text-muted"><i class="fas fa-comments fa-3x mb-3 opacity-50"></i><p>No messages.</p></div>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}

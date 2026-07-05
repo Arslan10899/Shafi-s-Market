@@ -24,15 +24,6 @@ def save_image(file):
     return f"/static/uploads/{filename}"
 
 
-def update_last_seen():
-    uid = session.get("user_id")
-    if uid:
-        db = get_db()
-        db.query(User).filter(User.id == uid).update({"last_seen": datetime.utcnow()})
-        db.commit()
-        db.close()
-
-
 def user_status(user):
     if not user or not user.last_seen:
         return "offline", None
@@ -50,36 +41,93 @@ def user_status(user):
         return "offline", f"{days}d ago"
 
 
-def status_icon(status):
-    icons = {"draft": '<i class="fas fa-pen text-secondary" title="Draft"></i>',
-             "sent": '<i class="fas fa-check text-muted" title="Sent"></i>',
-             "delivered": '<i class="fas fa-check-double text-info" title="Delivered"></i>',
-             "read": '<i class="fas fa-check-double text-primary" title="Read"></i>'}
-    return icons.get(status, "")
+def get_conversations(uid):
+    db = get_db()
+    partner_ids = set()
+    for r in db.query(Message.sender_id).filter(Message.receiver_id == uid).distinct().all():
+        partner_ids.add(r[0])
+    for r in db.query(Message.receiver_id).filter(Message.sender_id == uid).distinct().all():
+        if r[0]:
+            partner_ids.add(r[0])
+    convs = []
+    for pid in partner_ids:
+        partner = db.query(User).filter(User.id == pid).first()
+        if not partner:
+            continue
+        last_msg = db.query(Message).filter(
+            or_(
+                and_(Message.sender_id == uid, Message.receiver_id == pid),
+                and_(Message.sender_id == pid, Message.receiver_id == uid),
+            )
+        ).order_by(Message.created_at.desc()).first()
+        unread = db.query(Message).filter(
+            Message.sender_id == pid, Message.receiver_id == uid, Message.is_read == False
+        ).count()
+        status, last_seen_str = user_status(partner)
+        convs.append({
+            "partner": partner,
+            "last_message": last_msg,
+            "unread": unread,
+            "status": status,
+            "last_seen_str": last_seen_str,
+        })
+    db.close()
+    convs.sort(key=lambda c: c["last_message"].created_at if c["last_message"] else datetime.min, reverse=True)
+    return convs
 
 
 @bp.route("")
 def inbox():
     if not session.get("user_id"):
         return redirect("/auth/login")
-    update_last_seen()
-    user_dict = get_user_from_session()
     uid = session["user_id"]
-    db = get_db()
-    messages = db.query(Message).options(
-        joinedload(Message.sender), joinedload(Message.receiver)
-    ).filter(
-        Message.receiver_id == uid, Message.status != "draft"
-    ).order_by(Message.created_at.desc()).all()
-    unread_count = db.query(Message).filter(
-        Message.receiver_id == uid, Message.is_read == False, Message.status != "draft"
-    ).count()
-    db.close()
+    user_dict = get_user_from_session()
+    convs = get_conversations(uid)
+    unread_count = sum(c["unread"] for c in convs)
     return render("inbox.html",
         user=user_dict,
-        messages=messages,
+        conversations=convs,
         unread_count=unread_count,
         current_tab="inbox",
+    )
+
+
+@bp.route("/conversation/<int:pid>")
+def conversation(pid):
+    if not session.get("user_id"):
+        return redirect("/auth/login")
+    uid = session["user_id"]
+    user_dict = get_user_from_session()
+    db = get_db()
+    partner = db.query(User).filter(User.id == pid).first()
+    if not partner:
+        db.close()
+        abort(404)
+    msgs = db.query(Message).options(
+        joinedload(Message.sender), joinedload(Message.receiver)
+    ).filter(
+        or_(
+            and_(Message.sender_id == uid, Message.receiver_id == pid),
+            and_(Message.sender_id == pid, Message.receiver_id == uid),
+        )
+    ).order_by(Message.created_at.asc()).all()
+
+    for m in msgs:
+        if m.receiver_id == uid and not m.is_read:
+            m.is_read = True
+            m.status = "read"
+    db.commit()
+
+    status, last_seen_str = user_status(partner)
+    blocked = partner.is_blocked
+    db.close()
+    return render("conversation.html",
+        user=user_dict,
+        partner=partner,
+        messages=msgs,
+        partner_status=status,
+        partner_last_seen=last_seen_str,
+        partner_blocked=blocked,
     )
 
 
@@ -87,7 +135,6 @@ def inbox():
 def sent():
     if not session.get("user_id"):
         return redirect("/auth/login")
-    update_last_seen()
     user_dict = get_user_from_session()
     uid = session["user_id"]
     db = get_db()
@@ -109,7 +156,6 @@ def sent():
 def drafts():
     if not session.get("user_id"):
         return redirect("/auth/login")
-    update_last_seen()
     user_dict = get_user_from_session()
     uid = session["user_id"]
     db = get_db()
@@ -131,7 +177,6 @@ def drafts():
 def compose():
     if not session.get("user_id"):
         return redirect("/auth/login")
-    update_last_seen()
     user_dict = get_user_from_session()
     receiver_id = request.args.get("to", type=int)
     draft_id = request.args.get("draft", type=int)
@@ -186,9 +231,7 @@ def send():
                 if not receiver_id:
                     draft.receiver_id = None
         else:
-            msg = Message(sender_id=uid, receiver_id=receiver_id or 0, content=content, status="draft")
-            if not receiver_id:
-                msg.receiver_id = None
+            msg = Message(sender_id=uid, receiver_id=receiver_id if receiver_id else None, content=content, status="draft")
             db.add(msg)
         db.commit()
         db.close()
@@ -202,6 +245,10 @@ def send():
     if not receiver:
         db.close()
         return redirect("/messages/compose?error=invalid_receiver")
+
+    if receiver.is_blocked:
+        db.close()
+        return redirect("/messages/compose?error=blocked")
 
     image_url = ""
     image_file = request.files.get("image")
@@ -220,14 +267,13 @@ def send():
         db.query(Message).filter(Message.id == draft_id, Message.sender_id == uid, Message.status == "draft").delete()
     db.commit()
     db.close()
-    return redirect("/messages")
+    return redirect(f"/messages/conversation/{receiver_id}")
 
 
 @bp.route("/view/<int:mid>")
 def view(mid):
     if not session.get("user_id"):
         return redirect("/auth/login")
-    update_last_seen()
     user_dict = get_user_from_session()
     uid = session["user_id"]
     db = get_db()
@@ -238,8 +284,10 @@ def view(mid):
         db.close()
         abort(404)
     if msg.receiver_id != uid and msg.sender_id != uid:
-        db.close()
-        abort(403)
+        role = session.get("role")
+        if role != "admin":
+            db.close()
+            abort(403)
     if msg.receiver_id == uid:
         if not msg.is_read:
             msg.is_read = True
@@ -256,7 +304,6 @@ def view(mid):
         msg=msg,
         receiver_status=status,
         receiver_last_seen=last_seen_str,
-        status_icon=status_icon,
     )
 
 
@@ -265,13 +312,34 @@ def delete(mid):
     if not session.get("user_id"):
         return redirect("/auth/login")
     uid = session["user_id"]
+    role = session.get("role")
     db = get_db()
     msg = db.query(Message).filter(Message.id == mid).first()
-    if msg and (msg.sender_id == uid or msg.receiver_id == uid):
+    if msg and (msg.sender_id == uid or msg.receiver_id == uid or role == "admin"):
         db.delete(msg)
         db.commit()
     db.close()
     return redirect(request.referrer or "/messages")
+
+
+@bp.route("/delete/conversation/<int:pid>")
+def delete_conversation(pid):
+    if not session.get("user_id"):
+        return redirect("/auth/login")
+    uid = session["user_id"]
+    db = get_db()
+    from sqlalchemy import or_, and_
+    msgs = db.query(Message).filter(
+        or_(
+            and_(Message.sender_id == uid, Message.receiver_id == pid),
+            and_(Message.sender_id == pid, Message.receiver_id == uid),
+        )
+    ).all()
+    for m in msgs:
+        db.delete(m)
+    db.commit()
+    db.close()
+    return redirect("/messages")
 
 
 @bp.route("/mark-delivered/<int:mid>")
@@ -309,7 +377,7 @@ def api_users():
         return jsonify([])
     q = request.args.get("q", "").strip()
     db = get_db()
-    query = db.query(User).filter(User.id != session["user_id"])
+    query = db.query(User).filter(User.id != session["user_id"], User.is_blocked == False)
     if q:
         query = query.filter(
             or_(User.username.ilike(f"%{q}%"), User.full_name.ilike(f"%{q}%"))

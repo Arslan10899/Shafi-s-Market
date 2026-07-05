@@ -636,6 +636,104 @@ def admin_edit_user(uid):
     return redirect("/admin/users")
 
 
+@bp.route("/users/block/<int:uid>")
+def admin_block_user(uid):
+    user = require_admin()
+    if not user:
+        return redirect("/auth/login")
+    db = get_db()
+    target = db.query(User).filter(User.id == uid).first()
+    if target:
+        target.is_blocked = True
+        db.commit()
+    db.close()
+    return redirect(request.referrer or "/admin/users")
+
+
+@bp.route("/users/unblock/<int:uid>")
+def admin_unblock_user(uid):
+    user = require_admin()
+    if not user:
+        return redirect("/auth/login")
+    db = get_db()
+    target = db.query(User).filter(User.id == uid).first()
+    if target:
+        target.is_blocked = False
+        db.commit()
+    db.close()
+    return redirect(request.referrer or "/admin/users")
+
+
+@bp.route("/conversations")
+def admin_conversations():
+    user = require_admin()
+    if not user:
+        return redirect("/auth/login")
+    db = get_db()
+    from sqlalchemy import or_, and_, func as sa_func
+
+    pairs = db.query(Message.sender_id, Message.receiver_id).distinct().all()
+    seen = set()
+    conversations = []
+    for s, r in pairs:
+        if not r:
+            continue
+        key = (min(s, r), max(s, r))
+        if key in seen:
+            continue
+        seen.add(key)
+        u1 = db.query(User).filter(User.id == key[0]).first()
+        u2 = db.query(User).filter(User.id == key[1]).first()
+        if not u1 or not u2:
+            continue
+        count = db.query(Message).filter(
+            or_(
+                and_(Message.sender_id == key[0], Message.receiver_id == key[1]),
+                and_(Message.sender_id == key[1], Message.receiver_id == key[0]),
+            )
+        ).count()
+        last_msg = db.query(Message).filter(
+            or_(
+                and_(Message.sender_id == key[0], Message.receiver_id == key[1]),
+                and_(Message.sender_id == key[1], Message.receiver_id == key[0]),
+            )
+        ).order_by(Message.created_at.desc()).first()
+        conversations.append({
+            "user1": u1,
+            "user2": u2,
+            "count": count,
+            "last_message": last_msg,
+            "url": f"/admin/conversations/{key[0]}/{key[1]}",
+        })
+    conversations.sort(key=lambda c: c["last_message"].created_at if c["last_message"] else datetime.min, reverse=True)
+    db.close()
+    return render("admin/conversations.html", user=user, conversations=conversations)
+
+
+@bp.route("/conversations/<int:u1>/<int:u2>")
+def admin_conversation_view(u1, u2):
+    user = require_admin()
+    if not user:
+        return redirect("/auth/login")
+    db = get_db()
+    from sqlalchemy import or_, and_
+    a = db.query(User).filter(User.id == u1).first()
+    b = db.query(User).filter(User.id == u2).first()
+    if not a or not b:
+        db.close()
+        abort(404)
+    msgs = db.query(Message).options(
+        joinedload(Message.sender), joinedload(Message.receiver)
+    ).filter(
+        or_(
+            and_(Message.sender_id == u1, Message.receiver_id == u2),
+            and_(Message.sender_id == u2, Message.receiver_id == u1),
+        )
+    ).order_by(Message.created_at.asc()).all()
+    db.close()
+    return render("admin/conversation_view.html", user=user, a=a, b=b, messages=msgs)
+
+
 @bp.route("/users/delete/<int:uid>")
 def admin_delete_user(uid):
     user = require_admin()

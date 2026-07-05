@@ -73,11 +73,19 @@
                         <td class="small text-muted" style="max-width:150px">
                             {% if u.bio %}<span class="text-truncate d-inline-block" style="max-width:150px">{{ u.bio[:60] }}{% if u.bio|length > 60 %}...{% endif %}</span>{% else %}-{% endif %}
                         </td>
-                        <td>{% if u.is_active %}<span class="badge bg-success">Active</span>{% else %}<span class="badge bg-danger">Inactive</span>{% endif %}</td>
+                        <td>
+                            {% if u.is_blocked %}<span class="badge bg-danger">Blocked</span>{% endif %}
+                            {% if u.is_active %}<span class="badge bg-success">Active</span>{% else %}<span class="badge bg-danger">Inactive</span>{% endif %}
+                        </td>
                         <td class="small text-muted">{{ u.created_at.strftime('%d-%m-%Y') if u.created_at else '-' }}</td>
                         <td>
                             <div class="d-flex gap-1">
                                 <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editUserModal{{ u.id }}" title="Edit"><i class="fas fa-edit"></i></button>
+                                {% if u.is_blocked %}
+                                <a href="/admin/users/unblock/{{ u.id }}" class="btn btn-sm btn-outline-success" title="Unblock"><i class="fas fa-check-circle"></i></a>
+                                {% else %}
+                                <a href="/admin/users/block/{{ u.id }}" class="btn btn-sm btn-outline-danger" title="Block"><i class="fas fa-ban"></i></a>
+                                {% endif %}
                                 {% if u.role != 'admin' %}
                                 <a href="/admin/users/delete/{{ u.id }}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete user {{ u.username }}?')" title="Delete"><i class="fas fa-trash"></i></a>
                                 {% endif %}

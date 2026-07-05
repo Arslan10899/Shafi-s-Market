@@ -12,3 +12,4 @@ env/
 static/uploads/*
 !static/uploads/.gitkeep
 backups/
+cookies.txt

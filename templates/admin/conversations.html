@@ -1,0 +1,51 @@
+{% extends "admin/base.html" %}
+{% block title %}Conversations - Admin{% endblock %}
+{% block admin_content %}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h5 class="mb-0"><i class="fas fa-comments me-2"></i>All Conversations</h5>
+    <span class="badge bg-secondary">{{ conversations|length }} conversation{{ '' if conversations|length == 1 else 's' }}</span>
+</div>
+
+{% if conversations %}
+<div class="list-group">
+    {% for c in conversations %}
+    <a href="{{ c.url }}" class="list-group-item list-group-item-action d-flex gap-3 py-3">
+        <div class="flex-shrink-0">
+            {% if c.user1.profile_image %}
+            <img src="{{ c.user1.profile_image }}" class="rounded-circle" width="36" height="36" style="object-fit:cover">
+            {% else %}
+            <div class="rounded-circle bg-warning d-flex align-items-center justify-content-center text-white fw-bold" style="width:36px;height:36px;font-size:14px">{{ (c.user1.full_name or c.user1.username)[:1]|upper }}</div>
+            {% endif %}
+        </div>
+        <div class="flex-grow-1 min-w-0">
+            <div class="d-flex justify-content-between">
+                <small class="fw-semibold">
+                    {{ c.user1.full_name or c.user1.username }}
+                    <i class="fas fa-exchange-alt text-muted mx-1" style="font-size:10px"></i>
+                    {{ c.user2.full_name or c.user2.username }}
+                </small>
+                <small class="text-muted">{{ c.last_message.created_at.strftime('%d %b %Y, %I:%M %p') if c.last_message else '' }}</small>
+            </div>
+            <div class="d-flex justify-content-between align-items-center mt-1">
+                <div class="text-muted small text-truncate">
+                    <span class="text-secondary">{{ c.user1.username }}</span>
+                    {% if c.last_message %}{{ c.last_message.content[:80] }}{% if c.last_message.content|length > 80 %}...{% endif %}{% endif %}
+                </div>
+                <span class="badge bg-light text-dark ms-2">{{ c.count }} message{{ '' if c.count == 1 else 's' }}</span>
+            </div>
+            {% if c.user1.is_blocked or c.user2.is_blocked %}
+            <div class="text-danger mt-1" style="font-size:11px"><i class="fas fa-ban me-1"></i>Blocked</div>
+            {% endif %}
+        </div>
+    </a>
+    {% endfor %}
+</div>
+{% else %}
+<div class="text-center py-5 text-muted">
+    <i class="fas fa-comments fa-3x mb-3 opacity-50"></i>
+    <p>No conversations found.</p>
+</div>
+{% endif %}
+
+{% endblock %}

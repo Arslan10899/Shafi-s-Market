@@ -54,3 +54,8 @@ def init_db():
         with engine.connect() as conn:
             conn.execute(text("ALTER TABLE messages ADD COLUMN status VARCHAR(20) DEFAULT 'sent'"))
             conn.commit()
+    ucols2 = [c['name'] for c in inspector.get_columns('users')]
+    if 'is_blocked' not in ucols2:
+        with engine.connect() as conn:
+            conn.execute(text("ALTER TABLE users ADD COLUMN is_blocked BOOLEAN DEFAULT 0"))
+            conn.commit()

@@ -23,6 +23,8 @@
                         <div class="alert alert-danger py-2 small">Please enter a message.</div>
                         {% elif request.args.get('error') == 'invalid_receiver' %}
                         <div class="alert alert-danger py-2 small">Invalid recipient.</div>
+                        {% elif request.args.get('error') == 'blocked' %}
+                        <div class="alert alert-danger py-2 small">This user has been blocked by admin.</div>
                         {% endif %}
 
                         <form method="POST" action="/messages/send" enctype="multipart/form-data">
