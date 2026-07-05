@@ -20,7 +20,7 @@ def seed():
 
         admin = User(
             username="admin",
-            email="admin@shafishop.com",
+            email="admin@azmart.com",
             password_hash=_bcrypt.hashpw("admin123".encode(), _bcrypt.gensalt()).decode(),
             full_name="Admin",
             role="admin",

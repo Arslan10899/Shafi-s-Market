@@ -416,7 +416,7 @@ def seed_products():
             currency = random.choice(CURRENCIES)
             image = f'https://picsum.photos/seed/{slug}{i}/400/400'
             affiliate_url = {
-                'amazon': f'https://amazon.com/dp/B{random.randint(1000000000,9999999999)}?tag=shafi-20',
+                'amazon': f'https://amazon.com/dp/B{random.randint(1000000000,9999999999)}?tag=azmart-20',
                 'daraz': f'https://daraz.pk/products/{slugified}/p/{random.randint(100000000,999999999)}',
                 'alibaba': f'https://alibaba.com/product-detail/{slugified}_{random.randint(100000000,999999999)}.html',
                 'aliexpress': f'https://aliexpress.com/item/{random.randint(1000000000,9999999999)}.html',

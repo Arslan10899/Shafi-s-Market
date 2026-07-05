@@ -820,7 +820,7 @@ def admin_backup_export():
         return FlaskResponse(
             data,
             mimetype="application/zip",
-            headers={"Content-Disposition": f"attachment; filename=shafi_backup_{datetime.now().strftime('%Y%m%d_%H%M%S')}.zip"},
+            headers={"Content-Disposition": f"attachment; filename=azmart_backup_{datetime.now().strftime('%Y%m%d_%H%M%S')}.zip"},
         )
     except Exception as e:
         return redirect(f"/admin/backup?error={str(e)[:50]}")
