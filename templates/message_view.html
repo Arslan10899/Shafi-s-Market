@@ -14,21 +14,63 @@
 
         <div class="row justify-content-center">
             <div class="col-lg-6">
+                {% if msg.status == 'draft' %}
+                <div class="alert alert-secondary py-2 small d-flex justify-content-between align-items-center">
+                    <span><i class="fas fa-pen me-1"></i> This is a draft</span>
+                    <a href="/messages/compose?draft={{ msg.id }}" class="btn btn-sm btn-outline-warning rounded-pill">Edit Draft</a>
+                </div>
+                {% endif %}
+
                 <div class="card border-0 shadow-sm">
                     <div class="card-header bg-white d-flex justify-content-between align-items-center">
                         <div class="d-flex align-items-center gap-2">
-                            {% set person = msg.sender if msg.sender_id != session.user_id else msg.receiver %}
-                            {% if person.profile_image %}
-                            <img src="{{ person.profile_image }}" class="rounded-circle" width="36" height="36" style="object-fit:cover">
+                            {% if msg.sender_id == session.user_id %}
+                                {% set person = msg.receiver %}
+                                {% set is_me = true %}
                             {% else %}
-                            <div class="rounded-circle bg-warning d-flex align-items-center justify-content-center text-white fw-bold" style="width:36px;height:36px;font-size:14px">{{ (person.full_name or person.username)[:1]|upper }}</div>
+                                {% set person = msg.sender %}
+                                {% set is_me = false %}
                             {% endif %}
-                            <div>
-                                <div class="fw-semibold small">{{ person.full_name or person.username }}</div>
-                                <div class="text-muted" style="font-size:11px">@{{ person.username }}</div>
+                            <div class="position-relative">
+                                {% if person %}
+                                    {% if person.profile_image %}
+                                    <img src="{{ person.profile_image }}" class="rounded-circle" width="36" height="36" style="object-fit:cover">
+                                    {% else %}
+                                    <div class="rounded-circle bg-warning d-flex align-items-center justify-content-center text-white fw-bold" style="width:36px;height:36px;font-size:14px">{{ (person.full_name or person.username)[:1]|upper }}</div>
+                                    {% endif %}
+                                {% else %}
+                                    <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center text-white fw-bold" style="width:36px;height:36px;font-size:14px">?</div>
+                                {% endif %}
                             </div>
+                            {% if person %}
+                            <div>
+                                <div class="fw-semibold small d-flex align-items-center gap-2">
+                                    {{ person.full_name or person.username }}
+                                    {% if receiver_status == 'online' %}
+                                    <span class="badge bg-success" style="font-size:9px">Online</span>
+                                    {% else %}
+                                    <span class="badge bg-secondary" style="font-size:9px">Offline</span>
+                                    {% endif %}
+                                </div>
+                                <div class="text-muted" style="font-size:11px">
+                                    @{{ person.username }}
+                                    {% if receiver_last_seen %}
+                                    &middot; Last seen {{ receiver_last_seen }}
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endif %}
                         </div>
-                        <small class="text-muted">{{ msg.created_at.strftime('%d %b %Y, %I:%M %p') }}</small>
+                        <div class="text-end">
+                            <small class="text-muted d-block">{{ msg.created_at.strftime('%d %b %Y, %I:%M %p') }}</small>
+                            {% if msg.status and msg.status != 'draft' %}
+                            <small class="text-muted">
+                                {% if msg.status == 'sent' %}<i class="fas fa-check text-muted" title="Sent"></i> Sent
+                                {% elif msg.status == 'delivered' %}<i class="fas fa-check-double text-info" title="Delivered"></i> Delivered
+                                {% elif msg.status == 'read' %}<i class="fas fa-check-double text-primary" title="Read"></i> Read{% endif %}
+                            </small>
+                            {% endif %}
+                        </div>
                     </div>
                     <div class="card-body">
                         <p class="mb-3" style="white-space:pre-wrap">{{ msg.content }}</p>
@@ -41,7 +83,9 @@
                     <div class="card-footer bg-white d-flex justify-content-between">
                         <div>
                             <a href="/messages" class="btn btn-outline-secondary btn-sm rounded-pill"><i class="fas fa-arrow-left me-1"></i> Back</a>
+                            {% if msg.status != 'draft' and person %}
                             <a href="/messages/compose?to={{ person.id }}" class="btn btn-warning btn-sm rounded-pill"><i class="fas fa-reply me-1"></i> Reply</a>
+                            {% endif %}
                         </div>
                         <a href="/messages/delete/{{ msg.id }}" class="btn btn-outline-danger btn-sm rounded-pill" onclick="return confirm('Delete this message?')"><i class="fas fa-trash"></i></a>
                     </div>

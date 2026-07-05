@@ -18,6 +18,7 @@ class User(Base):
     storage_used_mb = Column(Float, default=0)
     is_active = Column(Boolean, default=True)
     role = Column(String(50), default="affiliate")
+    last_seen = Column(DateTime, nullable=True)
     created_at = Column(DateTime, server_default=func.now())
 
 
@@ -153,10 +154,11 @@ class Message(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     sender_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
-    receiver_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    receiver_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=True)
     content = Column(Text, default="")
     image = Column(String(300), default="")
     is_read = Column(Boolean, default=False)
+    status = Column(String(20), default="sent")
     created_at = Column(DateTime, server_default=func.now())
 
     sender = relationship("User", foreign_keys=[sender_id], backref="sent_messages")

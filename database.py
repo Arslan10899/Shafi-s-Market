@@ -12,11 +12,7 @@ class Base(DeclarativeBase):
 
 
 def get_db():
-    db = SessionLocal()
-    try:
-        return db
-    finally:
-        db.close()
+    return SessionLocal()
 
 
 def init_db():
@@ -47,4 +43,14 @@ def init_db():
     if 'user_id' not in cols3:
         with engine.connect() as conn:
             conn.execute(text("ALTER TABLE products ADD COLUMN user_id INTEGER REFERENCES users(id)"))
+            conn.commit()
+    ucols = [c['name'] for c in inspector.get_columns('users')]
+    if 'last_seen' not in ucols:
+        with engine.connect() as conn:
+            conn.execute(text("ALTER TABLE users ADD COLUMN last_seen TIMESTAMP"))
+            conn.commit()
+    mcols = [c['name'] for c in inspector.get_columns('messages')]
+    if 'status' not in mcols:
+        with engine.connect() as conn:
+            conn.execute(text("ALTER TABLE messages ADD COLUMN status VARCHAR(20) DEFAULT 'sent'"))
             conn.commit()

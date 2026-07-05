@@ -1,8 +1,11 @@
 import os
-from flask import Flask
+from datetime import datetime
+from flask import Flask, session
+from sqlalchemy.orm import joinedload
 
 from config import SECRET_KEY, CURRENCIES
-from database import init_db
+from database import init_db, get_db
+from models import Message
 from templates import social_links_context
 
 app = Flask(__name__)
@@ -32,6 +35,17 @@ app.jinja_env.globals["price_parts"] = price_parts
 
 app.context_processor(social_links_context)
 app.context_processor(inject_globals)
+
+@app.before_request
+def track_activity():
+    uid = session.get("user_id")
+    if uid:
+        from database import SessionLocal
+        from models import User
+        db = SessionLocal()
+        db.query(User).filter(User.id == uid).update({"last_seen": datetime.utcnow()})
+        db.commit()
+        db.close()
 
 init_db()
 
