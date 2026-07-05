@@ -100,9 +100,7 @@
                         {% for img in product.images %}
                         <div class="position-relative" style="width:100px">
                             <img src="{{ img.image_url }}" class="rounded border" style="width:100px;height:100px;object-fit:cover">
-                            <form method="POST" action="/admin/products/images/delete/{{ img.id }}" style="position:absolute;top:-6px;right:-6px">
-                                <button type="submit" class="btn btn-danger btn-sm rounded-circle p-0" style="width:22px;height:22px;font-size:11px" onclick="return confirm('Delete this image?')">&times;</button>
-                            </form>
+                               <a href="/admin/products/images/delete/{{ img.id }}" onclick="return confirm('Delete this image?')" class="btn btn-danger btn-sm rounded-circle p-0 position-absolute" style="top:-6px;right:-6px;width:22px;height:22px;font-size:11px;line-height:1;text-decoration:none;display:flex;align-items:center;justify-content:center">&times;</a>
                         </div>
                         {% endfor %}
                     </div>

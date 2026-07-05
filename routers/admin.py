@@ -240,7 +240,7 @@ def admin_delete_product(pid):
     return redirect("/admin/products")
 
 
-@bp.route("/products/images/delete/<int:img_id>", methods=["POST"])
+@bp.route("/products/images/delete/<int:img_id>")
 def admin_delete_product_image(img_id):
     user = require_admin()
     if not user:
