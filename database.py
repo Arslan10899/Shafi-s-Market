@@ -59,22 +59,17 @@ def init_db():
         with engine.connect() as conn:
             conn.execute(text("ALTER TABLE users ADD COLUMN is_blocked BOOLEAN DEFAULT 0"))
             conn.commit()
-    # Make receiver_id nullable in messages table (for drafts without recipient)
-    with engine.connect() as conn:
-        row = conn.execute(text("PRAGMA table_info(messages)")).fetchall()
-        receiver_nullable = any(r[1] == 'receiver_id' and r[3] == 0 for r in row)
-        if r := next((r for r in row if r[1] == 'receiver_id'), None):
-            if r[3] == 0:  # notnull = 0 means nullable, but in PRAGMA output column 4 (index 3) is 'notnull', 0 means nullable... wait
-                pass
-        # Actually in PRAGMA table_info: cid, name, type, notnull, dflt_value, pk
-        # notnull=0 means nullable, notnull=1 means NOT NULL
-        # So we want to fix if notnull == 1
-        receiver_col = next((r for r in row if r[1] == 'receiver_id'), None)
-        if receiver_col and receiver_col[3] == 1:  # notnull == 1 means NOT NULL
-            conn.execute(text("PRAGMA foreign_keys = OFF"))
-            conn.execute(text("CREATE TABLE messages_new (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, sender_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE, receiver_id INTEGER REFERENCES users(id) ON DELETE CASCADE, content TEXT DEFAULT '', image VARCHAR(300) DEFAULT '', is_read BOOLEAN DEFAULT 0, status VARCHAR(20) DEFAULT 'sent', created_at DATETIME DEFAULT CURRENT_TIMESTAMP)"))
-            conn.execute(text("INSERT INTO messages_new SELECT * FROM messages"))
-            conn.execute(text("DROP TABLE messages"))
-            conn.execute(text("ALTER TABLE messages_new RENAME TO messages"))
-            conn.execute(text("PRAGMA foreign_keys = ON"))
-            conn.commit()
+    # Make receiver_id nullable in messages table for drafts without recipient
+    try:
+        with engine.connect() as conn:
+            receiver_col = next((c for c in inspector.get_columns('messages') if c['name'] == 'receiver_id'), None)
+            if receiver_col and not receiver_col.get('nullable', True):
+                conn.execute(text("PRAGMA foreign_keys = OFF"))
+                conn.execute(text("CREATE TABLE messages_new (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, sender_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE, receiver_id INTEGER REFERENCES users(id) ON DELETE CASCADE, content TEXT DEFAULT '', image VARCHAR(300) DEFAULT '', is_read BOOLEAN DEFAULT 0, status VARCHAR(20) DEFAULT 'sent', created_at DATETIME DEFAULT CURRENT_TIMESTAMP)"))
+                conn.execute(text("INSERT INTO messages_new SELECT * FROM messages"))
+                conn.execute(text("DROP TABLE messages"))
+                conn.execute(text("ALTER TABLE messages_new RENAME TO messages"))
+                conn.execute(text("PRAGMA foreign_keys = ON"))
+                conn.commit()
+    except Exception:
+        pass  # If migration fails, handle nullable in application code

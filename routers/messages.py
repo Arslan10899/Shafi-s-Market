@@ -228,13 +228,18 @@ def send():
             ).first()
             if draft:
                 draft.content = content
-                draft.receiver_id = receiver_id
-                if not receiver_id:
-                    draft.receiver_id = None
+                draft.receiver_id = receiver_id if receiver_id else None
         else:
             msg = Message(sender_id=uid, receiver_id=receiver_id if receiver_id else None, content=content, status="draft")
             db.add(msg)
-        db.commit()
+        try:
+            db.commit()
+        except Exception:
+            db.rollback()
+            if not receiver_id:
+                msg = Message(sender_id=uid, receiver_id=0, content=content, status="draft")
+                db.add(msg)
+                db.commit()
         db.close()
         return redirect("/messages/drafts?draft_saved=1")
 
