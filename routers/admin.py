@@ -10,7 +10,7 @@ import time as time_module
 from datetime import datetime, timedelta
 
 from database import get_db
-from models import Product, ProductImage, Category, User, HeroSlide, AffiliateClick, SocialLink, Platform, UserLink, BlogPost
+from models import Product, ProductImage, Category, User, HeroSlide, AffiliateClick, SocialLink, Platform, UserLink, BlogPost, Message
 from config import UPLOAD_DIR, DB_PATH, ALLOWED_EXTENSIONS
 from sqlalchemy import create_engine
 import bcrypt as _bcrypt
@@ -511,9 +511,28 @@ def admin_users():
     if not user:
         return redirect("/auth/login")
     db = get_db()
-    users = db.query(User).options(joinedload(User.links)).order_by(User.created_at.desc()).all()
+    from sqlalchemy import or_
+    q = request.args.get("q", "").strip()
+    query = db.query(User)
+    if q:
+        query = query.filter(
+            or_(
+                User.username.ilike(f"%{q}%"),
+                User.full_name.ilike(f"%{q}%"),
+                User.email.ilike(f"%{q}%"),
+                User.phone.ilike(f"%{q}%"),
+            )
+        )
+    users = query.options(
+        joinedload(User.links), joinedload(User.products)
+    ).order_by(User.created_at.desc()).all()
+    total = len(users)
+    msg_counts = {
+        r[0]: r[1]
+        for r in db.query(Message.receiver_id, func.count(Message.id)).group_by(Message.receiver_id).all()
+    }
     db.close()
-    return render("admin/users.html", user=user, users=users)
+    return render("admin/users.html", user=user, users=users, total=total, search=q, msg_counts=msg_counts)
 
 
 @bp.route("/users/add", methods=["POST"])
