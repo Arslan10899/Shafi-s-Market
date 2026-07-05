@@ -38,6 +38,7 @@ class Product(Base):
     __tablename__ = "products"
 
     id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
     title = Column(String(200), nullable=False)
     slug = Column(String(250), unique=True, nullable=False, index=True)
     short_description = Column(String(300), default="")
@@ -58,6 +59,7 @@ class Product(Base):
 
     category = relationship("Category", back_populates="products")
     images = relationship("ProductImage", back_populates="product", cascade="all, delete-orphan", order_by="ProductImage.sort_order")
+    owner = relationship("User", backref="products")
 
 
 class ProductImage(Base):

@@ -141,6 +141,7 @@ def admin_add_product():
         affiliate_url=request.form.get("affiliate_url", ""),
         is_featured=request.form.get("is_featured") == "on",
         is_new=request.form.get("is_new") == "on",
+        user_id=user["id"],
     )
     db.add(product)
     db.flush()

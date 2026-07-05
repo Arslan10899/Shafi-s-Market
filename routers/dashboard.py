@@ -1,16 +1,25 @@
 import os, random, time as time_module
+import random as _random
+import string as _string
+from slugify import slugify
 from flask import Blueprint, request, redirect, abort, session
 from sqlalchemy.orm import joinedload
 from sqlalchemy import func
 
 from database import get_db
-from models import User, UserLink, Platform, Product, Category
+from models import User, UserLink, Platform, Product, Category, ProductImage
 from templates import render, get_user_from_session
 from config import UPLOAD_DIR, ALLOWED_EXTENSIONS
 
 
 def allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+def gen_slug(text):
+    base = slugify(text)[:200]
+    suffix = "".join(_random.choices(_string.ascii_lowercase + _string.digits, k=6))
+    return f"{base}-{suffix}"
 
 
 def save_link_image(file):
@@ -36,7 +45,7 @@ def user_dashboard():
     links = db.query(UserLink).options(joinedload(UserLink.platform), joinedload(UserLink.category)).filter(UserLink.user_id == current_user_id).order_by(UserLink.created_at.desc()).all()
     platforms = db.query(Platform).order_by(Platform.name).all()
     categories = db.query(Category).order_by(Category.name).all()
-    products = db.query(Product).options(joinedload(Product.category)).order_by(Product.created_at.desc()).all()
+    my_products = db.query(Product).options(joinedload(Product.category)).filter(Product.user_id == current_user_id).order_by(Product.created_at.desc()).all()
     total_products = db.query(func.count(Product.id)).scalar() or 0
     total_categories = db.query(func.count(Category.id)).scalar() or 0
     total_platforms = db.query(func.count(Platform.id)).scalar() or 0
@@ -50,7 +59,7 @@ def user_dashboard():
         links=links,
         platforms=platforms,
         categories=categories,
-        products=products,
+        my_products=my_products,
         total_links=total_user_links,
         total_clicks=total_user_clicks,
         total_products=total_products,
@@ -113,6 +122,101 @@ def edit_link(lid):
     db.commit()
     db.close()
     return redirect("/dashboard?tab=links")
+
+
+@bp.route("/products/add", methods=["POST"])
+def user_add_product():
+    if not session.get("user_id"):
+        return redirect("/auth/login")
+    db = get_db()
+    title = request.form.get("title", "").strip()
+    if not title:
+        db.close()
+        return redirect("/dashboard?tab=products&error=title_required")
+    slug = gen_slug(title)
+    image_field = request.form.get("image", "")
+    product = Product(
+        title=title, slug=slug,
+        short_description=request.form.get("short_description", ""),
+        description=request.form.get("description", ""),
+        image=image_field,
+        price=float(request.form.get("price", 0) or 0) or None,
+        old_price=float(request.form.get("old_price", 0) or 0) or None,
+        currency=request.form.get("currency", "USD"),
+        is_active=True,
+        rating=float(request.form.get("rating", 0)),
+        category_id=int(request.form.get("category_id") or 0) or None,
+        affiliate_platform=request.form.get("affiliate_platform", "amazon"),
+        affiliate_url=request.form.get("affiliate_url", ""),
+        user_id=session["user_id"],
+    )
+    image_file = request.files.get("image_file")
+    if image_file and image_file.filename and allowed_file(image_file.filename):
+        product.image = save_link_image(image_file)
+    db.add(product)
+    db.flush()
+    images = request.files.getlist("images")
+    for idx, f in enumerate(images):
+        if f.filename and allowed_file(f.filename):
+            url = save_link_image(f)
+            pi = ProductImage(product_id=product.id, image_url=url, sort_order=idx)
+            db.add(pi)
+            if not product.image:
+                product.image = url
+    db.commit()
+    db.close()
+    return redirect("/dashboard?tab=products")
+
+
+@bp.route("/products/edit/<int:pid>", methods=["POST"])
+def user_edit_product(pid):
+    if not session.get("user_id"):
+        return redirect("/auth/login")
+    db = get_db()
+    product = db.query(Product).filter(Product.id == pid).first()
+    if not product or product.user_id != session["user_id"]:
+        db.close()
+        abort(403)
+    product.title = request.form.get("title", "").strip() or product.title
+    product.short_description = request.form.get("short_description", "")
+    product.description = request.form.get("description", "")
+    product.price = float(request.form.get("price", 0) or 0) or None
+    product.old_price = float(request.form.get("old_price", 0) or 0) or None
+    product.currency = request.form.get("currency", "USD")
+    product.rating = float(request.form.get("rating", 0))
+    product.category_id = int(request.form.get("category_id") or 0) or None
+    product.affiliate_platform = request.form.get("affiliate_platform", "amazon")
+    product.affiliate_url = request.form.get("affiliate_url", "")
+    image_field = request.form.get("image", "")
+    if image_field:
+        product.image = image_field
+    image_file = request.files.get("image_file")
+    if image_file and image_file.filename and allowed_file(image_file.filename):
+        product.image = save_link_image(image_file)
+    images = request.files.getlist("images")
+    for idx, f in enumerate(images):
+        if f.filename and allowed_file(f.filename):
+            url = save_link_image(f)
+            pi = ProductImage(product_id=product.id, image_url=url, sort_order=idx)
+            db.add(pi)
+            if not product.image:
+                product.image = url
+    db.commit()
+    db.close()
+    return redirect("/dashboard?tab=products")
+
+
+@bp.route("/products/delete/<int:pid>")
+def user_delete_product(pid):
+    if not session.get("user_id"):
+        return redirect("/auth/login")
+    db = get_db()
+    product = db.query(Product).filter(Product.id == pid).first()
+    if product and product.user_id == session["user_id"]:
+        db.delete(product)
+        db.commit()
+    db.close()
+    return redirect("/dashboard?tab=products")
 
 
 @bp.route("/links/delete/<int:lid>")

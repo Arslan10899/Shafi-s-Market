@@ -43,3 +43,8 @@ def init_db():
         with engine.connect() as conn:
             conn.execute(text("ALTER TABLE user_links ADD COLUMN image VARCHAR(300) DEFAULT ''"))
             conn.commit()
+    cols3 = [c['name'] for c in inspector.get_columns('products')]
+    if 'user_id' not in cols3:
+        with engine.connect() as conn:
+            conn.execute(text("ALTER TABLE products ADD COLUMN user_id INTEGER REFERENCES users(id)"))
+            conn.commit()

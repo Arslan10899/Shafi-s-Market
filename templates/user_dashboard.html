@@ -24,7 +24,7 @@
                         </li>
                         <li class="nav-item">
                             <a href="/dashboard?tab=products" class="nav-link small py-2 {% if current_tab == 'products' %}active bg-warning text-dark{% else %}text-dark{% endif %}">
-                                <i class="fas fa-box me-2"></i>Products
+                                <i class="fas fa-box me-2"></i>My Products
                             </a>
                         </li>
                         <li class="nav-item">
@@ -161,10 +161,18 @@
             </div>
 
             {% elif current_tab == 'products' %}
-            <!-- ═══ PRODUCTS ═══ -->
+            <!-- ═══ MY PRODUCTS ═══ -->
             <div class="d-flex justify-content-between align-items-center mb-3">
-                <h5 class="fw-bold mb-0"><i class="fas fa-box me-2 text-warning"></i>Products</h5>
+                <h5 class="fw-bold mb-0"><i class="fas fa-box me-2 text-warning"></i>My Products</h5>
+                <button class="btn btn-warning btn-sm rounded-pill" data-bs-toggle="modal" data-bs-target="#addProductModal">
+                    <i class="fas fa-plus me-1"></i> Add Product
+                </button>
             </div>
+
+            {% if request.args.get('error') == 'title_required' %}
+            <div class="alert alert-danger alert-dismissible fade show">Title is required.<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+            {% endif %}
+
             <div class="card border-0 shadow-sm">
                 <div class="card-body p-0">
                     <div class="table-responsive">
@@ -175,32 +183,31 @@
                                     <th>Title</th>
                                     <th>Category</th>
                                     <th>Price</th>
-                                    <th>Rating</th>
                                     <th>Platform</th>
-                                    <th>Link</th>
+                                    <th>Clicks</th>
+                                    <th style="width:100px">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for p in products %}
+                                {% for p in my_products %}
                                 <tr>
                                     <td>
                                         <img src="{{ p.image or 'https://placehold.co/48x48/f5f5f5/333?text=P' }}" class="rounded" width="48" height="48" style="object-fit:cover">
                                     </td>
-                                    <td class="small">{{ p.title[:60] }}{% if p.title|length > 60 %}...{% endif %}</td>
+                                    <td class="small fw-semibold">{{ p.title[:50] }}{% if p.title|length > 50 %}...{% endif %}</td>
                                     <td><span class="badge bg-light text-dark">{{ p.category.name if p.category else '—' }}</span></td>
-                                    <td>{% if p.price %}{% set pp = price_parts(p.price) %}<span class="price-amazon"><span class="price-currency">{{ p.currency or 'USD' }}</span><span class="price-whole">{{ pp.int }}</span><span class="price-decimal">.{{ pp.dec }}</span></span>{% else %}-{% endif %}</td>
-                                    <td>
-                                        {% if p.rating %}
-                                        <span class="text-warning small">★</span> {{ p.rating }}
-                                        {% else %}-{% endif %}
-                                    </td>
+                                    <td>{% if p.price %}<span class="fw-bold">{{ p.currency or '' }} {{ p.price }}</span>{% else %}-{% endif %}</td>
                                     <td><span class="badge bg-info text-dark">{{ p.affiliate_platform|title }}</span></td>
+                                    <td class="text-center"><span class="badge bg-success">0</span></td>
                                     <td>
-                                        <a href="/product/{{ p.slug }}" class="btn btn-sm btn-outline-warning rounded-pill" target="_blank"><i class="fas fa-external-link-alt"></i></a>
+                                        <div class="d-flex gap-1">
+                                            <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editProductModal{{ p.id }}" title="Edit"><i class="fas fa-edit"></i></button>
+                                            <a href="/dashboard/products/delete/{{ p.id }}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete this product?')" title="Delete"><i class="fas fa-trash"></i></a>
+                                        </div>
                                     </td>
                                 </tr>
                                 {% else %}
-                                <tr><td colspan="7" class="text-center text-muted py-4">No products found</td></tr>
+                                <tr><td colspan="7" class="text-center text-muted py-4">You haven't added any products yet.</td></tr>
                                 {% endfor %}
                             </tbody>
                         </table>
@@ -529,6 +536,184 @@
                     <div class="mb-3">
                         <label class="form-label small fw-semibold">Description</label>
                         <textarea name="description" class="form-control" rows="2">{{ link.description }}</textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-warning rounded-pill"><i class="fas fa-save me-1"></i> Update</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+</div>
+</div>
+</div>
+
+<!-- Add Product Modal -->
+<div class="modal fade" id="addProductModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form method="POST" action="/dashboard/products/add" enctype="multipart/form-data">
+                <div class="modal-header"><h5 class="modal-title"><i class="fas fa-plus-circle me-2 text-warning"></i>Add Product</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-md-8">
+                            <label class="form-label small fw-semibold">Title *</label>
+                            <input type="text" name="title" class="form-control" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-semibold">Category</label>
+                            <select name="category_id" class="form-select">
+                                <option value="">No category</option>
+                                {% for cat in categories %}
+                                <option value="{{ cat.id }}">{{ cat.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-semibold">Price</label>
+                            <input type="number" name="price" class="form-control" step="0.01" min="0">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label small fw-semibold">Currency</label>
+                            <select name="currency" class="form-select">
+                                <option value="USD">$ USD</option>
+                                <option value="PKR">₨ PKR</option>
+                                <option value="EUR">€ EUR</option>
+                                <option value="GBP">£ GBP</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">Old Price</label>
+                            <input type="number" name="old_price" class="form-control" step="0.01" min="0">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-semibold">Rating</label>
+                            <input type="number" name="rating" class="form-control" step="0.1" min="0" max="5" value="0">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-semibold">Platform</label>
+                            <select name="affiliate_platform" class="form-select" required>
+                                <option value="amazon">Amazon</option>
+                                <option value="alibaba">Alibaba</option>
+                                <option value="aliexpress">AliExpress</option>
+                                <option value="daraz">Daraz</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-semibold">Affiliate URL *</label>
+                            <input type="url" name="affiliate_url" class="form-control" placeholder="https://..." required>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label small fw-semibold">Short Description</label>
+                            <input type="text" name="short_description" class="form-control" maxlength="300">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label small fw-semibold">Description</label>
+                            <textarea name="description" class="form-control" rows="3"></textarea>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">Image URL</label>
+                            <input type="url" name="image" class="form-control" placeholder="https://...">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">Or Upload Image</label>
+                            <input type="file" name="image_file" class="form-control" accept="image/*">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label small fw-semibold">Gallery Images</label>
+                            <input type="file" name="images" class="form-control" accept="image/*" multiple>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-warning rounded-pill"><i class="fas fa-plus me-1"></i> Add Product</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Product Modals -->
+{% for p in my_products %}
+<div class="modal fade" id="editProductModal{{ p.id }}" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form method="POST" action="/dashboard/products/edit/{{ p.id }}" enctype="multipart/form-data">
+                <div class="modal-header"><h5 class="modal-title"><i class="fas fa-edit me-2 text-warning"></i>Edit Product</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-md-8">
+                            <label class="form-label small fw-semibold">Title *</label>
+                            <input type="text" name="title" class="form-control" value="{{ p.title }}" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-semibold">Category</label>
+                            <select name="category_id" class="form-select">
+                                <option value="">No category</option>
+                                {% for cat in categories %}
+                                <option value="{{ cat.id }}" {% if p.category_id == cat.id %}selected{% endif %}>{{ cat.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-semibold">Price</label>
+                            <input type="number" name="price" class="form-control" step="0.01" min="0" value="{{ p.price or '' }}">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label small fw-semibold">Currency</label>
+                            <select name="currency" class="form-select">
+                                <option value="USD" {% if p.currency == 'USD' %}selected{% endif %}>$ USD</option>
+                                <option value="PKR" {% if p.currency == 'PKR' %}selected{% endif %}>₨ PKR</option>
+                                <option value="EUR" {% if p.currency == 'EUR' %}selected{% endif %}>€ EUR</option>
+                                <option value="GBP" {% if p.currency == 'GBP' %}selected{% endif %}>£ GBP</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">Old Price</label>
+                            <input type="number" name="old_price" class="form-control" step="0.01" min="0" value="{{ p.old_price or '' }}">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-semibold">Rating</label>
+                            <input type="number" name="rating" class="form-control" step="0.1" min="0" max="5" value="{{ p.rating or '0' }}">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-semibold">Platform</label>
+                            <select name="affiliate_platform" class="form-select" required>
+                                <option value="amazon" {% if p.affiliate_platform == 'amazon' %}selected{% endif %}>Amazon</option>
+                                <option value="alibaba" {% if p.affiliate_platform == 'alibaba' %}selected{% endif %}>Alibaba</option>
+                                <option value="aliexpress" {% if p.affiliate_platform == 'aliexpress' %}selected{% endif %}>AliExpress</option>
+                                <option value="daraz" {% if p.affiliate_platform == 'daraz' %}selected{% endif %}>Daraz</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-semibold">Affiliate URL *</label>
+                            <input type="url" name="affiliate_url" class="form-control" value="{{ p.affiliate_url }}" required>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label small fw-semibold">Short Description</label>
+                            <input type="text" name="short_description" class="form-control" value="{{ p.short_description }}" maxlength="300">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label small fw-semibold">Description</label>
+                            <textarea name="description" class="form-control" rows="3">{{ p.description }}</textarea>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">Image URL</label>
+                            <input type="url" name="image" class="form-control" value="{{ p.image if p.image else '' }}" placeholder="https://...">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">Or Upload Image</label>
+                            <input type="file" name="image_file" class="form-control" accept="image/*">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label small fw-semibold">Gallery Images</label>
+                            <input type="file" name="images" class="form-control" accept="image/*" multiple>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">
