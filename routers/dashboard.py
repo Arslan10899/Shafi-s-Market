@@ -101,6 +101,21 @@ def delete_link(lid):
     return redirect("/dashboard?tab=links")
 
 
+@bp.route("/affiliate/<username>")
+def public_affiliate_page(username):
+    db = get_db()
+    user = db.query(User).filter(User.username == username).first()
+    if not user:
+        db.close()
+        abort(404)
+    links = db.query(UserLink).options(joinedload(UserLink.platform), joinedload(UserLink.category)).filter(
+        UserLink.user_id == user.id
+    ).order_by(UserLink.created_at.desc()).all()
+    categories = db.query(Category).order_by(Category.name).all()
+    db.close()
+    return render("public_affiliate.html", affiliate_user=user, links=links, categories=categories)
+
+
 @bp.route("/go/<int:lid>")
 def click_link(lid):
     db = get_db()

@@ -316,6 +316,7 @@
                                     </td>
                                     <td>
                                         <div class="d-flex gap-1">
+                                            <a href="/dashboard/affiliate/{{ profile.username }}" class="btn btn-sm btn-outline-info" title="View Public Page" target="_blank"><i class="fas fa-eye"></i></a>
                                             <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editLinkModal{{ link.id }}" title="Edit"><i class="fas fa-edit"></i></button>
                                             <a href="/dashboard/links/delete/{{ link.id }}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete this link?')" title="Delete"><i class="fas fa-trash"></i></a>
                                         </div>

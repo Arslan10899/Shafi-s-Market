@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}{{ affiliate_user.username }} - Affiliate Links{% endblock %}
+{% block content %}
+
+<section class="py-4">
+    <div class="container">
+        <div class="text-center mb-4">
+            <div class="rounded-circle bg-warning d-flex align-items-center justify-content-center mx-auto mb-2 text-white fw-bold" style="width:72px;height:72px;font-size:28px">
+                {{ (affiliate_user.full_name or affiliate_user.username)[:1] | upper }}
+            </div>
+            <h4 class="fw-bold mb-1">{{ affiliate_user.full_name or affiliate_user.username }}</h4>
+            {% if affiliate_user.bio %}
+            <p class="text-muted mb-1">{{ affiliate_user.bio }}</p>
+            {% endif %}
+            <span class="badge bg-warning text-dark">{{ affiliate_user.role | title }}</span>
+        </div>
+
+        {% if links %}
+        <div class="row g-3">
+            {% for link in links %}
+            <div class="col-6 col-md-4 col-lg-3">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body text-center d-flex flex-column">
+                        <h6 class="fw-bold mb-1">{{ link.title }}</h6>
+                        {% if link.description %}
+                        <p class="small text-muted mb-2">{{ link.description[:80] }}</p>
+                        {% endif %}
+                        <div class="mt-auto">
+                            {% if link.category %}
+                            <span class="badge bg-info text-dark mb-2">{{ link.category.name }}</span>
+                            {% endif %}
+                            {% if link.platform %}
+                            <span class="badge bg-light text-dark mb-2">{{ link.platform.name }}</span>
+                            {% endif %}
+                            <div class="mt-2">
+                                <a href="/dashboard/go/{{ link.id }}" target="_blank" class="btn btn-sm btn-warning rounded-pill">
+                                    <i class="fas fa-external-link-alt me-1"></i> Visit Link
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-link fa-3x text-muted mb-3"></i>
+            <p class="text-muted">No links yet.</p>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+{% endblock %}
