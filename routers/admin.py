@@ -125,19 +125,18 @@ def admin_add_product():
         db.close()
         return render("admin/product_form.html", user=user, categories=categories, product=None, edit_mode=False, error="Title is required")
 
-    image_url = request.form.get("image", "")
     slug = gen_slug(title)
     product = Product(
         title=title, slug=slug,
         short_description=request.form.get("short_description", ""),
         description=request.form.get("description", ""),
-        image=image_url,
+        image="",
         price=float(request.form.get("price", 0) or 0) or None,
         old_price=float(request.form.get("old_price", 0) or 0) or None,
         currency=request.form.get("currency", "USD"),
         is_active=request.form.get("is_active") == "on",
         rating=float(request.form.get("rating", 0)),
-        category_id=int(request.form.get("category_id", 0)) or None,
+        category_id=int(request.form.get("category_id") or 0) or None,
         affiliate_platform=request.form.get("affiliate_platform", "amazon"),
         affiliate_url=request.form.get("affiliate_url", ""),
         is_featured=request.form.get("is_featured") == "on",
@@ -146,15 +145,19 @@ def admin_add_product():
     db.add(product)
     db.flush()
 
+    image_field = request.form.get("image", "")
     images = request.files.getlist("images")
+
+    if image_field:
+        product.image = image_field
+
     for idx, f in enumerate(images):
         if f.filename and allowed_file(f.filename):
             url = save_upload(f)
             pi = ProductImage(product_id=product.id, image_url=url, sort_order=idx)
             db.add(pi)
-            if not image_url:
+            if not product.image:
                 product.image = url
-                image_url = url
 
     db.commit()
     db.close()
@@ -196,7 +199,7 @@ def admin_edit_product(pid):
     product.currency = request.form.get("currency", "USD")
     product.is_active = request.form.get("is_active") == "on"
     product.rating = float(request.form.get("rating", 0))
-    product.category_id = int(request.form.get("category_id", 0)) or None
+    product.category_id = int(request.form.get("category_id") or 0) or None
     product.affiliate_platform = request.form.get("affiliate_platform", "") or product.affiliate_platform
     product.affiliate_url = request.form.get("affiliate_url", "") or product.affiliate_url
     product.is_featured = request.form.get("is_featured") == "on"
@@ -205,16 +208,18 @@ def admin_edit_product(pid):
     images = request.files.getlist("images")
     image_field = request.form.get("image", "")
 
-    if images:
-        for idx, f in enumerate(images):
-            if f.filename and allowed_file(f.filename):
-                url = save_upload(f)
-                pi = ProductImage(product_id=product.id, image_url=url, sort_order=idx)
-                db.add(pi)
-                if not product.image:
-                    product.image = url
-    elif image_field:
+    if image_field:
         product.image = image_field
+    elif not image_field:
+        product.image = ""
+
+    for idx, f in enumerate(images):
+        if f.filename and allowed_file(f.filename):
+            url = save_upload(f)
+            pi = ProductImage(product_id=product.id, image_url=url, sort_order=idx)
+            db.add(pi)
+            if not product.image:
+                product.image = url
 
     db.commit()
     db.close()
