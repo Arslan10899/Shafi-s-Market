@@ -4,9 +4,7 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(BASE_DIR, 'database', 'affiliate.db')
 os.makedirs(os.path.join(BASE_DIR, 'database'), exist_ok=True)
 
-SECRET_KEY = os.environ.get("SECRET_KEY")
-if not SECRET_KEY:
-    raise RuntimeError("SECRET_KEY environment variable is required. Set it in PythonAnywhere dashboard -> Web -> Environment variables.")
+SECRET_KEY = os.environ.get("SECRET_KEY", "change-me-in-production-2025")
 UPLOAD_DIR = os.environ.get("UPLOAD_DIR", os.path.join(BASE_DIR, "static", "uploads"))
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 BACKUP_DIR = os.path.join(BASE_DIR, "backups")
