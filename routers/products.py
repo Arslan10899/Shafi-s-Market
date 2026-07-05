@@ -1,7 +1,7 @@
 import random as _random
 from flask import Blueprint, request, redirect, abort
 from sqlalchemy.orm import joinedload, selectinload
-from sqlalchemy import or_
+from sqlalchemy import or_, func
 
 from database import get_db
 from models import Product, Category, HeroSlide, AffiliateClick, UserLink, User
@@ -23,6 +23,7 @@ def home():
     new_products = db.query(Product).filter(Product.is_active == True).order_by(Product.created_at.desc()).limit(8).all()
     categories = get_categories(db)
     hero_slides = db.query(HeroSlide).filter(HeroSlide.is_active == True).order_by(HeroSlide.sort_order).all()
+    affiliate_links = db.query(UserLink).options(joinedload(UserLink.platform), joinedload(UserLink.user)).order_by(UserLink.created_at.desc()).limit(8).all()
     db.close()
 
     return render("index.html",
@@ -31,6 +32,7 @@ def home():
         new_products=new_products,
         categories=categories,
         hero_slides=hero_slides,
+        affiliate_links=affiliate_links,
     )
 
 
