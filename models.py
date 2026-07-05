@@ -128,6 +128,7 @@ class UserLink(Base):
     url = Column(String(500), nullable=False)
     title = Column(String(200), default="")
     description = Column(Text, default="")
+    image = Column(String(300), default="")
     clicks_count = Column(Integer, default=0)
     created_at = Column(DateTime, server_default=func.now())
 

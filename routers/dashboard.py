@@ -1,3 +1,4 @@
+import os, random, time as time_module
 from flask import Blueprint, request, redirect, abort, session
 from sqlalchemy.orm import joinedload
 from sqlalchemy import func
@@ -5,6 +6,19 @@ from sqlalchemy import func
 from database import get_db
 from models import User, UserLink, Platform, Product, Category
 from templates import render, get_user_from_session
+from config import UPLOAD_DIR, ALLOWED_EXTENSIONS
+
+
+def allowed_file(filename):
+    return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+def save_link_image(file):
+    ext = file.filename.rsplit(".", 1)[1].lower() if "." in file.filename else "jpg"
+    filename = f"link_{random.randint(10000,99999)}_{int(time_module.time())}.{ext}"
+    path = os.path.join(UPLOAD_DIR, filename)
+    file.save(path)
+    return f"/static/uploads/{filename}"
 
 bp = Blueprint("dashboard", __name__, url_prefix="/dashboard")
 
@@ -55,11 +69,17 @@ def add_link():
     if not url:
         db.close()
         return redirect("/dashboard?tab=links&error=url_required")
+    image_file = request.files.get("image")
+    image_url = ""
+    if image_file and image_file.filename and allowed_file(image_file.filename):
+        image_url = save_link_image(image_file)
+
     link = UserLink(
         user_id=session["user_id"],
         url=url,
         title=request.form.get("title", "").strip() or "Untitled",
         description=request.form.get("description", "").strip(),
+        image=image_url,
         platform_id=int(request.form.get("platform_id", 0)) or None,
         category_id=int(request.form.get("category_id", 0)) or None,
     )
@@ -83,6 +103,13 @@ def edit_link(lid):
     link.description = request.form.get("description", "").strip()
     link.platform_id = int(request.form.get("platform_id", 0)) or None
     link.category_id = int(request.form.get("category_id", 0)) or None
+
+    image_file = request.files.get("image")
+    image_field = request.form.get("image_url", "").strip()
+    if image_field:
+        link.image = image_field
+    elif image_file and image_file.filename and allowed_file(image_file.filename):
+        link.image = save_link_image(image_file)
     db.commit()
     db.close()
     return redirect("/dashboard?tab=links")

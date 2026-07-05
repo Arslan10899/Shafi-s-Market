@@ -39,3 +39,7 @@ def init_db():
         with engine.connect() as conn:
             conn.execute(text("ALTER TABLE user_links ADD COLUMN category_id INTEGER REFERENCES categories(id)"))
             conn.commit()
+    if 'image' not in cols2:
+        with engine.connect() as conn:
+            conn.execute(text("ALTER TABLE user_links ADD COLUMN image VARCHAR(300) DEFAULT ''"))
+            conn.commit()

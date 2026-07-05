@@ -275,6 +275,7 @@
                         <table class="table table-hover mb-0 align-middle">
                             <thead class="table-dark">
                                 <tr>
+                                    <th>Image</th>
                                     <th>Title</th>
                                     <th>URL</th>
                                     <th>Platform</th>
@@ -286,6 +287,13 @@
                             <tbody>
                                 {% for link in links %}
                                 <tr>
+                                    <td>
+                                        {% if link.image %}
+                                        <img src="{{ link.image }}" class="rounded border" style="width:48px;height:48px;object-fit:cover">
+                                        {% else %}
+                                        <div class="rounded border bg-light d-flex align-items-center justify-content-center" style="width:48px;height:48px"><i class="fas fa-link text-muted"></i></div>
+                                        {% endif %}
+                                    </td>
                                     <td>
                                         <strong class="small">{{ link.title }}</strong>
                                         {% if link.description %}
@@ -423,7 +431,7 @@
 <div class="modal fade" id="addLinkModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
-            <form method="POST" action="/dashboard/links/add">
+            <form method="POST" action="/dashboard/links/add" enctype="multipart/form-data">
                 <div class="modal-header"><h5 class="modal-title"><i class="fas fa-plus-circle me-2 text-warning"></i>Add New Link</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
                 <div class="modal-body">
                     <div class="mb-3">
@@ -433,6 +441,10 @@
                     <div class="mb-3">
                         <label class="form-label small fw-semibold">URL *</label>
                         <input type="url" name="url" class="form-control" placeholder="https://..." required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Image</label>
+                        <input type="file" name="image" class="form-control" accept="image/*">
                     </div>
                     <div class="mb-3">
                         <label class="form-label small fw-semibold">Platform</label>
@@ -471,7 +483,7 @@
 <div class="modal fade" id="editLinkModal{{ link.id }}" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
-            <form method="POST" action="/dashboard/links/edit/{{ link.id }}">
+            <form method="POST" action="/dashboard/links/edit/{{ link.id }}" enctype="multipart/form-data">
                 <div class="modal-header"><h5 class="modal-title"><i class="fas fa-edit me-2 text-warning"></i>Edit Link</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
                 <div class="modal-body">
                     <div class="mb-3">
@@ -481,6 +493,20 @@
                     <div class="mb-3">
                         <label class="form-label small fw-semibold">URL</label>
                         <input type="url" name="url" class="form-control" value="{{ link.url }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Image</label>
+                        <input type="file" name="image" class="form-control" accept="image/*">
+                        {% if link.image %}
+                        <div class="mt-1">
+                            <img src="{{ link.image }}" class="rounded border" style="width:60px;height:60px;object-fit:cover">
+                            <small class="text-muted">Current image. Upload new to replace.</small>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Or Image URL</label>
+                        <input type="url" name="image_url" class="form-control" value="{{ link.image if link.image else '' }}" placeholder="https://...">
                     </div>
                     <div class="mb-3">
                         <label class="form-label small fw-semibold">Platform</label>

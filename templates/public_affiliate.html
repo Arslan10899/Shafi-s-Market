@@ -20,6 +20,9 @@
             {% for link in links %}
             <div class="col-6 col-md-4 col-lg-3">
                 <div class="card border-0 shadow-sm h-100">
+                    {% if link.image %}
+                    <img src="{{ link.image }}" class="card-img-top" style="height:160px;object-fit:cover" alt="{{ link.title }}">
+                    {% endif %}
                     <div class="card-body text-center d-flex flex-column">
                         <h6 class="fw-bold mb-1">{{ link.title }}</h6>
                         {% if link.description %}
