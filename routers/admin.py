@@ -10,7 +10,7 @@ import time as time_module
 from datetime import datetime, timedelta
 
 from database import get_db
-from models import Product, ProductImage, Category, User, HeroSlide, AffiliateClick, SocialLink, Platform, UserLink, BlogPost, Message
+from models import Product, ProductImage, Category, User, HeroSlide, AffiliateClick, SocialLink, Platform, UserLink, BlogPost, Message, SiteSetting
 from config import UPLOAD_DIR, DB_PATH, ALLOWED_EXTENSIONS
 from sqlalchemy import create_engine
 import bcrypt as _bcrypt
@@ -503,6 +503,51 @@ def admin_delete_social_link(lid):
         invalidate_social_cache()
     db.close()
     return redirect("/admin/social-links")
+
+
+@bp.route("/ceo", methods=["GET", "POST"])
+def admin_ceo():
+    user = require_admin()
+    if not user:
+        return redirect("/auth/login")
+    db = get_db()
+    if request.method == "POST":
+        name = request.form.get("name", "").strip()
+        father = request.form.get("father", "").strip()
+        age = request.form.get("age", "").strip()
+        address = request.form.get("address", "").strip()
+        bio = request.form.get("bio", "").strip()
+        image_file = request.files.get("image")
+
+        def set_setting(key, val):
+            existing = db.query(SiteSetting).filter(SiteSetting.key == key).first()
+            if existing:
+                existing.value = val
+            else:
+                db.add(SiteSetting(key=key, value=val))
+
+        set_setting("ceo_name", name)
+        set_setting("ceo_father", father)
+        set_setting("ceo_age", age)
+        set_setting("ceo_address", address)
+        set_setting("ceo_bio", bio)
+
+        if image_file and image_file.filename:
+            from config import UPLOAD_DIR
+            import random, time as time_module, os
+            ext = image_file.filename.rsplit(".", 1)[1].lower() if "." in image_file.filename else "jpg"
+            filename = f"ceo_{random.randint(10000,99999)}_{int(time_module.time())}.{ext}"
+            path = os.path.join(UPLOAD_DIR, filename)
+            image_file.save(path)
+            set_setting("ceo_image", f"/static/uploads/{filename}")
+
+        db.commit()
+        db.close()
+        return redirect("/admin/ceo?updated=1")
+
+    settings = {r.key: r.value for r in db.query(SiteSetting).all()}
+    db.close()
+    return render("admin/ceo.html", user=user, settings=settings)
 
 
 @bp.route("/users")

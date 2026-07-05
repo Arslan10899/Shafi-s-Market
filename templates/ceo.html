@@ -24,20 +24,25 @@
                     <div class="row g-0">
                         <div class="col-md-4 d-flex align-items-center justify-content-center bg-warning p-4">
                             <div class="text-center">
-                            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=300&fit=crop&crop=face&q=80" class="rounded-circle mx-auto mb-3 shadow-sm" width="160" height="160" style="object-fit:cover">
-                            <h4 class="fw-bold mb-1 text-dark">Shafiq Islam</h4>
+                            <img src="{{ settings.get('ceo_image', 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=300&fit=crop&crop=face&q=80') }}" class="rounded-circle mx-auto mb-3 shadow-sm" width="160" height="160" style="object-fit:cover">
+                            <h4 class="fw-bold mb-1 text-dark">{{ settings.get('ceo_name', 'Shafiq Islam') }}</h4>
                             <p class="text-dark mb-0 small fw-semibold">Founder & CEO</p>
-                            <p class="text-dark small mb-0 mt-2">S/O Muhammad Shair</p>
-                            <p class="text-dark small">Age: 32 | Mardan, KPK, Pakistan</p>
+                            <p class="text-dark small mb-0 mt-2">S/O {{ settings.get('ceo_father', 'Muhammad Shair') }}</p>
+                            <p class="text-dark small">Age: {{ settings.get('ceo_age', '32') }} | {{ settings.get('ceo_address', 'Mardan, KPK, Pakistan') }}</p>
                         </div>
                     </div>
                     <div class="col-md-8">
                         <div class="card-body p-4">
                             <h5 class="fw-bold mb-3"><i class="fas fa-quote-left text-warning me-2"></i>About the Founder</h5>
-                            <p class="small text-muted">Shafiq Islam is the visionary founder and CEO of AZ Mart, an innovative affiliate marketplace that connects users with the best deals from top global platforms including Amazon, Alibaba, AliExpress, and Daraz.</p>
-                            <p class="small text-muted">Born and raised in Mardan, KPK, Pakistan, Shafiq has always been passionate about e-commerce and digital entrepreneurship. At just 32 years old, he founded AZ Mart with the mission to create a platform where anyone can discover, compare, and share products from multiple global merchants — all in one place. His vision empowers users to become affiliate marketers themselves, earning through product sharing while helping others find the best deals.</p>
+                            {% set bio = settings.get('ceo_bio', '') %}
+                            {% if bio %}
+                            <p class="small text-muted" style="white-space:pre-wrap">{{ bio }}</p>
+                            {% else %}
+                            <p class="small text-muted">{{ settings.get('ceo_name', 'Shafiq Islam') }} is the visionary founder and CEO of AZ Mart, an innovative affiliate marketplace that connects users with the best deals from top global platforms including Amazon, Alibaba, AliExpress, and Daraz.</p>
+                            <p class="small text-muted">Born and raised in {{ settings.get('ceo_address', 'Mardan, KPK, Pakistan') }}, {{ settings.get('ceo_name', 'Shafiq Islam') }} has always been passionate about e-commerce and digital entrepreneurship. At just {{ settings.get('ceo_age', '32') }} years old, he founded AZ Mart with the mission to create a platform where anyone can discover, compare, and share products from multiple global merchants — all in one place. His vision empowers users to become affiliate marketers themselves, earning through product sharing while helping others find the best deals.</p>
                             <p class="small text-muted">Under his leadership, AZ Mart has grown into a comprehensive affiliate ecosystem that supports both buyers and sellers, featuring product management, affiliate link tracking, and a user-friendly dashboard experience.</p>
-                            <p class="small text-muted">Shafiq is committed to continuous improvement and innovation, always looking for new ways to enhance the platform and provide more value to the AZ Mart community.</p>
+                            <p class="small text-muted">{{ settings.get('ceo_name', 'Shafiq Islam') }} is committed to continuous improvement and innovation, always looking for new ways to enhance the platform and provide more value to the AZ Mart community.</p>
+                            {% endif %}
                         </div>
                     </div>
                     </div>

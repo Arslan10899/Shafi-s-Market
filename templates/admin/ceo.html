@@ -1,0 +1,72 @@
+{% extends "admin/base.html" %}
+{% block title %}CEO Settings{% endblock %}
+{% block admin_content %}
+
+<div class="mb-4">
+    <h4 class="fw-bold mb-0"><i class="fas fa-user-tie me-2 text-warning"></i>CEO Settings</h4>
+</div>
+
+{% if request.args.get('updated') %}
+<div class="alert alert-success alert-dismissible fade show">CEO details updated successfully! <a href="/ceo" class="fw-semibold text-decoration-none" target="_blank">View Page</a><button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+{% endif %}
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white fw-semibold"><i class="fas fa-edit me-1 text-warning"></i> Edit CEO Details</div>
+            <div class="card-body">
+                <form method="POST" action="/admin/ceo" enctype="multipart/form-data">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">Full Name</label>
+                            <input type="text" name="name" class="form-control" value="{{ settings.get('ceo_name', 'Shafiq Islam') }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">S/O</label>
+                            <input type="text" name="father" class="form-control" value="{{ settings.get('ceo_father', 'Muhammad Shair') }}">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-semibold">Age</label>
+                            <input type="text" name="age" class="form-control" value="{{ settings.get('ceo_age', '32') }}">
+                        </div>
+                        <div class="col-md-8">
+                            <label class="form-label small fw-semibold">Address</label>
+                            <input type="text" name="address" class="form-control" value="{{ settings.get('ceo_address', 'Mardan, KPK, Pakistan') }}">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label small fw-semibold">Bio</label>
+                            <textarea name="bio" class="form-control" rows="5">{{ settings.get('ceo_bio', '') }}</textarea>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label small fw-semibold">CEO Image</label>
+                            <input type="file" name="image" class="form-control" accept="image/*">
+                            {% if settings.get('ceo_image') %}
+                            <div class="mt-2 d-flex align-items-center gap-2">
+                                <img src="{{ settings['ceo_image'] }}" class="rounded-circle" width="48" height="48" style="object-fit:cover">
+                                <small class="text-muted">Current image</small>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-warning rounded-pill px-4 mt-3"><i class="fas fa-save me-1"></i> Save Changes</button>
+                    <a href="/ceo" class="btn btn-outline-secondary rounded-pill px-4 mt-3 ms-2" target="_blank"><i class="fas fa-external-link-alt me-1"></i> View CEO Page</a>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white fw-semibold"><i class="fas fa-info-circle me-1 text-warning"></i> Preview</div>
+            <div class="card-body text-center">
+                <img src="{{ settings.get('ceo_image', 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=300&fit=crop&crop=face&q=80') }}" class="rounded-circle mx-auto mb-3 shadow-sm" width="120" height="120" style="object-fit:cover">
+                <h5 class="fw-bold mb-0">{{ settings.get('ceo_name', 'Shafiq Islam') }}</h5>
+                <p class="text-muted small mb-1">Founder & CEO</p>
+                <p class="text-muted small mb-0">{{ settings.get('ceo_father', 'Muhammad Shair') }}</p>
+                <p class="text-muted small">Age: {{ settings.get('ceo_age', '32') }} | {{ settings.get('ceo_address', 'Mardan, KPK, Pakistan') }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

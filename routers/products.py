@@ -4,7 +4,7 @@ from sqlalchemy.orm import joinedload, selectinload
 from sqlalchemy import or_, func
 
 from database import get_db
-from models import Product, Category, HeroSlide, AffiliateClick, UserLink, User
+from models import Product, Category, HeroSlide, AffiliateClick, UserLink, User, SiteSetting
 from templates import render, get_user_from_session
 
 bp = Blueprint("products", __name__)
@@ -136,7 +136,10 @@ def product_detail(slug):
 @bp.route("/ceo")
 def ceo_page():
     user = get_user_from_session()
-    return render("ceo.html", user=user, categories=[])
+    db = get_db()
+    settings = {r.key: r.value for r in db.query(SiteSetting).all()}
+    db.close()
+    return render("ceo.html", user=user, categories=[], settings=settings)
 
 @bp.route("/faq")
 def faq_page():

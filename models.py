@@ -139,6 +139,15 @@ class UserLink(Base):
     category = relationship("Category")
 
 
+class SiteSetting(Base):
+    __tablename__ = "site_settings"
+
+    id = Column(Integer, primary_key=True)
+    key = Column(String(100), unique=True, nullable=False, index=True)
+    value = Column(Text, default="")
+    updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
+
+
 class Message(Base):
     __tablename__ = "messages"
 
