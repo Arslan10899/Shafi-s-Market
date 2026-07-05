@@ -242,9 +242,10 @@ def public_affiliate_page(username):
     links = db.query(UserLink).options(joinedload(UserLink.platform), joinedload(UserLink.category)).filter(
         UserLink.user_id == user.id
     ).order_by(UserLink.created_at.desc()).all()
+    products = db.query(Product).options(joinedload(Product.category)).filter(Product.user_id == user.id).order_by(Product.created_at.desc()).all()
     categories = db.query(Category).order_by(Category.name).all()
     db.close()
-    return render("public_affiliate.html", affiliate_user=user, links=links, categories=categories)
+    return render("public_affiliate.html", affiliate_user=user, links=links, products=products, categories=categories)
 
 
 @bp.route("/go/<int:lid>")
