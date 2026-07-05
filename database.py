@@ -34,3 +34,8 @@ def init_db():
         with engine.connect() as conn:
             conn.execute(text("ALTER TABLE products ADD COLUMN is_active BOOLEAN DEFAULT 1"))
             conn.commit()
+    cols2 = [c['name'] for c in inspector.get_columns('user_links')]
+    if 'category_id' not in cols2:
+        with engine.connect() as conn:
+            conn.execute(text("ALTER TABLE user_links ADD COLUMN category_id INTEGER REFERENCES categories(id)"))
+            conn.commit()

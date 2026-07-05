@@ -124,6 +124,7 @@ class UserLink(Base):
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     platform_id = Column(Integer, ForeignKey("platforms.id", ondelete="SET NULL"), nullable=True)
+    category_id = Column(Integer, ForeignKey("categories.id", ondelete="SET NULL"), nullable=True)
     url = Column(String(500), nullable=False)
     title = Column(String(200), default="")
     description = Column(Text, default="")
@@ -132,6 +133,7 @@ class UserLink(Base):
 
     user = relationship("User", backref="links")
     platform = relationship("Platform")
+    category = relationship("Category")
 
 
 class BlogPost(Base):

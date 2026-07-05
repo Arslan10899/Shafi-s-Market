@@ -19,7 +19,7 @@ def user_dashboard():
 
     db = get_db()
     current_user = db.query(User).filter(User.id == current_user_id).first()
-    links = db.query(UserLink).options(joinedload(UserLink.platform)).filter(UserLink.user_id == current_user_id).order_by(UserLink.created_at.desc()).all()
+    links = db.query(UserLink).options(joinedload(UserLink.platform), joinedload(UserLink.category)).filter(UserLink.user_id == current_user_id).order_by(UserLink.created_at.desc()).all()
     platforms = db.query(Platform).order_by(Platform.name).all()
     categories = db.query(Category).order_by(Category.name).all()
     products = db.query(Product).options(joinedload(Product.category)).order_by(Product.created_at.desc()).all()
@@ -61,6 +61,7 @@ def add_link():
         title=request.form.get("title", "").strip() or "Untitled",
         description=request.form.get("description", "").strip(),
         platform_id=int(request.form.get("platform_id", 0)) or None,
+        category_id=int(request.form.get("category_id", 0)) or None,
     )
     db.add(link)
     db.commit()
@@ -81,6 +82,7 @@ def edit_link(lid):
     link.url = request.form.get("url", "").strip() or link.url
     link.description = request.form.get("description", "").strip()
     link.platform_id = int(request.form.get("platform_id", 0)) or None
+    link.category_id = int(request.form.get("category_id", 0)) or None
     db.commit()
     db.close()
     return redirect("/dashboard?tab=links")
