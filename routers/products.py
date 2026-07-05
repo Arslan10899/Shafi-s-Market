@@ -4,7 +4,7 @@ from sqlalchemy.orm import joinedload, selectinload
 from sqlalchemy import or_
 
 from database import get_db
-from models import Product, Category, HeroSlide, AffiliateClick
+from models import Product, Category, HeroSlide, AffiliateClick, UserLink, User
 from templates import render, get_user_from_session
 
 bp = Blueprint("products", __name__)
@@ -81,6 +81,11 @@ def shop():
     products = q.offset((page - 1) * per_page).limit(per_page).all()
     all_categories = get_categories(db)
     selected_category = db.query(Category).filter(Category.slug == category).first() if category else None
+
+    affiliate_links = db.query(UserLink).options(joinedload(UserLink.category), joinedload(UserLink.platform), joinedload(UserLink.user)).filter(
+        UserLink.category_id == (selected_category.id if selected_category else None)
+    ).order_by(UserLink.created_at.desc()).all() if selected_category else []
+
     db.close()
 
     return render("shop.html",
@@ -96,6 +101,7 @@ def shop():
         page=page,
         total_pages=total_pages,
         total=total,
+        affiliate_links=affiliate_links,
     )
 
 
