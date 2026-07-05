@@ -5,36 +5,18 @@ from slugify import slugify
 import json
 import os
 import random
-import string
-import time as time_module
 from datetime import datetime, timedelta
 
 from database import get_db
 from models import Product, ProductImage, Category, User, HeroSlide, AffiliateClick, SocialLink, Platform, UserLink, BlogPost, Message, SiteSetting
-from config import UPLOAD_DIR, DB_PATH, ALLOWED_EXTENSIONS
+from config import UPLOAD_DIR, DB_PATH
 from sqlalchemy import create_engine
 import bcrypt as _bcrypt
 from templates import render, invalidate_social_cache
+from utils import allowed_file, save_upload, gen_slug
+from csrf import csrf_required
 
 bp = Blueprint("admin", __name__, url_prefix="/admin")
-
-
-def allowed_file(filename):
-    return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
-
-
-def gen_slug(text):
-    base = slugify(text)[:200]
-    suffix = "".join(random.choices(string.ascii_lowercase + string.digits, k=6))
-    return f"{base}-{suffix}"
-
-
-def save_upload(file):
-    ext = file.filename.rsplit(".", 1)[1].lower() if "." in file.filename else "jpg"
-    filename = f"prod_{random.randint(10000,99999)}_{int(time_module.time())}.{ext}"
-    path = os.path.join(UPLOAD_DIR, filename)
-    file.save(path)
-    return f"/static/uploads/{filename}"
 
 
 def require_admin():
@@ -114,6 +96,7 @@ def admin_add_product_page():
 
 
 @bp.route("/products/add", methods=["POST"])
+@csrf_required
 def admin_add_product():
     user = require_admin()
     if not user:
@@ -182,6 +165,7 @@ def admin_edit_product_page(pid):
 
 
 @bp.route("/products/edit/<int:pid>", methods=["POST"])
+@csrf_required
 def admin_edit_product(pid):
     user = require_admin()
     if not user:
@@ -273,6 +257,7 @@ def admin_categories():
 
 
 @bp.route("/categories/add", methods=["POST"])
+@csrf_required
 def admin_add_category():
     user = require_admin()
     if not user:
@@ -300,6 +285,7 @@ def admin_add_category():
 
 
 @bp.route("/categories/edit/<int:cid>", methods=["POST"])
+@csrf_required
 def admin_edit_category(cid):
     user = require_admin()
     if not user:
@@ -369,6 +355,7 @@ def admin_slides():
 
 
 @bp.route("/slides/add", methods=["POST"])
+@csrf_required
 def admin_add_slide():
     user = require_admin()
     if not user:
@@ -400,6 +387,7 @@ def admin_add_slide():
 
 
 @bp.route("/slides/edit/<int:sid>", methods=["POST"])
+@csrf_required
 def admin_edit_slide(sid):
     user = require_admin()
     if not user:
@@ -452,6 +440,7 @@ def admin_social_links():
 
 
 @bp.route("/social-links/add", methods=["POST"])
+@csrf_required
 def admin_add_social_link():
     user = require_admin()
     if not user:
@@ -470,6 +459,7 @@ def admin_add_social_link():
 
 
 @bp.route("/social-links/edit/<int:lid>", methods=["POST"])
+@csrf_required
 def admin_edit_social_link(lid):
     user = require_admin()
     if not user:
@@ -506,6 +496,7 @@ def admin_delete_social_link(lid):
 
 
 @bp.route("/ceo", methods=["GET", "POST"])
+@csrf_required
 def admin_ceo():
     user = require_admin()
     if not user:
@@ -581,6 +572,7 @@ def admin_users():
 
 
 @bp.route("/users/add", methods=["POST"])
+@csrf_required
 def admin_add_user():
     user = require_admin()
     if not user:
@@ -610,6 +602,7 @@ def admin_add_user():
 
 
 @bp.route("/users/edit/<int:uid>", methods=["POST"])
+@csrf_required
 def admin_edit_user(uid):
     user = require_admin()
     if not user:
@@ -760,6 +753,7 @@ def admin_platforms():
 
 
 @bp.route("/platforms/add", methods=["POST"])
+@csrf_required
 def admin_add_platform():
     user = require_admin()
     if not user:
@@ -782,6 +776,7 @@ def admin_add_platform():
 
 
 @bp.route("/platforms/edit/<int:pid>", methods=["POST"])
+@csrf_required
 def admin_edit_platform(pid):
     user = require_admin()
     if not user:
@@ -904,6 +899,7 @@ def _restore_backup_zip(data):
 
 
 @bp.route("/backup/create", methods=["POST"])
+@csrf_required
 def admin_backup_create():
     user = require_admin()
     if not user:
@@ -995,6 +991,7 @@ def admin_backup_export():
 
 
 @bp.route("/backup/import", methods=["POST"])
+@csrf_required
 def admin_backup_import():
     user = require_admin()
     if not user:
@@ -1030,6 +1027,7 @@ def admin_blog():
 
 
 @bp.route("/blog/add", methods=["GET", "POST"])
+@csrf_required
 def admin_blog_add():
     user = require_admin()
     if not user:
@@ -1053,6 +1051,7 @@ def admin_blog_add():
 
 
 @bp.route("/blog/edit/<int:pid>", methods=["GET", "POST"])
+@csrf_required
 def admin_blog_edit(pid):
     user = require_admin()
     if not user:

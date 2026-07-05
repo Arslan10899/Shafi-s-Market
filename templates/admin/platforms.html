@@ -67,6 +67,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <form method="POST" action="/admin/platforms/add">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
                 <div class="modal-header"><h5 class="modal-title"><i class="fas fa-plus-circle me-2 text-warning"></i>Add Platform</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
                 <div class="modal-body">
                     <div class="row g-3">
@@ -105,6 +106,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <form method="POST" action="/admin/platforms/edit/{{ p.id }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
                 <div class="modal-header"><h5 class="modal-title"><i class="fas fa-edit me-2 text-warning"></i>Edit Platform</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
                 <div class="modal-body">
                     <div class="row g-3">

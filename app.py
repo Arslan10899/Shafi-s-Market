@@ -1,12 +1,10 @@
-import os
 from datetime import datetime
 from flask import Flask, session
-from sqlalchemy.orm import joinedload
 
 from config import SECRET_KEY, CURRENCIES
 from database import init_db, get_db
-from models import Message
 from templates import social_links_context
+from csrf import inject_csrf
 
 app = Flask(__name__)
 app.secret_key = SECRET_KEY
@@ -35,6 +33,7 @@ app.jinja_env.globals["price_parts"] = price_parts
 
 app.context_processor(social_links_context)
 app.context_processor(inject_globals)
+app.context_processor(inject_csrf)
 
 @app.before_request
 def track_activity():
@@ -46,8 +45,6 @@ def track_activity():
         db.query(User).filter(User.id == uid).update({"last_seen": datetime.utcnow()})
         db.commit()
         db.close()
-
-app.config['PROPAGATE_EXCEPTIONS'] = False
 
 init_db()
 

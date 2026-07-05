@@ -103,6 +103,7 @@
 
                 <div class="card-footer chat-footer p-3">
                     <form method="POST" action="/messages/send" enctype="multipart/form-data" class="d-flex gap-2 align-items-center">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
                         <input type="hidden" name="receiver_id" value="{{ partner.id }}">
                         <input type="text" name="content" class="form-control form-control-sm rounded-pill border-0 bg-light" placeholder="Type a message..." required autocomplete="off" style="font-size:14px">
                         <label class="btn btn-sm btn-light rounded-circle mb-0" style="cursor:pointer">

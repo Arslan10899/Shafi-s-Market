@@ -23,6 +23,7 @@
                 {% endif %}
 
                 <form method="POST" action="/settings" enctype="multipart/form-data">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
                     <div class="card border-0 shadow-sm mb-4">
                         <div class="card-header bg-white fw-semibold"><i class="fas fa-user me-1 text-warning"></i> Profile Information</div>
                         <div class="card-body">

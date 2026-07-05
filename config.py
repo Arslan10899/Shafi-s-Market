@@ -1,10 +1,23 @@
 import os
+import secrets
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(BASE_DIR, 'database', 'affiliate.db')
 os.makedirs(os.path.join(BASE_DIR, 'database'), exist_ok=True)
 
-SECRET_KEY = os.environ.get("SECRET_KEY", "change-me-in-production-2025")
+_sk = os.environ.get("SECRET_KEY")
+if not _sk:
+    _sk_file = os.path.join(BASE_DIR, '.secret_key')
+    if os.path.isfile(_sk_file):
+        _sk = open(_sk_file).read().strip()
+    else:
+        _sk = secrets.token_hex(32)
+        try:
+            with open(_sk_file, 'w') as f:
+                f.write(_sk)
+        except OSError:
+            pass
+SECRET_KEY = _sk
 UPLOAD_DIR = os.environ.get("UPLOAD_DIR", os.path.join(BASE_DIR, "static", "uploads"))
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 BACKUP_DIR = os.path.join(BASE_DIR, "backups")

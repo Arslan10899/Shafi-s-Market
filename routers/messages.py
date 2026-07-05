@@ -1,4 +1,3 @@
-import os, random, time as time_module
 from datetime import datetime, timedelta
 from flask import Blueprint, request, redirect, abort, session, jsonify
 from sqlalchemy import or_, and_
@@ -7,21 +6,10 @@ from sqlalchemy.orm import joinedload
 from database import get_db
 from models import User, Message
 from templates import render, get_user_from_session
-from config import UPLOAD_DIR, ALLOWED_EXTENSIONS
+from utils import allowed_file, save_upload as save_image
+from csrf import csrf_required
 
 bp = Blueprint("messages", __name__, url_prefix="/messages")
-
-
-def allowed_file(filename):
-    return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
-
-
-def save_image(file):
-    ext = file.filename.rsplit(".", 1)[1].lower() if "." in file.filename else "jpg"
-    filename = f"msg_{random.randint(10000,99999)}_{int(time_module.time())}.{ext}"
-    path = os.path.join(UPLOAD_DIR, filename)
-    file.save(path)
-    return f"/static/uploads/{filename}"
 
 
 def user_status(user):
@@ -258,6 +246,7 @@ def compose():
 
 
 @bp.route("/send", methods=["POST"])
+@csrf_required
 def send():
     if not session.get("user_id"):
         return redirect("/auth/login")

@@ -14,6 +14,7 @@
         {% endif %}
 
         <form method="POST" action="/admin/products/{% if edit_mode %}edit/{{ product.id }}{% else %}add{% endif %}" enctype="multipart/form-data">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
             <div class="row g-3">
                 <div class="col-md-8">
                     <label class="form-label small fw-semibold">Title *</label>

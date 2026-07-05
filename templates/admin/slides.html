@@ -52,6 +52,7 @@
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <form method="POST" action="/admin/slides/edit/{{ slide.id }}" enctype="multipart/form-data">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
                     <div class="modal-header">
                         <h5 class="modal-title"><i class="fas fa-edit me-2 text-warning"></i>Edit Slide</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -122,6 +123,7 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <form method="POST" action="/admin/slides/add" enctype="multipart/form-data">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
                 <div class="modal-header">
                     <h5 class="modal-title"><i class="fas fa-plus-circle me-2 text-warning"></i>Add New Slide</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>

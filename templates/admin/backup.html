@@ -40,6 +40,7 @@
                 <h5 class="fw-bold mb-2">Create Backup on Server</h5>
                 <p class="text-muted small mb-3">Save a full backup (database + images) on the server. You can restore it anytime.</p>
                 <form method="POST" action="/admin/backup/create">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
                     <button type="submit" class="btn btn-success rounded-pill px-4">
                         <i class="fas fa-save me-2"></i> Create Backup Now
                     </button>
@@ -70,6 +71,7 @@
                 <h5 class="fw-bold mb-2">Upload & Restore</h5>
                 <p class="text-muted small mb-3">Upload a backup ZIP file from your computer to restore.</p>
                 <form method="POST" action="/admin/backup/import" enctype="multipart/form-data">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
                     <div class="mb-2">
                         <input type="file" name="backup_file" class="form-control form-control-sm" accept=".zip" required>
                     </div>

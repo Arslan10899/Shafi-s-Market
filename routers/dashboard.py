@@ -1,7 +1,3 @@
-import os, random, time as time_module
-import random as _random
-import string as _string
-from slugify import slugify
 from flask import Blueprint, request, redirect, abort, session
 from sqlalchemy.orm import joinedload
 from sqlalchemy import func
@@ -9,25 +5,8 @@ from sqlalchemy import func
 from database import get_db
 from models import User, UserLink, Platform, Product, Category, ProductImage
 from templates import render, get_user_from_session
-from config import UPLOAD_DIR, ALLOWED_EXTENSIONS
-
-
-def allowed_file(filename):
-    return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
-
-
-def gen_slug(text):
-    base = slugify(text)[:200]
-    suffix = "".join(_random.choices(_string.ascii_lowercase + _string.digits, k=6))
-    return f"{base}-{suffix}"
-
-
-def save_link_image(file):
-    ext = file.filename.rsplit(".", 1)[1].lower() if "." in file.filename else "jpg"
-    filename = f"link_{random.randint(10000,99999)}_{int(time_module.time())}.{ext}"
-    path = os.path.join(UPLOAD_DIR, filename)
-    file.save(path)
-    return f"/static/uploads/{filename}"
+from utils import allowed_file, save_upload, gen_slug
+from csrf import csrf_required
 
 bp = Blueprint("dashboard", __name__, url_prefix="/dashboard")
 
@@ -70,6 +49,7 @@ def user_dashboard():
 
 
 @bp.route("/links/add", methods=["POST"])
+@csrf_required
 def add_link():
     if not session.get("user_id"):
         return redirect("/auth/login")
@@ -81,7 +61,7 @@ def add_link():
     image_file = request.files.get("image")
     image_url = ""
     if image_file and image_file.filename and allowed_file(image_file.filename):
-        image_url = save_link_image(image_file)
+        image_url = save_upload(image_file, prefix="link")
 
     link = UserLink(
         user_id=session["user_id"],
@@ -99,6 +79,7 @@ def add_link():
 
 
 @bp.route("/links/edit/<int:lid>", methods=["POST"])
+@csrf_required
 def edit_link(lid):
     if not session.get("user_id"):
         return redirect("/auth/login")
@@ -118,13 +99,14 @@ def edit_link(lid):
     if image_field:
         link.image = image_field
     elif image_file and image_file.filename and allowed_file(image_file.filename):
-        link.image = save_link_image(image_file)
+        link.image = save_upload(image_file)
     db.commit()
     db.close()
     return redirect("/dashboard?tab=links")
 
 
 @bp.route("/products/add", methods=["POST"])
+@csrf_required
 def user_add_product():
     if not session.get("user_id"):
         return redirect("/auth/login")
@@ -152,13 +134,13 @@ def user_add_product():
     )
     image_file = request.files.get("image_file")
     if image_file and image_file.filename and allowed_file(image_file.filename):
-        product.image = save_link_image(image_file)
+        product.image = save_upload(image_file)
     db.add(product)
     db.flush()
     images = request.files.getlist("images")
     for idx, f in enumerate(images):
         if f.filename and allowed_file(f.filename):
-            url = save_link_image(f)
+            url = save_upload(f)
             pi = ProductImage(product_id=product.id, image_url=url, sort_order=idx)
             db.add(pi)
             if not product.image:
@@ -169,6 +151,7 @@ def user_add_product():
 
 
 @bp.route("/products/edit/<int:pid>", methods=["POST"])
+@csrf_required
 def user_edit_product(pid):
     if not session.get("user_id"):
         return redirect("/auth/login")
@@ -192,11 +175,11 @@ def user_edit_product(pid):
         product.image = image_field
     image_file = request.files.get("image_file")
     if image_file and image_file.filename and allowed_file(image_file.filename):
-        product.image = save_link_image(image_file)
+        product.image = save_upload(image_file)
     images = request.files.getlist("images")
     for idx, f in enumerate(images):
         if f.filename and allowed_file(f.filename):
-            url = save_link_image(f)
+            url = save_upload(f)
             pi = ProductImage(product_id=product.id, image_url=url, sort_order=idx)
             db.add(pi)
             if not product.image:

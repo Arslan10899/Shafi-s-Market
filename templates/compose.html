@@ -28,6 +28,7 @@
                         {% endif %}
 
                         <form method="POST" action="/messages/send" enctype="multipart/form-data">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
                             <input type="hidden" name="draft_id" value="{{ draft_id or '' }}">
 
                             <div class="mb-3">

@@ -104,6 +104,7 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <form method="POST" action="/admin/users/add" enctype="multipart/form-data">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
                 <div class="modal-header"><h5 class="modal-title"><i class="fas fa-user-plus me-2 text-warning"></i>Add New User</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
                 <div class="modal-body">
                     <div class="row g-3">
@@ -170,6 +171,7 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <form method="POST" action="/admin/users/edit/{{ u.id }}" enctype="multipart/form-data">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
                 <div class="modal-header"><h5 class="modal-title"><i class="fas fa-edit me-2 text-warning"></i>Edit User</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
                 <div class="modal-body">
                     <div class="row g-3">

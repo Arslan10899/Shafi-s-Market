@@ -1,10 +1,11 @@
-from flask import Blueprint, request, redirect, session, render_template
+from flask import Blueprint, request, redirect, session
 import bcrypt as _bcrypt
 import re
 
 from database import get_db
 from models import User
 from templates import render, get_user_from_session
+from csrf import csrf_required
 
 bp = Blueprint("auth", __name__, url_prefix="/auth")
 
@@ -26,6 +27,7 @@ def register_page():
 
 
 @bp.route("/login", methods=["POST"])
+@csrf_required
 def login():
     user_data = get_user_from_session()
     username = request.form.get("username", "")
@@ -49,6 +51,7 @@ def login():
 
 
 @bp.route("/register", methods=["POST"])
+@csrf_required
 def register():
     username = request.form.get("username", "").strip()
     email = request.form.get("email", "").strip()

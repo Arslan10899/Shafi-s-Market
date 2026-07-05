@@ -13,3 +13,4 @@ static/uploads/*
 !static/uploads/.gitkeep
 backups/
 cookies.txt
+.secret_key

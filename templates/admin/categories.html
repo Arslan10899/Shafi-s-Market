@@ -44,6 +44,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <form method="POST" action="/admin/categories/add" enctype="multipart/form-data">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
                 <div class="modal-header">
                     <h5 class="modal-title fw-bold">Add Category</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -79,6 +80,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <form method="POST" action="" id="editCategoryForm" enctype="multipart/form-data">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
                 <div class="modal-header">
                     <h5 class="modal-title fw-bold">Edit Category</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>

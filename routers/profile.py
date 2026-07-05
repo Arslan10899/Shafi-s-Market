@@ -1,24 +1,13 @@
 from flask import Blueprint, request, redirect, session
-from sqlalchemy.orm import Session
 import bcrypt as _bcrypt
-import os
-import random
-import time as time_module
 
 from database import get_db
 from models import User
 from templates import render, get_user_from_session
-from config import UPLOAD_DIR
+from utils import save_upload
+from csrf import csrf_required
 
 bp = Blueprint("profile", __name__)
-
-
-def save_profile_image(file):
-    ext = file.filename.rsplit(".", 1)[1].lower() if "." in file.filename else "jpg"
-    filename = f"profile_{random.randint(10000,99999)}_{int(time_module.time())}.{ext}"
-    path = os.path.join(UPLOAD_DIR, filename)
-    file.save(path)
-    return f"/static/uploads/{filename}"
 
 
 @bp.route("/profile")
@@ -44,6 +33,7 @@ def settings_page():
 
 
 @bp.route("/settings", methods=["POST"])
+@csrf_required
 def settings_update():
     if not session.get("user_id"):
         return redirect("/auth/login")
@@ -62,7 +52,7 @@ def settings_update():
 
     profile_image = request.files.get("profile_image")
     if profile_image and profile_image.filename:
-        url = save_profile_image(profile_image)
+        url = save_upload(profile_image, prefix="profile")
         current_user.profile_image = url
 
     new_password = request.form.get("new_password", "")
