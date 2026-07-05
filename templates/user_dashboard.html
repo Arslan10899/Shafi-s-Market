@@ -133,7 +133,10 @@
                 </div>
                 <div class="col-md-6">
                     <div class="card border-0 shadow-sm h-100">
-                        <div class="card-header bg-white fw-semibold"><i class="fas fa-box me-1 text-warning"></i>Recent Products</div>
+                        <div class="card-header bg-white fw-semibold d-flex justify-content-between align-items-center">
+                            <span><i class="fas fa-box me-1 text-warning"></i>Recent Products</span>
+                            <button class="btn btn-sm btn-warning rounded-pill" data-bs-toggle="modal" data-bs-target="#addProductModal"><i class="fas fa-plus me-1"></i>Add Product</button>
+                        </div>
                         <div class="card-body p-0">
                             <table class="table table-hover mb-0 small">
                                 <thead class="table-light">
@@ -151,7 +154,7 @@
                                         <td><span class="badge bg-light text-dark">{{ p.affiliate_platform|title }}</span></td>
                                     </tr>
                                     {% else %}
-                                    <tr><td colspan="3" class="text-center text-muted py-3">No products</td></tr>
+                                    <tr><td colspan="3" class="text-center text-muted py-3">No products. <button class="btn btn-sm btn-link p-0 text-warning fw-semibold" data-bs-toggle="modal" data-bs-target="#addProductModal">Add your first product</button></td></tr>
                                     {% endfor %}
                                 </tbody>
                             </table>
