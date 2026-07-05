@@ -10,13 +10,14 @@ app.secret_key = SECRET_KEY
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 2592000
 
-from routers import auth, products, admin, dashboard, profile, blog
+from routers import auth, products, admin, dashboard, profile, blog, messages
 app.register_blueprint(auth.bp)
 app.register_blueprint(products.bp)
 app.register_blueprint(admin.bp)
 app.register_blueprint(dashboard.bp)
 app.register_blueprint(profile.bp)
 app.register_blueprint(blog.bp)
+app.register_blueprint(messages.bp)
 
 def inject_globals():
     return dict(CURRENCIES=CURRENCIES)

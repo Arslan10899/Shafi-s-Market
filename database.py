@@ -20,7 +20,7 @@ def get_db():
 
 
 def init_db():
-    from models import User, Category, Product, ProductImage, HeroSlide, AffiliateClick, SocialLink, Platform, UserLink, BlogPost
+    from models import User, Category, Product, ProductImage, HeroSlide, AffiliateClick, SocialLink, Platform, UserLink, BlogPost, Message
     Base.metadata.create_all(bind=engine)
     # Add currency column if missing (migration)
     from sqlalchemy import inspect, text
