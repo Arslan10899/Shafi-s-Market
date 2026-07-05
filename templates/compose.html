@@ -1,73 +1,80 @@
 {% extends "base.html" %}
 {% block title %}New Message - AZ Mart{% endblock %}
+{% block extra_css %}
+<style>
+.search-result-item { cursor: pointer; transition: background 0.15s; }
+.search-result-item:hover { background: #fff9e6; }
+.search-result-item.selected { background: #fff3cd; }
+.user-avatar-sm { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
+.user-avatar-initial-sm { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 13px; flex-shrink: 0; }
+</style>
+{% endblock %}
 {% block content %}
 
-<section class="py-5">
+<section class="py-4" style="background:#f5f6fa;min-height:80vh">
     <div class="container">
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb small">
-                <li class="breadcrumb-item"><a href="/" class="text-decoration-none">Home</a></li>
-                <li class="breadcrumb-item"><a href="/messages" class="text-decoration-none">Messages</a></li>
-                <li class="breadcrumb-item active">{% if draft_id %}Edit Draft{% else %}New Message{% endif %}</li>
-            </ol>
-        </nav>
-
         <div class="row justify-content-center">
-            <div class="col-lg-6">
-                <div class="card border-0 shadow-sm">
-                    <div class="card-header bg-white fw-semibold"><i class="fas fa-pen text-warning me-1"></i> {% if draft_id %}Edit Draft{% else %}New Message{% endif %}</div>
-                    <div class="card-body">
-                        {% if request.args.get('error') == 'receiver_required' %}
-                        <div class="alert alert-danger py-2 small">Please select a recipient.</div>
-                        {% elif request.args.get('error') == 'content_required' %}
-                        <div class="alert alert-danger py-2 small">Please enter a message.</div>
-                        {% elif request.args.get('error') == 'invalid_receiver' %}
-                        <div class="alert alert-danger py-2 small">Invalid recipient.</div>
-                        {% elif request.args.get('error') == 'blocked' %}
-                        <div class="alert alert-danger py-2 small">This user has been blocked by admin.</div>
+            <div class="col-lg-6 col-md-8">
+                <div class="card border-0 shadow-sm rounded-4">
+                    <div class="card-header bg-white px-4 py-3 d-flex align-items-center gap-2">
+                        <a href="/messages" class="btn btn-sm btn-light rounded-circle"><i class="fas fa-arrow-left"></i></a>
+                        <h6 class="mb-0 fw-semibold"><i class="fas fa-pen text-warning me-1"></i> {% if draft_id %}Edit Draft{% else %}New Message{% endif %}</h6>
+                    </div>
+                    <div class="card-body p-4">
+                        {% if request.args.get('error') == 'blocked' %}
+                        <div class="alert alert-danger py-2 small rounded-3"><i class="fas fa-ban me-1"></i> This user has been blocked by admin</div>
+                        {% elif request.args.get('error') %}
+                        <div class="alert alert-danger py-2 small rounded-3">{{ request.args.get('error') }}</div>
                         {% endif %}
 
                         <form method="POST" action="/messages/send" enctype="multipart/form-data">
                             <input type="hidden" name="draft_id" value="{{ draft_id or '' }}">
 
                             <div class="mb-3">
-                                <label class="form-label small fw-semibold">To</label>
-                                <div class="position-relative">
-                                    {% if receiver %}
-                                    <div class="d-flex align-items-center gap-2 p-2 border rounded">
-                                        {% if receiver.profile_image %}
-                                        <img src="{{ receiver.profile_image }}" class="rounded-circle" width="28" height="28" style="object-fit:cover">
-                                        {% else %}
-                                        <div class="rounded-circle bg-warning d-flex align-items-center justify-content-center text-white fw-bold" style="width:28px;height:28px;font-size:11px">{{ (receiver.full_name or receiver.username)[:1]|upper }}</div>
-                                        {% endif %}
-                                        <div>
-                                            <small class="fw-semibold">{{ receiver.full_name or receiver.username }}</small>
-                                            <small class="text-muted">@{{ receiver.username }}</small>
-                                        </div>
-                                    </div>
-                                    <input type="hidden" name="receiver_id" value="{{ receiver.id }}">
+                                <label class="form-label small fw-semibold text-secondary">To</label>
+                                {% if receiver %}
+                                <div class="d-flex align-items-center gap-2 p-2 bg-light rounded-3">
+                                    {% if receiver.profile_image %}
+                                    <img src="{{ receiver.profile_image }}" class="user-avatar-sm">
                                     {% else %}
-                                    <input type="text" id="userSearch" class="form-control" placeholder="Search users..." autocomplete="off">
-                                    <input type="hidden" name="receiver_id" id="receiverId" value="">
-                                    <div id="searchResults" class="list-group position-absolute w-100 shadow-sm" style="z-index:1000;display:none;max-height:200px;overflow-y:auto"></div>
+                                    <div class="user-avatar-initial-sm bg-warning text-white">{{ (receiver.full_name or receiver.username)[:1]|upper }}</div>
                                     {% endif %}
+                                    <div>
+                                        <small class="fw-semibold">{{ receiver.full_name or receiver.username }}</small>
+                                        <small class="text-muted d-block" style="font-size:11px">@{{ receiver.username }}</small>
+                                    </div>
+                                </div>
+                                <input type="hidden" name="receiver_id" value="{{ receiver.id }}">
+                                <a href="/messages/compose" class="small text-decoration-none mt-1 d-inline-block"><i class="fas fa-times me-1"></i>Change recipient</a>
+                                {% else %}
+                                <div class="position-relative">
+                                    <input type="text" id="userSearch" class="form-control bg-light border-0 rounded-3" placeholder="Search users by name..." autocomplete="off" style="font-size:14px">
+                                    <input type="hidden" name="receiver_id" id="receiverId" value="">
+                                    <div id="searchResults" class="list-group position-absolute w-100 shadow-sm rounded-3 mt-1 border-0" style="z-index:1000;display:none;max-height:240px;overflow-y:auto"></div>
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label small fw-semibold text-secondary">Message</label>
+                                <textarea name="content" class="form-control bg-light border-0 rounded-3" rows="5" placeholder="Write your message..." style="font-size:14px;resize:none">{{ content }}</textarea>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label small fw-semibold text-secondary">Attachment (optional)</label>
+                                <div class="d-flex align-items-center gap-2">
+                                    <label class="btn btn-outline-secondary btn-sm rounded-pill mb-0" style="cursor:pointer">
+                                        <i class="fas fa-image me-1"></i> Choose Image
+                                        <input type="file" name="image" accept="image/*" style="display:none" onchange="this.nextElementSibling.textContent=this.files[0]?.name||'No file'">
+                                        <span class="ms-2 text-muted fw-normal" style="font-size:11px">No file</span>
+                                    </label>
                                 </div>
                             </div>
 
-                            <div class="mb-3">
-                                <label class="form-label small fw-semibold">Message</label>
-                                <textarea name="content" class="form-control" rows="5" placeholder="Write your message..." required>{{ content }}</textarea>
-                            </div>
-
-                            <div class="mb-3">
-                                <label class="form-label small fw-semibold">Attach Image (optional)</label>
-                                <input type="file" name="image" class="form-control" accept="image/*">
-                            </div>
-
                             <div class="d-flex gap-2">
-                                <button type="submit" class="btn btn-warning rounded-pill px-4"><i class="fas fa-paper-plane me-1"></i> Send</button>
+                                <button type="submit" class="btn btn-warning rounded-pill px-4 fw-semibold"><i class="fas fa-paper-plane me-1"></i> Send</button>
                                 <button type="submit" name="save_draft" value="1" class="btn btn-outline-secondary rounded-pill px-4"><i class="fas fa-save me-1"></i> Save Draft</button>
-                                <a href="/messages" class="btn btn-outline-secondary rounded-pill px-4">Cancel</a>
+                                <a href="/messages" class="btn btn-light rounded-pill px-4">Cancel</a>
                             </div>
                         </form>
                     </div>
@@ -100,13 +107,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 .then(users => {
                     results.innerHTML = '';
                     if (users.length === 0) {
-                        results.innerHTML = '<div class="list-group-item text-muted small">No users found</div>';
+                        results.innerHTML = '<div class="list-group-item text-muted small py-3 text-center">No users found</div>';
                     } else {
                         users.forEach(u => {
                             const a = document.createElement('a');
                             a.href = '#';
-                            a.className = 'list-group-item list-group-item-action d-flex align-items-center gap-2 py-2';
-                            a.innerHTML = (u.profile_image ? '<img src="' + u.profile_image + '" class="rounded-circle" width="28" height="28" style="object-fit:cover">' : '<div class="rounded-circle bg-warning d-flex align-items-center justify-content-center text-white fw-bold" style="width:28px;height:28px;font-size:11px">' + (u.full_name || u.username)[0].toUpperCase() + '</div>') + '<div><div class="small fw-semibold">' + (u.full_name || u.username) + '</div><div class="text-muted d-flex align-items-center gap-2" style="font-size:11px">@' + u.username + (u.last_seen ? '<span class="badge bg-success" style="font-size:9px">Online</span>' : '') + '</div></div>';
+                            a.className = 'list-group-item list-group-item-action search-result-item d-flex align-items-center gap-3 py-2 border-0';
+                            a.innerHTML = (u.profile_image
+                                ? '<img src="' + u.profile_image + '" class="user-avatar-sm">'
+                                : '<div class="user-avatar-initial-sm bg-warning text-white">' + (u.full_name || u.username)[0].toUpperCase() + '</div>'
+                            ) + '<div><div class="small fw-semibold">' + (u.full_name || u.username) + '</div><div class="text-muted d-flex align-items-center gap-2" style="font-size:11px">@' + u.username + (u.last_seen ? ' <span class="badge bg-success" style="font-size:9px">Online</span>' : '') + '</div></div>';
                             a.addEventListener('click', function(e) {
                                 e.preventDefault();
                                 search.value = u.full_name || u.username;
@@ -126,6 +136,10 @@ document.addEventListener('DOMContentLoaded', function() {
             results.style.display = 'none';
             if (!receiverId.value) search.value = '';
         }
+    });
+
+    search.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') results.style.display = 'none';
     });
 });
 </script>

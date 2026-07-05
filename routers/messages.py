@@ -109,6 +109,7 @@ def conversation(pid):
     ).update({"is_read": True, "status": "read"})
     db.commit()
 
+    partner = db.query(User).filter(User.id == pid).first()
     msgs = db.query(Message).options(
         joinedload(Message.sender), joinedload(Message.receiver)
     ).filter(

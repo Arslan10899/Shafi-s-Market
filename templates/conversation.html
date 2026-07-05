@@ -1,100 +1,116 @@
 {% extends "base.html" %}
 {% block title %}{{ partner.full_name or partner.username }} - Messages{% endblock %}
+{% block extra_css %}
+<style>
+.chat-container { max-width: 720px; margin: 0 auto; }
+.chat-header { border-bottom: 1px solid #eee; background: #fff; border-radius: 12px 12px 0 0; }
+.chat-body { background: #e8edea; min-height: 400px; max-height: 520px; overflow-y: auto; border-radius: 0; }
+.chat-body::-webkit-scrollbar { width: 5px; }
+.chat-body::-webkit-scrollbar-thumb { background: #ccc; border-radius: 10px; }
+.chat-footer { border-top: 1px solid #eee; background: #fff; border-radius: 0 0 12px 12px; }
+.msg-bubble { max-width: 75%; padding: 8px 14px; border-radius: 16px; position: relative; word-wrap: break-word; line-height: 1.45; }
+.msg-bubble.sent { background: #dcf8c6; border-bottom-right-radius: 4px; margin-left: auto; }
+.msg-bubble.received { background: #fff; border-bottom-left-radius: 4px; }
+.msg-time { font-size: 10px; color: #999; margin-top: 2px; display: inline-flex; align-items: center; gap: 3px; }
+.msg-bubble.sent .msg-time { justify-content: flex-end; }
+.chat-avatar-sm { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
+.chat-avatar-initial-sm { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 12px; flex-shrink: 0; }
+.chat-date-divider { text-align: center; margin: 16px 0; }
+.chat-date-divider span { background: #e8edea; padding: 3px 14px; border-radius: 8px; font-size: 11px; color: #888; }
+</style>
+{% endblock %}
 {% block content %}
 
-<section class="py-5">
+<section class="py-4" style="background:#f5f6fa;min-height:80vh">
     <div class="container">
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb small">
-                <li class="breadcrumb-item"><a href="/" class="text-decoration-none">Home</a></li>
-                <li class="breadcrumb-item"><a href="/messages" class="text-decoration-none">Messages</a></li>
-                <li class="breadcrumb-item active">{{ partner.full_name or partner.username }}</li>
-            </ol>
-        </nav>
-
-        <div class="row justify-content-center">
-            <div class="col-lg-8">
-                <div class="card border-0 shadow-sm">
-                    <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
-                        <div class="d-flex align-items-center gap-2">
-                            <a href="/messages" class="btn btn-sm btn-outline-secondary rounded-circle me-1"><i class="fas fa-arrow-left"></i></a>
-                            {% if partner.profile_image %}
-                            <img src="{{ partner.profile_image }}" class="rounded-circle" width="40" height="40" style="object-fit:cover">
+        <div class="chat-container">
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-header chat-header px-4 py-3 d-flex align-items-center gap-3">
+                    <a href="/messages" class="btn btn-sm btn-light rounded-circle"><i class="fas fa-arrow-left"></i></a>
+                    <div class="position-relative flex-shrink-0">
+                        {% if partner.profile_image %}
+                        <img src="{{ partner.profile_image }}" class="chat-avatar-sm" style="width:36px;height:36px">
+                        {% else %}
+                        <div class="chat-avatar-initial-sm bg-warning text-white" style="width:36px;height:36px;font-size:14px">{{ (partner.full_name or partner.username)[:1]|upper }}</div>
+                        {% endif %}
+                        {% if partner_status == 'online' %}
+                        <span class="online-dot bg-success" style="width:9px;height:9px;bottom:-1px;right:-1px"></span>
+                        {% endif %}
+                    </div>
+                    <div class="flex-grow-1 min-w-0">
+                        <div class="fw-semibold small">{{ partner.full_name or partner.username }}</div>
+                        <div class="d-flex align-items-center gap-2" style="font-size:11px">
+                            {% if partner_status == 'online' %}
+                            <span class="text-success fw-semibold">Online</span>
+                            {% elif partner_last_seen %}
+                            <span class="text-muted">Last seen {{ partner_last_seen }}</span>
                             {% else %}
-                            <div class="rounded-circle bg-warning d-flex align-items-center justify-content-center text-white fw-bold" style="width:40px;height:40px;font-size:18px">{{ (partner.full_name or partner.username)[:1]|upper }}</div>
+                            <span class="text-muted">Offline</span>
                             {% endif %}
-                            <div>
-                                <div class="fw-semibold small d-flex align-items-center gap-2">
-                                    {{ partner.full_name or partner.username }}
-                                    {% if partner_status == 'online' %}
-                                    <span class="badge bg-success" style="font-size:9px">Online</span>
-                                    {% else %}
-                                    <span class="badge bg-secondary" style="font-size:9px">Offline</span>
-                                    {% endif %}
-                                </div>
-                                <div class="text-muted" style="font-size:11px">
-                                    @{{ partner.username }}
-                                    {% if partner_last_seen %}
-                                    &middot; Last seen {{ partner_last_seen }}
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </div>
-                        <div class="dropdown">
-                            <button class="btn btn-sm btn-outline-secondary rounded-circle" data-bs-toggle="dropdown"><i class="fas fa-ellipsis-v"></i></button>
-                            <ul class="dropdown-menu dropdown-menu-end">
-                                <li><a class="dropdown-item small" href="/messages/compose?to={{ partner.id }}"><i class="fas fa-reply me-2"></i>New Message</a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item small text-danger" href="/messages/delete/conversation/{{ partner.id }}" onclick="return confirm('Delete all messages with this user?')"><i class="fas fa-trash me-2"></i>Delete Conversation</a></li>
-                            </ul>
+                            {% if partner_blocked %}<span class="text-danger">· Blocked</span>{% endif %}
                         </div>
                     </div>
+                    <div class="dropdown">
+                        <button class="btn btn-sm btn-light rounded-circle" data-bs-toggle="dropdown"><i class="fas fa-ellipsis-v"></i></button>
+                        <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0">
+                            <li><a class="dropdown-item small py-2" href="/messages/compose?to={{ partner.id }}"><i class="fas fa-reply me-2 text-warning"></i>New Message</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item small py-2 text-danger" href="/messages/delete/conversation/{{ partner.id }}" onclick="return confirm('Delete entire conversation?')"><i class="fas fa-trash me-2"></i>Delete Conversation</a></li>
+                        </ul>
+                    </div>
+                </div>
 
-                    <div class="card-body p-4" style="max-height:500px;overflow-y:auto;background:#f8f9fa">
-                        {% if partner_blocked %}
-                        <div class="alert alert-danger py-2 small text-center">This user has been blocked by admin.</div>
-                        {% endif %}
+                <div class="card-body chat-body p-4" id="chatBody">
+                    {% if partner_blocked %}
+                    <div class="alert alert-danger py-2 small text-center mx-4">This user has been blocked by admin</div>
+                    {% endif %}
 
-                        {% if messages %}
-                            {% for m in messages %}
-                            <div class="d-flex mb-3 {% if m.sender_id == session.user_id %}justify-content-end{% endif %}">
-                                <div class="{% if m.sender_id == session.user_id %}bg-warning text-dark{% else %}bg-white{% endif %} rounded-3 px-3 py-2 shadow-sm" style="max-width:75%">
-                                    <div style="font-size:14px;white-space:pre-wrap">{{ m.content }}</div>
+                    {% if messages %}
+                        {% set ns = namespace(last_date=none) %}
+                        {% for m in messages %}
+                            {% set m_date = m.created_at.strftime('%Y-%m-%d') %}
+                            {% if m_date != ns.last_date %}
+                            <div class="chat-date-divider"><span>{{ m.created_at.strftime('%d %B %Y') if ns.last_date is none else m.created_at.strftime('%d %B %Y') }}</span></div>
+                            {% set ns.last_date = m_date %}
+                            {% endif %}
+                            <div class="d-flex mb-2 {% if m.sender_id == session.user_id %}justify-content-end{% endif %}">
+                                <div class="msg-bubble {% if m.sender_id == session.user_id %}sent{% else %}received{% endif %}">
+                                    <div style="font-size:14px">{{ m.content }}</div>
                                     {% if m.image %}
                                     <div class="mt-2">
-                                        <img src="{{ m.image }}" class="img-fluid rounded" style="max-height:200px" alt="Attached image">
+                                        <img src="{{ m.image }}" class="img-fluid rounded" style="max-height:200px;cursor:pointer" onclick="window.open(this.src)" alt="Image">
                                     </div>
                                     {% endif %}
-                                    <div class="d-flex justify-content-end align-items-center gap-1 mt-1">
-                                        <span style="font-size:10px;color:#888">{{ m.created_at.strftime('%I:%M %p') }}</span>
+                                    <div class="msg-time" style="float:right">
+                                        {{ m.created_at.strftime('%I:%M %p') }}
                                         {% if m.sender_id == session.user_id %}
-                                            {% if m.status == 'sent' %}<i class="fas fa-check" style="font-size:10px;color:#888" title="Sent"></i>
-                                            {% elif m.status == 'delivered' %}<i class="fas fa-check-double" style="font-size:10px;color:var(--bs-info)" title="Delivered"></i>
-                                            {% elif m.status == 'read' %}<i class="fas fa-check-double" style="font-size:10px;color:var(--bs-primary)" title="Read"></i>{% endif %}
+                                            {% if m.status == 'sent' %}<i class="fas fa-check" style="color:#999"></i>
+                                            {% elif m.status == 'delivered' %}<i class="fas fa-check-double" style="color:#87c4ff"></i>
+                                            {% elif m.status == 'read' %}<i class="fas fa-check-double" style="color:#53bdeb"></i>{% endif %}
                                         {% endif %}
                                     </div>
                                 </div>
                             </div>
-                            {% endfor %}
-                        {% else %}
-                            <div class="text-center py-5 text-muted">
-                                <i class="fas fa-comments fa-3x mb-3 opacity-50"></i>
-                                <p>No messages yet. Say hello!</p>
-                            </div>
-                        {% endif %}
-                    </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-5 text-muted">
+                            <i class="fas fa-comments fa-4x opacity-25 mb-3"></i>
+                            <p class="mb-0">No messages yet</p>
+                            <small>Send a message to start the conversation</small>
+                        </div>
+                    {% endif %}
+                </div>
 
-                    <div class="card-footer bg-white">
-                        <form method="POST" action="/messages/send" enctype="multipart/form-data" class="d-flex gap-2 align-items-center">
-                            <input type="hidden" name="receiver_id" value="{{ partner.id }}">
-                            <input type="text" name="content" class="form-control form-control-sm rounded-pill" placeholder="Type a message..." required autocomplete="off">
-                            <div class="d-flex gap-1">
-                                <input type="file" name="image" id="msgImage" accept="image/*" style="display:none" onchange="this.form.submit()">
-                                <button type="button" class="btn btn-sm btn-outline-secondary rounded-circle" onclick="document.getElementById('msgImage').click()"><i class="fas fa-image"></i></button>
-                                <button type="submit" class="btn btn-sm btn-warning rounded-circle"><i class="fas fa-paper-plane"></i></button>
-                            </div>
-                        </form>
-                    </div>
+                <div class="card-footer chat-footer p-3">
+                    <form method="POST" action="/messages/send" enctype="multipart/form-data" class="d-flex gap-2 align-items-center">
+                        <input type="hidden" name="receiver_id" value="{{ partner.id }}">
+                        <input type="text" name="content" class="form-control form-control-sm rounded-pill border-0 bg-light" placeholder="Type a message..." required autocomplete="off" style="font-size:14px">
+                        <label class="btn btn-sm btn-light rounded-circle mb-0" style="cursor:pointer">
+                            <i class="fas fa-image text-secondary"></i>
+                            <input type="file" name="image" accept="image/*" style="display:none" onchange="this.form.submit()">
+                        </label>
+                        <button type="submit" class="btn btn-sm btn-warning rounded-circle"><i class="fas fa-paper-plane"></i></button>
+                    </form>
                 </div>
             </div>
         </div>
@@ -102,10 +118,10 @@
 </section>
 
 <script>
-(function() {
-    var el = document.querySelector('.card-body.p-4');
+document.addEventListener('DOMContentLoaded', function() {
+    var el = document.getElementById('chatBody');
     if (el) el.scrollTop = el.scrollHeight;
-})();
+});
 </script>
 
 {% endblock %}
